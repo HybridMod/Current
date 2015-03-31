@@ -15,7 +15,21 @@ title(){
 }
 
 body(){
-	#temp
+	echo "Menu:"
+	echo ""
+	echo "Kernel Control"
+	echo "1|CPU"
+	echo "2|CPU Hotplug"
+	echo "3|GPU"
+	echo "4|Screen"
+	echo "5|Sound"
+	echo "6|Battery"
+	echo "7|I/O Scheduler"
+	echo "8|Kernel Samepage Merging"
+	echo "9|Low Memory Killer"
+	echo "10|Virtual Memory"
+	echo "11|Misc Controls"
+	echo ""
 }
 
 #session_behaviour
