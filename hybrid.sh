@@ -9,7 +9,15 @@ var(){
 }
 
 title(){
-	#temp
+	echo "[-=The Hybrid Project=-]"
+	echo #n
+	# echo -n "Loading"
+	# sleep 0.5;
+	# echo -n "."
+	# sleep 0.5;
+	# echo -n "."	#nice loading anim
+	# sleep 0.5;
+	# echo -n "."
 }
 
 body(){
@@ -17,9 +25,12 @@ body(){
 }
 
 #session_behaviour
-#call functions
+#call startup functions
 var
 #run conditional statements
 if [ userdebug == 1 ]; then
 	echo "debugging enabled"
 fi
+#call main functions
+title
+exit #body
