@@ -16,10 +16,10 @@ body(){
 	#temp
 }
 
-session_behaviour(){
-	#call functions
-	var
-	if [ userdebug == 1 ]; then
-		echo "debugging enabled"
-	fi
-}
+#session_behaviour
+#call functions
+var
+#run conditional statements
+if [ userdebug == 1 ]; then
+	echo "debugging enabled"
+fi
