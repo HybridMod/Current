@@ -31,7 +31,8 @@ clear
 var
 #run conditional statements
 if [ $userdebug == 1 ]; then
-	echo -e "\e[1;32mDebug information:\e[0m"
+	echo -e "\e[1;32mDebug information:\e[0m" #green
+	#echo -e "\e[1;31mDebug information:\e[0m" #red
 	echo ""
 	echo "SYSTEM"
 	echo "Vendor: $( getprop ro.product.brand )"
