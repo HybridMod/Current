@@ -12,13 +12,6 @@ var(){
 title(){
 	echo "[-=The Hybrid Project=-]"
 	echo ""
-	# echo -n "Loading"
-	# sleep 0.5;
-	# echo -n "."
-	# sleep 0.5;
-	# echo -n "."	#nice loading anim
-	# sleep 0.5;
-	# echo -n "."
 }
 
 body(){
