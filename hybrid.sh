@@ -48,4 +48,4 @@ if [ $userdebug == 1 ]; then
 fi
 #call main functions
 title
-exit #body
+body
