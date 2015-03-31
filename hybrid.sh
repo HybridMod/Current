@@ -26,10 +26,13 @@ body(){
 
 #session_behaviour
 #call startup functions
+clear
 var
 #run conditional statements
 if [ $userdebug == 1 ]; then
 	echo "debugging enabled"
+	sleep 3;
+	clear
 fi
 #call main functions
 title
