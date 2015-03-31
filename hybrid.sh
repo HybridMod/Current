@@ -2,15 +2,16 @@
 
 var(){
 	#version_control
-	ver_revision=$date
-	ver_date=$date
+	ver_revision=dev
 	#debug control
 	userdebug=1
+	#misc control
+	DATE=`date +%d-%m-%Y`
 }
 
 title(){
 	echo "[-=The Hybrid Project=-]"
-	echo #n
+	echo ""
 	# echo -n "Loading"
 	# sleep 0.5;
 	# echo -n "."
@@ -30,8 +31,18 @@ clear
 var
 #run conditional statements
 if [ $userdebug == 1 ]; then
-	echo "debugging enabled"
-	sleep 3;
+	echo -e "\e[1;32mDebug information:\e[0m"
+	echo ""
+	echo "SYSTEM"
+	echo "Vendor: $( getprop ro.product.brand )"
+	echo "Model: $( getprop ro.product.model )"
+	echo "ROM: $( getprop ro.build.display.id )"
+	echo "Android Version: $( getprop ro.build.version.release )"
+	echo ""
+	echo "SCRIPT"
+	echo "Hybrid Version: $DATE"
+	echo ""
+	sleep 5;
 	clear
 fi
 #call main functions
