@@ -28,7 +28,7 @@ body(){
 #call startup functions
 var
 #run conditional statements
-if [ userdebug == 1 ]; then
+if [ $userdebug == 1 ]; then
 	echo "debugging enabled"
 fi
 #call main functions
