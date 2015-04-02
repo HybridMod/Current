@@ -23,34 +23,32 @@ title(){
 
 body(){
 	echo "Menu:"
-	echo "A|Kernel Kontrol"
-	echo " 1|CPU"
-	echo " 2|CPU Hotplug"
-	echo " 3|GPU"
-	echo " 4|Screen"
-	echo " 5|Sound"
-	echo " 6|Battery"
-	echo " 7|I/O Scheduler"
-	echo " 8|Kernel Samepage Merging"
-	echo " 9|Low Memory Killer"
-	echo " 10|Virtual Memory"
-	echo " 11|Misc Controls"
+	echo "1|Drop Caches"
 	echo ""
 	echo -n "> "
 	case $selection_opt in
-		1 ) clear && title && #function_name;;
-		2 ) clear && title && #function_name;;
-		3 ) clear && title && #function_name;;
-		4 ) clear && title && #function_name;;
-		5 ) clear && title && #function_name;;
-		6 ) clear && title && #function_name;;
-		7 ) clear && title && #function_name;;
-		8 ) clear && title && #function_name;;
-		9 ) clear && title && #function_name;;
-		10 ) clear && title && #function_name;;
-		11 ) clear && title && #function_name;;
+		1 ) clear && title && drop_caches;;
 		* ) echo && echo "error 404, function not found.";;
 	esac
+}
+
+backdrop(){
+	clear
+	sleep 1;
+	title
+	body
+}
+
+drop_caches(){
+	#based on imbawind's adrenaline boost
+	clear
+	free | awk '/Mem/{print "Mem stats before: "$4/1024" MB";}'
+	sleep 3
+	sync;
+	echo "3" > /proc/sys/vm/drop_caches;
+	free | awk '/Mem/{print "Mem stats: "$4/1024" MB";}'
+	sleep 3
+	backdrop
 }
 
 #session_behaviour
