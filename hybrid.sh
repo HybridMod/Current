@@ -3,20 +3,26 @@
 var(){
 	#version_control
 	ver_revision=dev
+
 	#options
 	userdebug=0
 	usermagic=0
 	useradv=1
+	usage_type=0
+
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
 	sysro='mount -o remount ro /system'
-	#format control
+
+	#color control
 	red='\033[0;31m'
 	green='\033[0;32m'
 	yellow='\033[0;33m'
 	cyan='\033[0;36m'
 	white='\033[0;97m'
+
+	#format control
 	bld='\033[0;1m' #bold
 	blnk='\033[0;5m' #blinking
 	nc='\033[0m' # no color
@@ -30,11 +36,11 @@ title(){
 body(){
 	echo "${yellow}Menu:${nc}"
 
-	#conditional parts
+	#conditional menu
 	if [ $useradv == 1 ]; then
 		echo " 1|Drop my caches"
 		echo " 2|Clean up my crap"
-		echo " 3|Optimize my SQLite DB's [WIP]"
+		echo " 3|Optimize my SQLite DB's"
 		echo " 4|Tune my VM"
 		echo " 5|Tune my LMK"
 	fi
@@ -48,6 +54,7 @@ body(){
 	fi
 
 	#standard menu
+	echo " O|Options"
 	echo " A|About"
 	echo " R|Reboot"
 	echo " E|Exit"
@@ -58,10 +65,13 @@ body(){
 		1 ) clear && drop_caches;;
 		2 ) clear && clean_up;;
 		3 ) clear && sql_optimize;;
+		4 ) clear && vm_tune;;
+		5 ) clear && lmk_tune;;
+		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
 		e|E ) clear && title && exit;;
-		* ) echo && echo "error 404, function not found." && backdrop;;
+		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
 	esac
 }
 
@@ -187,6 +197,232 @@ sql_optimize(){
 	backdrop
 }
 
+vm_tune(){
+	echo "${yellow}Optimizing VM...${nc}"
+
+	if [ $usage_type == 0 ]; then
+		if [ -e /proc/sys/vm/swappiness ]; then
+			echo "80" > /proc/sys/vm/swappiness
+		fi
+
+		if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+			echo "10" > /proc/sys/vm/vfs_cache_pressure
+		fi
+
+		if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+			echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+		fi
+
+		if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+			echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+		fi
+
+		if [ -e /proc/sys/vm/dirty_ratio ]; then
+			echo "90" > /proc/sys/vm/dirty_ratio
+		fi
+
+		if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
+			echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+		fi
+
+		if [ -e /proc/sys/vm/overcommit_memory ]; then
+			echo "1" > /proc/sys/vm/overcommit_memory
+		fi
+
+		if [ -e /proc/sys/vm/overcommit_ratio ]; then
+			echo "150" > /proc/sys/vm/overcommit_ratio
+		fi
+
+		if [ -e /proc/sys/vm/min_free_kbytes ]; then
+			echo "4096" > /proc/sys/vm/min_free_kbytes
+		fi
+
+		if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+			echo "1" > /proc/sys/vm/oom_kill_allocating_task
+		fi
+	fi
+
+	if [ $usage_type == 1 ]; then
+		if [ $rom=userdebug ]; then
+		mkdir -p /system/etc/init.d
+		touch /system/etc/init.d/75vm
+		chmod 755 /system/etc/init.d/75vm
+		echo -ne "" > /system/etc/init.d/75vm
+	cat >> /system/etc/init.d/75vm <<EOF
+#!/system/bin/sh
+
+sleep 15;
+
+if [ -e /proc/sys/vm/swappiness ]; then
+	echo "80" > /proc/sys/vm/swappiness
+fi
+
+if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+	echo "10" > /proc/sys/vm/vfs_cache_pressure
+fi
+
+if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+	echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+	echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_ratio ]; then
+	echo "90" > /proc/sys/vm/dirty_ratio
+fi
+
+if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
+	echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+fi
+
+if [ -e /proc/sys/vm/overcommit_memory ]; then
+	echo "1" > /proc/sys/vm/overcommit_memory
+fi
+
+if [ -e /proc/sys/vm/overcommit_ratio ]; then
+	echo "150" > /proc/sys/vm/overcommit_ratio
+fi
+
+if [ -e /proc/sys/vm/min_free_kbytes ]; then
+	echo "4096" > /proc/sys/vm/min_free_kbytes
+fi
+
+if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+	echo "1" > /proc/sys/vm/oom_kill_allocating_task
+fi
+EOF
+	fi
+
+	sleep 3;
+	clear
+	echo "${yellow}VM Optimized!${nc}"
+	sleep 2;
+	backdrop;
+}
+
+lmk_tune(){
+	echo "${yellow}Minfrees available:${nc}"
+	echo " B|Balanced"
+	echo " M|Multitasking|"
+	echo " G|Gaming"
+	echo -n "> "
+	read lmk_opt
+	case $lmk_opt in
+		b|B ) clear && lmk_profile=$lmk_opt && lmk_apply;;
+		m|M ) clear && lmk_profile=$lmk_opt && lmk_apply;;
+		g|G ) clear && lmk_profile=$lmk_opt && lmk_apply;;
+		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
+	esac
+
+
+	if [ $usage_type == 0 ]; then
+		if [ -e /proc/sys/vm/swappiness ]; then
+			echo "80" > /proc/sys/vm/swappiness
+		fi
+
+		if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+			echo "10" > /proc/sys/vm/vfs_cache_pressure
+		fi
+
+		if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+			echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+		fi
+
+		if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+			echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+		fi
+
+		if [ -e /proc/sys/vm/dirty_ratio ]; then
+			echo "90" > /proc/sys/vm/dirty_ratio
+		fi
+
+		if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
+			echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+		fi
+
+		if [ -e /proc/sys/vm/overcommit_memory ]; then
+			echo "1" > /proc/sys/vm/overcommit_memory
+		fi
+
+		if [ -e /proc/sys/vm/overcommit_ratio ]; then
+			echo "150" > /proc/sys/vm/overcommit_ratio
+		fi
+
+		if [ -e /proc/sys/vm/min_free_kbytes ]; then
+			echo "4096" > /proc/sys/vm/min_free_kbytes
+		fi
+
+		if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+			echo "1" > /proc/sys/vm/oom_kill_allocating_task
+		fi
+	fi
+
+	if [ $usage_type == 1 ]; then
+		if [ $rom=userdebug ]; then
+		mkdir -p /system/etc/init.d
+		touch /system/etc/init.d/75vm
+		chmod 755 /system/etc/init.d/75vm
+		echo -ne "" > /system/etc/init.d/75vm
+	cat >> /system/etc/init.d/75vm <<EOF
+#!/system/bin/sh
+
+sleep 15;
+
+if [ -e /proc/sys/vm/swappiness ]; then
+	echo "80" > /proc/sys/vm/swappiness
+fi
+
+if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+	echo "10" > /proc/sys/vm/vfs_cache_pressure
+fi
+
+if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+	echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+	echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_ratio ]; then
+	echo "90" > /proc/sys/vm/dirty_ratio
+fi
+
+if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
+	echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+fi
+
+if [ -e /proc/sys/vm/overcommit_memory ]; then
+	echo "1" > /proc/sys/vm/overcommit_memory
+fi
+
+if [ -e /proc/sys/vm/overcommit_ratio ]; then
+	echo "150" > /proc/sys/vm/overcommit_ratio
+fi
+
+if [ -e /proc/sys/vm/min_free_kbytes ]; then
+	echo "4096" > /proc/sys/vm/min_free_kbytes
+fi
+
+if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+	echo "1" > /proc/sys/vm/oom_kill_allocating_task
+fi
+EOF
+	fi
+
+	sleep 3;
+	clear
+	echo "${yellow}VM Optimized!${nc}"
+	sleep 2;
+	backdrop;
+}
+
+rom(){
+	rom=`getprop ro.build.type`
+}
+
 about_info(){
 	echo -e "${green}About:${nc}"
 	echo ""
@@ -226,17 +462,21 @@ magic_bar(){
 	backdrop
 }
 
-#session_behaviour
-#call startup functions
-clear
-var
-#run conditional statements
-if [ $userdebug == 1 ]; then
-	debug_info
-fi
-if [ $usermagic == 1 ]; then
-	magic_bar
-fi
-#call main functions
-title
-body
+#session_behaviour(){
+	#call startup functions
+	clear
+	var
+	rom
+
+	#run conditional statements
+	if [ $userdebug == 1 ]; then
+		debug_info
+	fi
+	if [ $usermagic == 1 ]; then
+		magic_bar
+	fi
+
+	#call main functions
+	title
+	body
+#}
