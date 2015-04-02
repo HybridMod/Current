@@ -24,9 +24,10 @@ title(){
 }
 
 body(){
-	echo "Menu:"
+	echo "${yellow}Menu:${nc}"
 	echo " 1|Drop My Caches"
 	echo " 2|Clean Up My Crap"
+	echo " 3|Optimize My SQLite DB's"
 	echo " A|About"
 	echo " E|Exit"
 	echo ""
@@ -35,6 +36,7 @@ body(){
 	case $selection_opt in
 		1 ) clear && drop_caches;;
 		2 ) clear && clean_up;;
+		3 ) clear && #temp;;
 		a|A ) clear && about_info;;
 		e|E ) clear && title && exit;;
 		* ) echo && echo "error 404, function not found." && backdrop;;
