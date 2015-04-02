@@ -9,13 +9,15 @@ var(){
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
 	sysro='mount -o remount ro /system'
-	#color control
+	#format control
 	red='\033[0;31m'
 	green='\033[0;32m'
 	yellow='\033[0;33m'
 	cyan='\033[0;36m'
 	white='\033[0;97m'
-	nc='\033[0m' # No Color
+	bld='\033[0;1m' #bold
+	blnk='\033[0;5m' #blinking
+	nc='\033[0m' # no color
 }
 
 title(){
@@ -111,7 +113,7 @@ clean_up(){
 	if  [ -d /data/system/appusagestats ]; then
 		chmod 0400 /data/system/appusagestats > /dev/null 2>&1
 	fi
-	
+
 	$sysro
 	echo "${yellow}Clean up complete!${nc}"
 	sleep 3
