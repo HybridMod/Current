@@ -17,19 +17,19 @@ var(){
 }
 
 title(){
-	echo "[-=The Hybrid Project=-]"
+	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo ""
 }
 
 body(){
 	echo "Menu:"
-	echo "1|Drop Caches"
+	echo "	1|Drop Caches"
 	echo ""
 	echo -n "> "
 	read selection_opt
 	case $selection_opt in
 		1 ) clear && title && drop_caches;;
-		* ) echo && echo "error 404, function not found.";;
+		* ) echo && echo "error 404, function not found." && backdrop;;
 	esac
 }
 
