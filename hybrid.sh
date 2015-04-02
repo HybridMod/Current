@@ -25,8 +25,8 @@ title(){
 
 body(){
 	echo "Menu:"
-	echo " 1|Drop Caches"
-	echo " 2|Clean Up"
+	echo " 1|Drop My Caches"
+	echo " 2|Clean Up My Crap"
 	echo " A|About"
 	echo " E|Exit"
 	echo ""
