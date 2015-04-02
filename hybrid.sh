@@ -6,7 +6,7 @@ var(){
 	#options
 	userdebug=0
 	usermagic=0
-	jargon=1
+	useradv=1
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
@@ -31,16 +31,20 @@ body(){
 	echo "${yellow}Menu:${nc}"
 
 	#conditional parts
-	if [ $jargon == 1 ]; then
+	if [ $useradv == 1 ]; then
 		echo " 1|Drop my caches"
 		echo " 2|Clean up my crap"
-		echo " 3|Optimize my SQLite DB's"
-		echo " 4|"
+		echo " 3|Optimize my SQLite DB's [WIP]"
+		echo " 4|Tune my VM"
+		echo " 5|Tune my LMK"
 	fi
-	if [ $jargon == 0 ]; then
+	if [ $useradv == 0 ]; then
 		echo " 1|Give me a quick boost!"
 		echo " 2|Clean up all that junk in my system!"
-		echo " 3|Make my lists load faster!"
+		#echo " 3|Make my lists load faster!"
+		echo " 4|Fix my lag"
+		echo " 5|Upgrade my RAM"
+		echo "Options not shown are currently under development."
 	fi
 
 	#standard menu
@@ -164,12 +168,12 @@ sql_optimize(){
 	fi
 	for i in `find ./ -iname "*.db"`; do
 		$SQLLOC $i 'VACUUM;'
-		if [ $jargon == 1 ]; then
+		if [ $useradv == 1 ]; then
 			clear; echo "${yellow}Vacuumed: $i${nc}"
 		fi
 		sleep 1;
 		$SQLLOC $i 'REINDEX;'
-		if [ $jargon == 1 ]; then
+		if [ $useradv == 1 ]; then
 			echo "${yellow}Reindexed : $i${nc}"
 		fi
 		sleep 1;
