@@ -315,23 +315,24 @@ lmk_tune_opt(){
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B ) echo "Ok!" && sleep 3; && clear && lmk_profile=b && lmk_apply;;
-		m|M ) echo "Ok!" && sleep 3; && clear && lmk_profile=m && lmk_apply;;
-		g|G ) echo "Ok!" && sleep 3; && clear && lmk_profile=g && lmk_apply;;
+		b|B|m|M|g|G ) echo "Ok!"
+					sleep 3 && clear
+					lmk_profile=$lmk_opt
+					lmk_apply;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
 	esac
 }
 
 lmk_apply(){
-	if [ $lmk_profile == b ]; then
+	if [ $lmk_profile == b|B ]; then
 		minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
-	if [ $lmk_profile == m ]; then
+	if [ $lmk_profile == m|M ]; then
 		minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
-	if [ $lmk_profile == g ]; then
+	if [ $lmk_profile == g|G ]; then
 		minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
