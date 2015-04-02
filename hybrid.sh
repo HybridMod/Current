@@ -5,6 +5,7 @@ var(){
 	ver_revision=dev
 	#debug control
 	userdebug=0
+	usermagic=1
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
@@ -152,6 +153,13 @@ debug_info(){
 	backdrop
 }
 
+magic_bar(){
+	for i in {16..21} {21..16} ; do echo -en "\e[38;5;${i}m#\e[0m" ; done ; echo
+	sleep 5;
+	clear
+	backdrop
+}
+
 #session_behaviour
 #call startup functions
 clear
@@ -159,6 +167,9 @@ var
 #run conditional statements
 if [ $userdebug == 1 ]; then
 	debug_info
+fi
+if [ $usermagic == 1 ]; then
+	magic_bar
 fi
 #call main functions
 title
