@@ -36,6 +36,12 @@ body(){
 	echo " 10|Virtual Memory"
 	echo " 11|Misc Controls"
 	echo ""
+	echo -n "> "
+	case $selection_opt in
+		[1] ) clear && title && #function_name;;
+		[2] ) clear && title && #function_name;;
+		* ) echo && echo "error 404, function not found.";;
+	esac
 }
 
 #session_behaviour
