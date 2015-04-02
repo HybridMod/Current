@@ -23,7 +23,7 @@ title(){
 
 body(){
 	echo "Menu:"
-	echo "	1|Drop Caches"
+	echo " 1|Drop Caches"
 	echo ""
 	echo -n "> "
 	read selection_opt
