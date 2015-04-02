@@ -246,13 +246,12 @@ vm_tune(){
 	if [ $usage_type == 1 ]; then
 		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
-		mkdir -p /system/etc/init.d
-		touch /system/etc/init.d/75vm
-		chmod 755 /system/etc/init.d/75vm
-		echo -ne "" > /system/etc/init.d/75vm
-	cat >> /system/etc/init.d/75vm <<EOF
+			mkdir -p /system/etc/init.d
+			touch /system/etc/init.d/75vm
+			chmod 755 /system/etc/init.d/75vm
+			echo -ne "" > /system/etc/init.d/75vm
+cat >> /system/etc/init.d/75vm <<EOF
 #!/system/bin/sh
-
 sleep 15;
 
 if [ -e /proc/sys/vm/swappiness ]; then
@@ -295,13 +294,13 @@ if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
 	echo "1" > /proc/sys/vm/oom_kill_allocating_task
 fi
 EOF
-	fi
+		fi
 
 	sleep 3;
 	clear
 	echo "${yellow}VM Optimized!${nc}"
 	sleep 2;
-	backdrop;
+	backdrop
 }
 
 lmk_tune_opt(){
@@ -345,30 +344,28 @@ lmk_apply(){
 	if [ $usage_type == 1 ]; then
 		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
-		mkdir -p /system/etc/init.d
-		touch /system/etc/init.d/95lmk
-		chmod 755 /system/etc/init.d/95lmk
-		echo -ne "" > /system/etc/init.d/95lmk
-	cat >> /system/etc/init.d/95lmk <<EOF
+			mkdir -p /system/etc/init.d
+			touch /system/etc/init.d/95lmk
+			chmod 755 /system/etc/init.d/95lmk
+			echo -ne "" > /system/etc/init.d/95lmk
+cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
-
 sleep 30;
 
 if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
 	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 fi
 EOF
-	fi
+		fi
 
 	sleep 3;
 	clear
 	echo "${yellow}LMK Optimized!${nc}"
 	sleep 2;
-	backdrop;
+	backdrop
 }
 
-zram_disable()
-{
+zram_disable(){
 	echo "${yellow}Disabling zRAM...${nc}"
 	sleep 1;
 
