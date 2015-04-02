@@ -38,8 +38,17 @@ body(){
 	echo ""
 	echo -n "> "
 	case $selection_opt in
-		[1] ) clear && title && #function_name;;
-		[2] ) clear && title && #function_name;;
+		1 ) clear && title && #function_name;;
+		2 ) clear && title && #function_name;;
+		3 ) clear && title && #function_name;;
+		4 ) clear && title && #function_name;;
+		5 ) clear && title && #function_name;;
+		6 ) clear && title && #function_name;;
+		7 ) clear && title && #function_name;;
+		8 ) clear && title && #function_name;;
+		9 ) clear && title && #function_name;;
+		10 ) clear && title && #function_name;;
+		11 ) clear && title && #function_name;;
 		* ) echo && echo "error 404, function not found.";;
 	esac
 }
