@@ -35,7 +35,7 @@ body(){
 	case $selection_opt in
 		1 ) clear && drop_caches;;
 		2 ) clear && clean_up;;
-		A ) clear && debug_info;;
+		a|A ) clear && about_info;;
 		e|E ) clear && title && exit;;
 		* ) echo && echo "error 404, function not found." && backdrop;;
 	esac
@@ -106,9 +106,23 @@ clean_up(){
 	backdrop
 }
 
+about_info(){
+	echo -e "${green}About:${nc}"
+	echo ""
+	echo "${yellow}INFO${nc}"
+	echo "This script deals with many things apps normally do."
+	echo "But this script is ${cyan}AWESOME!${nc} because its < 1MB!"
+	echo ""
+	echo "${yellow}CREDITS${nc}"
+	echo "Pizza_Dox - Diamond Bond : Me, the maintainer & developer of this script!"
+	echo "Hoholee12/Zeppelinrox/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
+	echo ""
+	sleep 5;
+	backdrop
+}
+
 debug_info(){
-	echo -e "${green}Debug information:${nc}" #green
-	#echo -e "\e[1;31mDebug information:\e[0m" #red
+	echo -e "${green}Debug information:${nc}"
 	echo ""
 	echo "${yellow}SYSTEM${nc}"
 	echo "Vendor: $( getprop ro.product.brand )"
