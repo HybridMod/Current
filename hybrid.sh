@@ -3,9 +3,10 @@
 var(){
 	#version_control
 	ver_revision=dev
-	#debug control
+	#options
 	userdebug=0
-	usermagic=1
+	usermagic=0
+	jargon=1
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
@@ -28,10 +29,22 @@ title(){
 
 body(){
 	echo "${yellow}Menu:${nc}"
-	echo " 1|Drop My Caches"
-	echo " 2|Clean Up My Crap"
-	echo " 3|Optimize My SQLite DB's"
+
+	#conditional parts
+	if [ $jargon == 1 ]; then
+		echo " 1|Drop my caches"
+		echo " 2|Clean up my crap"
+		echo " 3|Optimize my SQLite DB's"
+	fi
+	if [ $jargon == 0 ]; then
+		echo " 1|Give me a quick boost!"
+		echo " 2|Clean up all that junk in my system!"
+		echo " 3|Make my lists load faster!"
+	fi
+
+	#standard menu
 	echo " A|About"
+	echo " R|Reboot"
 	echo " E|Exit"
 	echo ""
 	echo -n "> "
@@ -41,6 +54,7 @@ body(){
 		2 ) clear && clean_up;;
 		# 3 ) clear && #temp;;
 		a|A ) clear && about_info;;
+		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
 		e|E ) clear && title && exit;;
 		* ) echo && echo "error 404, function not found." && backdrop;;
 	esac
@@ -63,7 +77,7 @@ drop_caches(){
 
 clean_up(){
 	echo "${yellow}Cleaning up...${nc}"
-	sleep 2
+	sleep 3
 	$sysrw
 	# remove cache apps
 	if [ -e /cache/*.apk ];then
@@ -116,8 +130,55 @@ clean_up(){
 	fi
 
 	$sysro
+	clear
 	echo "${yellow}Clean up complete!${nc}"
 	sleep 3
+	backdrop
+}
+
+sql_optimize(){
+	$sysrw
+
+	echo "${yellow}Optimizing SQLite databases!"
+
+	if [[ -e /system/xbin/sqlite3 ]]; then
+		chown root.root  /system/xbin/sqlite3
+		chmod 0755 /system/xbin/sqlite3
+		SQLLOC=/system/xbin/sqlite3
+		echo ""
+	fi
+
+	if [[ -e /system/bin/sqlite3 ]]; then
+		chown root.root /system/bin/sqlite3
+		chmod 0755 /system/bin/sqlite3
+		SQLLOC=/system/bin/sqlite3
+		echo ""
+	fi
+
+	if [[ -e /system/sbin/sqlite3 ]]; then #legacy support
+		chown root.root /sbin/sqlite3
+		chmod 0755 /sbin/sqlite3
+		SQLLOC=/sbin/sqlite3
+		echo ""
+	fi
+	for i in `find ./ -iname "*.db"`; do
+		$SQLLOC $i 'VACUUM;'
+		if [ $jargon == 1 ]; then
+			clear; echo "${yellow}Vacuumed: $i${nc}"
+		fi
+		sleep 1;
+		$SQLLOC $i 'REINDEX;'
+		if [ $jargon == 1 ]; then
+			echo "${yellow}Reindexed : $i${nc}"
+		fi
+		sleep 1;
+	done
+
+	$sysro
+	sleep 5;
+	clear
+	echo "SQLite database optimizations complete!"
+	sleep 3;
 	backdrop
 }
 
@@ -129,8 +190,8 @@ about_info(){
 	echo "But this script is ${cyan}AWESOME!${nc} because its < 1MB!"
 	echo ""
 	echo "${yellow}CREDITS${nc}"
-	echo "Pizza_Dox - Diamond Bond : Me, the maintainer & developer of this script!"
-	echo "Hoholee12/Zeppelinrox/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
+	echo "Pizza_Dox - Diamond Bond : Me!"
+	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
 	echo ""
 	sleep 5;
 	backdrop
