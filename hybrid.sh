@@ -4,7 +4,7 @@ var(){
 	#version_control
 	ver_revision=dev
 	#debug control
-	userdebug=1
+	userdebug=0
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	#color control
@@ -24,11 +24,15 @@ title(){
 body(){
 	echo "Menu:"
 	echo " 1|Drop Caches"
+	echo " 2|About"
+	echo " E|Exit"
 	echo ""
 	echo -n "> "
 	read selection_opt
 	case $selection_opt in
 		1 ) clear && title && drop_caches;;
+		2 ) clear && title && debug_info;;
+		e|E ) clear && title && exit;;
 		* ) echo && echo "error 404, function not found." && backdrop;;
 	esac
 }
@@ -41,23 +45,17 @@ backdrop(){
 }
 
 drop_caches(){
-	#based on imbawind's adrenaline boost
 	clear
 	free | awk '/Mem/{print "Mem stats before: "$4/1024" MB";}'
 	sleep 3
 	sync;
 	echo "3" > /proc/sys/vm/drop_caches;
-	free | awk '/Mem/{print "Mem stats: "$4/1024" MB";}'
+	free | awk '/Mem/{print "Mem stats after: "$4/1024" MB";}'
 	sleep 3
 	backdrop
 }
 
-#session_behaviour
-#call startup functions
-clear
-var
-#run conditional statements
-if [ $userdebug == 1 ]; then
+debug_info(){
 	echo -e "${green}Debug information:${nc}" #green
 	#echo -e "\e[1;31mDebug information:\e[0m" #red
 	echo ""
@@ -72,6 +70,16 @@ if [ $userdebug == 1 ]; then
 	echo ""
 	sleep 5;
 	clear
+	backdrop
+}
+
+#session_behaviour
+#call startup functions
+clear
+var
+#run conditional statements
+if [ $userdebug == 1 ]; then
+	debug_info
 fi
 #call main functions
 title
