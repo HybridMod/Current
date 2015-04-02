@@ -9,6 +9,7 @@ var(){
 	usermagic=0
 	useradv=1
 	usage_type=0
+	initd=1
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
@@ -66,7 +67,7 @@ body(){
 		2 ) clear && clean_up;;
 		3 ) clear && sql_optimize;;
 		4 ) clear && vm_tune;;
-		5 ) clear && lmk_tune;;
+		5 ) clear && lmk_tune_opt;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
@@ -243,7 +244,8 @@ vm_tune(){
 	fi
 
 	if [ $usage_type == 1 ]; then
-		if [ $rom=userdebug ]; then
+		#if [ $rom=userdebug ]; then
+		if [ $initd == 1 ]; then
 		mkdir -p /system/etc/init.d
 		touch /system/etc/init.d/75vm
 		chmod 755 /system/etc/init.d/75vm
@@ -302,121 +304,71 @@ EOF
 	backdrop;
 }
 
-lmk_tune(){
-	echo "${yellow}Minfrees available:${nc}"
+lmk_tune_opt(){
+	echo "${yellow}LMK Optimization!${nc}"
+	sleep 3;
+	clear
+
+	echo "${yellow}Minfree profiles available:${nc}"
 	echo " B|Balanced"
 	echo " M|Multitasking|"
 	echo " G|Gaming"
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B ) clear && lmk_profile=$lmk_opt && lmk_apply;;
-		m|M ) clear && lmk_profile=$lmk_opt && lmk_apply;;
-		g|G ) clear && lmk_profile=$lmk_opt && lmk_apply;;
+		b|B ) echo "Ok!" && sleep 3; && clear && lmk_profile=b && lmk_apply;;
+		m|M ) echo "Ok!" && sleep 3; && clear && lmk_profile=m && lmk_apply;;
+		g|G ) echo "Ok!" && sleep 3; && clear && lmk_profile=g && lmk_apply;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
 	esac
+}
 
+lmk_apply(){
+	if [ $lmk_profile == b ]; then
+		minfree_array='1024,2048,4096,8192,12288,16384'
+	fi
+
+	if [ $lmk_profile == m ]; then
+		minfree_array='1536,2048,4096,5120,5632,6144'
+	fi
+
+	if [ $lmk_profile == g ]; then
+		minfree_array='10393,14105,18188,27468,31552,37120'
+	fi
 
 	if [ $usage_type == 0 ]; then
-		if [ -e /proc/sys/vm/swappiness ]; then
-			echo "80" > /proc/sys/vm/swappiness
-		fi
-
-		if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
-			echo "10" > /proc/sys/vm/vfs_cache_pressure
-		fi
-
-		if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
-			echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-		fi
-
-		if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
-			echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-		fi
-
-		if [ -e /proc/sys/vm/dirty_ratio ]; then
-			echo "90" > /proc/sys/vm/dirty_ratio
-		fi
-
-		if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
-			echo "70" > /proc/sys/vm/dirty_backgroud_ratio
-		fi
-
-		if [ -e /proc/sys/vm/overcommit_memory ]; then
-			echo "1" > /proc/sys/vm/overcommit_memory
-		fi
-
-		if [ -e /proc/sys/vm/overcommit_ratio ]; then
-			echo "150" > /proc/sys/vm/overcommit_ratio
-		fi
-
-		if [ -e /proc/sys/vm/min_free_kbytes ]; then
-			echo "4096" > /proc/sys/vm/min_free_kbytes
-		fi
-
-		if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
-			echo "1" > /proc/sys/vm/oom_kill_allocating_task
+		if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
+			echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 		fi
 	fi
 
 	if [ $usage_type == 1 ]; then
-		if [ $rom=userdebug ]; then
+		#if [ $rom=userdebug ]; then
+		if [ $initd == 1 ]; then
 		mkdir -p /system/etc/init.d
-		touch /system/etc/init.d/75vm
-		chmod 755 /system/etc/init.d/75vm
-		echo -ne "" > /system/etc/init.d/75vm
-	cat >> /system/etc/init.d/75vm <<EOF
+		touch /system/etc/init.d/95lmk
+		chmod 755 /system/etc/init.d/95lmk
+		echo -ne "" > /system/etc/init.d/95lmk
+	cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
 
-sleep 15;
+sleep 30;
 
-if [ -e /proc/sys/vm/swappiness ]; then
-	echo "80" > /proc/sys/vm/swappiness
-fi
-
-if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
-	echo "10" > /proc/sys/vm/vfs_cache_pressure
-fi
-
-if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
-	echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-fi
-
-if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
-	echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-fi
-
-if [ -e /proc/sys/vm/dirty_ratio ]; then
-	echo "90" > /proc/sys/vm/dirty_ratio
-fi
-
-if [ -e /proc/sys/vm/dirty_backgroud_ratio ]; then
-	echo "70" > /proc/sys/vm/dirty_backgroud_ratio
-fi
-
-if [ -e /proc/sys/vm/overcommit_memory ]; then
-	echo "1" > /proc/sys/vm/overcommit_memory
-fi
-
-if [ -e /proc/sys/vm/overcommit_ratio ]; then
-	echo "150" > /proc/sys/vm/overcommit_ratio
-fi
-
-if [ -e /proc/sys/vm/min_free_kbytes ]; then
-	echo "4096" > /proc/sys/vm/min_free_kbytes
-fi
-
-if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
-	echo "1" > /proc/sys/vm/oom_kill_allocating_task
+if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
+	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 fi
 EOF
 	fi
 
 	sleep 3;
 	clear
-	echo "${yellow}VM Optimized!${nc}"
+	echo "${yellow}LMK Optimized!${nc}"
 	sleep 2;
 	backdrop;
+}
+
+options(){
+	#temp
 }
 
 rom(){
