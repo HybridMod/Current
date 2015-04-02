@@ -46,11 +46,9 @@ backdrop(){
 
 drop_caches(){
 	clear
-	free | awk '/Mem/{print "Mem stats before: "$4/1024" MB";}'
-	sleep 3
+	echo "${yellow}Caches dropped!${nc}"
 	sync;
 	echo "3" > /proc/sys/vm/drop_caches;
-	free | awk '/Mem/{print "Mem stats after: "$4/1024" MB";}'
 	sleep 3
 	backdrop
 }
