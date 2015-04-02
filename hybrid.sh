@@ -367,8 +367,27 @@ EOF
 	backdrop;
 }
 
+zram_disable()
+{
+	echo "${yellow}Disabling zRAM...${nc}"
+	sleep 1;
+
+	swapoff /dev/zram0
+	echo 1 > /sys/block/zram0/reset
+
+	clear
+	echo "${yellow}zRAM disabled!${nc}"
+	sleep 3
+	backdrop
+}
+
 options(){
-	#temp
+	clear
+	echo "NOPE!"
+	sleep 1;
+	echo "WIP..."
+	sleep 1;
+	backdrop
 }
 
 rom(){
