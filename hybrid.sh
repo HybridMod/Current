@@ -35,6 +35,7 @@ body(){
 		echo " 1|Drop my caches"
 		echo " 2|Clean up my crap"
 		echo " 3|Optimize my SQLite DB's"
+		echo " 4|"
 	fi
 	if [ $jargon == 0 ]; then
 		echo " 1|Give me a quick boost!"
@@ -52,7 +53,7 @@ body(){
 	case $selection_opt in
 		1 ) clear && drop_caches;;
 		2 ) clear && clean_up;;
-		# 3 ) clear && #temp;;
+		3 ) clear && sql_optimize;;
 		a|A ) clear && about_info;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
 		e|E ) clear && title && exit;;
