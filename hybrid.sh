@@ -60,7 +60,7 @@ body(){
 		7 ) clear && kill_log;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
-		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid"; body;;
+		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid" && clear && body;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
 		e|E ) clear && safe_exit;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
