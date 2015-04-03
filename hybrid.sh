@@ -156,21 +156,21 @@ sql_optimize(){
 
 	echo "${yellow}Optimizing SQLite databases!"
 
-	if [[ -e /system/xbin/sqlite3 ]]; then
+	if [ -e /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 0755 /system/xbin/sqlite3
 		SQLLOC=/system/xbin/sqlite3
 		echo ""
 	fi
 
-	if [[ -e /system/bin/sqlite3 ]]; then
+	if [ -e /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 0755 /system/bin/sqlite3
 		SQLLOC=/system/bin/sqlite3
 		echo ""
 	fi
 
-	if [[ -e /system/sbin/sqlite3 ]]; then #legacy support
+	if [ -e /system/sbin/sqlite3 ]; then #legacy support
 		chown root.root /sbin/sqlite3
 		chmod 0755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
@@ -295,6 +295,7 @@ if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
 fi
 EOF
 		fi
+	fi
 
 	$sysro
 	sleep 3;
@@ -360,6 +361,7 @@ if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
 fi
 EOF
 		fi
+	fi
 
 	$sysro
 	sleep 3;
@@ -429,16 +431,16 @@ debug_info(){
 
 #session_behaviour(){
 	#call startup functions
-	clear
-	var
-	rom
+#	clear
+#	var
+#	rom
 
 	#run conditional statements
-	if [ $userdebug == 1 ]; then
-		debug_info
-	fi
+#	if [ $userdebug == 1 ]; then
+#		debug_info
+#	fi
 
 	#call main functions
-	title
-	body
+#	title
+#	body
 #}
