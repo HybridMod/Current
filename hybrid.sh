@@ -370,21 +370,47 @@ options(){
 	echo " B|Back"
 	echo ""
 	echo -n "> "
-	read selection_opt
-	case $selection_opt in
+	read options_opt
+	case $options_opt in
 		1 ) clear && debug_mode_toggle;;
 		2 ) clear && usage_mode_toggle;;
 		b|B ) backdrop;;
-		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
+		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
 }
 
 debug_mode_toggle(){
-	#temp
+	clear
+	sleep 1;
+	echo "Debug Mode:"
+	echo "E|Enable"
+	echo "D|Disable"
+	echo ""
+	echo "Currently: $userdebug (1=E/0=D)"
+	echo -n "> "
+	read debug_mode_toggle_opt
+	case $debug_mode_toggle_opt in
+		e|E ) echo "Ok!" && sleep 2 && clear && userdebug=1 && options;;
+		d|D ) echo "Ok!" && sleep 2 && clear && userdebug=0 && options;;
+		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
+	esac
 }
 
 usage_mode_toggle(){
-	#temp
+	clear
+	sleep 1;
+	echo "Usage Mode:"
+	echo "T|Temporary installs"
+	echo "P|Permanent installs"
+	echo ""
+	echo "Currently: $usage_type (0=T/1=P)"
+	echo -n "> "
+	read usage_mode_toggle_opt
+	case $usage_mode_toggle_opt in
+		t|T ) echo "Ok!" && sleep 2 && clear && usage_type=0 && options;;
+		p|P ) echo "Ok!" && sleep 2 && clear && usage_type=1 && options;;
+		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
+	esac
 }
 
 safe_exit(){
