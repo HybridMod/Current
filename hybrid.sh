@@ -41,6 +41,7 @@ body(){
 	echo " 5|Tune my LMK"
 	echo " 6|Tune my Networks"
 	echo " 7|Remove logger"
+	echo " 8|Kernel Kontrol"
 	echo ""
 	echo " O|Options"
 	echo " A|About"
@@ -58,6 +59,7 @@ body(){
 		5 ) clear && lmk_tune_opt;;
 		6 ) clear && network_tune;;
 		7 ) clear && kill_log;;
+		8 ) clear && kernel_kontrol;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid" && clear && body;;
