@@ -41,8 +41,10 @@ body(){
 	echo " 5|Tune my LMK"
 	echo " 6|Tune my Networks"
 	echo " 7|Remove logger"
+	echo ""
 	echo " O|Options"
 	echo " A|About"
+	echo " S|Source"
 	echo " R|Reboot"
 	echo " E|Exit"
 	echo ""
@@ -58,6 +60,7 @@ body(){
 		7 ) clear && kill_log;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
+		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid"; body;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
 		e|E ) clear && safe_exit;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
@@ -530,6 +533,7 @@ about_info(){
 	echo "Pizza_Dox - Diamond Bond : Me!"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
 	echo ""
+
 	sleep 5
 	backdrop
 }
