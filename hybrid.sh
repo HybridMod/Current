@@ -431,10 +431,10 @@ kill_log(){
 kernel_kontrol(){
 	clear
 	echo "${yellow}Kernel Kontrol${nc}"
-	echo ""
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
+	echo ""
 	echo " B|Back"
 	echo -n "> "
 	read kk_opt;
@@ -457,22 +457,25 @@ setcpufreq(){
 
 	echo "${yellow}CPU Control${nc}"
 	echo ""
-	echo "${bld}Current Max Freq:${nc} $maxfreq"
-	echo "${bld}Current Min Freq:${nc} $minfreq"
+	echo "${bld}Max Freq:${nc} $maxfreq"
+	echo "${bld}Min Freq:${nc} $minfreq"
 	echo "${bld}Current Freq:${nc} $curfreq"
 	echo ""
 	echo "${bld}Available Freq's:${nc} "
 	echo "$listfreq"
 	echo ""
 	sleep 2
-	echo -n "New Max Freq: "; && sleep 1 && read newmaxfreq;
-	echo -n "New Min Freq: "; && sleep 1 && read newminfreq;
+	echo -n "New Max Freq: " && sleep 1; read newmaxfreq;
+	echo -n "New Min Freq: " && sleep 1; read newminfreq;
 	sleep 1
 
 	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	sleep 1
 
+	clear
 	echo "${yellow}New Freq's applied!${nc}"
+	sleep 2
 
 	backdrop
 }
@@ -491,12 +494,15 @@ setgov(){
 	echo "$listgov"
 	echo ""
 	sleep 2
-	echo -n "New Governor: "; && sleep 1 && read newgov;
+	echo -n "New Governor: " && sleep 1; read newgov;
 	sleep 1
 
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	sleep 1
 
+	clear
 	echo "${yellow}New Governor applied!${nc}"
+	sleep 2
 
 	backdrop
 }
@@ -516,14 +522,17 @@ setiosched(){
 	echo "$listiosched"
 	echo ""
 	sleep 2
-	echo -n "New Scheduler: "; && sleep 1 && read newiosched;
+	echo -n "New Scheduler: " && sleep 1; read newiosched;
 	sleep 1
 
 	for j in /sys/block/*/queue/scheduler; do
 		echo "$newio" > \$j
 	done
+	sleep 1
 
+	clear
 	echo "${yellow}New I/O Scheduler applied!${nc}"
+	sleep 2
 
 	backdrop
 }
