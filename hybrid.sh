@@ -383,12 +383,12 @@ options(){
 debug_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $userdebug == 0 ]; then
-		usagetype_status=temporary
+	if [ $userdebug == 1 ]; then
+		userdebug_status=enabled
 	fi
 
-	if [ $userdebug == 1 ]; then
-		usagetype_status=permanent
+	if [ $userdebug == 0 ]; then
+		userdebug_status=disabled
 	fi
 
 	sleep 1;
@@ -409,12 +409,12 @@ debug_mode_toggle(){
 usage_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $userdebug == 1 ]; then
-		userdebug_status=enabled
+	if [ $userdebug == 0 ]; then
+		usagetype_status=temporary
 	fi
 
-	if [ $userdebug == 0 ]; then
-		userdebug_status=disabled
+	if [ $userdebug == 1 ]; then
+		usagetype_status=permanent
 	fi
 
 	sleep 1;
