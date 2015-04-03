@@ -1,3 +1,25 @@
+kernel_kontrol()
+{
+clear
+echo "${yellow}Kernel Kontrol${nc}"
+echo ""
+echo " 1|Set CPU Freq"
+echo " 2|Set CPU Gov"
+echo " 3|Set I/O Sched"
+echo " B|Back"
+echo -n "> "
+read kk_opt;
+case $kk_opt in
+	1) clear && selcpufreq ;;
+	2) clear && selgov ;;
+	3) clear && seliosched ;;
+	4) clear && selvddcon ;;
+	5) clear && vm_menu ;;
+	b|B) clear && backdrop;;
+	* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
+ esac
+}
+
 selcpufreq()
 {
 	clear
@@ -8,7 +30,7 @@ selcpufreq()
 	minfreqLimit=1017600
 	echo "[*] Current MAX: $maxfreq"
 	echo "[*] Current MIN: $minfreq"
-	 echo -e "\n[*] Available Frequencies:\n"
+	 echo -e "\n[*] Available Frequencies:"
 	echo "$listfreq" | awk '{print "    " $1}'
 	echo ""
 	echo -n "[Q] Select new MAX frequency: "; read newmaxfreq;
