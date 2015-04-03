@@ -70,7 +70,7 @@ body(){
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		r|R ) clear && echo "Rebooting in 3..." && sleep 3 && reboot;;
-		e|E ) clear && title && exit;;
+		e|E ) clear && safe_exit;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
 	esac
 }
@@ -297,7 +297,6 @@ EOF
 	fi
 
 	$sysro
-	sleep 3
 	clear
 	echo "${yellow}VM Optimized!${nc}"
 	sleep 2
@@ -306,7 +305,7 @@ EOF
 
 lmk_tune_opt(){
 	echo "${yellow}LMK Optimization!${nc}"
-	sleep 3
+	sleep 2
 	clear
 
 	echo "${yellow}Minfree profiles available:${nc}"
@@ -374,12 +373,11 @@ zram_disable(){
 	echo "${yellow}Disabling zRAM...${nc}"
 	sleep 1
 
-	swapoff /dev/zram0
-	echo 1 > /sys/block/zram0/reset
+	swapoff /dev/block/zram0
 
 	clear
 	echo "${yellow}zRAM disabled!${nc}"
-	sleep 3
+	sleep 2
 	backdrop
 }
 
@@ -390,6 +388,14 @@ options(){
 	echo "WIP..."
 	sleep 1
 	backdrop
+}
+
+safe_exit(){
+	sleep 1;
+	clear
+	title
+	echo "${cyan}[-=The Hybrid Project=-]${nc}"
+	echo "${cyan}     by Pizza_Dox...${nc}"
 }
 
 rom(){
