@@ -432,6 +432,7 @@ kill_log(){
 
 kernel_kontrol(){
 	clear
+	sleep 1
 	echo "${yellow}Kernel Kontrol${nc}"
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
