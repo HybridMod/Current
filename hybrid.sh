@@ -363,6 +363,7 @@ zram_disable(){
 }
 
 options(){
+	sleep 1
 	clear
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
@@ -382,11 +383,11 @@ options(){
 debug_mode_toggle(){
 	clear
 	sleep 1;
-	echo "Debug Mode:"
+	echo "${yellow}Debug Mode:${nc}"
 	echo "E|Enable"
 	echo "D|Disable"
 	echo ""
-	echo "Currently: $userdebug (1=E/0=D)"
+	echo "${yellow}Currently: $userdebug (1=E/0=D)${nc}"
 	echo -n "> "
 	read debug_mode_toggle_opt
 	case $debug_mode_toggle_opt in
@@ -399,11 +400,11 @@ debug_mode_toggle(){
 usage_mode_toggle(){
 	clear
 	sleep 1;
-	echo "Usage Mode:"
+	echo "${yellow}Usage Mode:${nc}"
 	echo "T|Temporary installs"
 	echo "P|Permanent installs"
 	echo ""
-	echo "Currently: $usage_type (0=T/1=P)"
+	echo "${yellow}Currently: $usage_type (0=T/1=P)${nc}"
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
