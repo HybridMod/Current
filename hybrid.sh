@@ -450,39 +450,85 @@ kernel_kontrol(){
 	 esac
 }
 
-setcpufreq(){
+# setcpufreq(){
+# 	clear
+# 	#configure sub variables
+# 	maxfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`
+# 	minfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`
+# 	curfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`
+# 	listfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
+#
+# 	echo "${yellow}CPU Control${nc}"
+# 	echo ""
+# 	echo "${bld}Max Freq:${nc} $maxfreq"
+# 	echo "${bld}Min Freq:${nc} $minfreq"
+# 	echo "${bld}Current Freq:${nc} $curfreq"
+# 	echo ""
+# 	echo "${bld}Available Freq's:${nc} "
+# 	echo "$listfreq"
+# 	echo ""
+# 	sleep 2
+# 	echo -n "New Max Freq: " && sleep 1; read newmaxfreq;
+# 	echo -n "New Min Freq: " && sleep 1; read newminfreq;
+# 	sleep 1
+#
+# 	$kkrw
+# 	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+# 	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+# 	$kkro
+# 	sleep 1
+#
+# 	clear
+# 	echo "${yellow}New Freq's applied!${nc}"
+# 	sleep 2
+#
+# 	kernel_kontrol
+# }
+
+setcpufreq()
+{
 	clear
-	#configure sub variables
 	maxfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`
 	minfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`
-	curfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`
-	listfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
+	listfreq="`cat /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state | awk '{print $1}'`"
+	maxfreqLimit=768000
+	minfreqLimit=1017600
+	echo "[*] Current MAX: $maxfreq"
+	echo "[*] Current MIN: $minfreq"
+	echo -e "\n[*] Available Frequencies:\n"
+	echo "$listfreq" | awk '{print "    " $1}'
+	echo ""
+	echo -n "[Q] Select new MAX frequency: "; read newmaxfreq;
 
-	echo "${yellow}CPU Control${nc}"
-	echo ""
-	echo "${bld}Max Freq:${nc} $maxfreq"
-	echo "${bld}Min Freq:${nc} $minfreq"
-	echo "${bld}Current Freq:${nc} $curfreq"
-	echo ""
-	echo "${bld}Available Freq's:${nc} "
-	echo "$listfreq"
-	echo ""
+	if [ "`echo "$listfreq" | grep -w "$newmaxfreq" 2>/dev/null`" ] && [ "$newmaxfreq" -ge "$maxfreqLimit" ]; then
+		echo ""
+		echo -n "[Q] Select new MIN frequency: "; read newminfreq;
+		if [ "`echo "$listfreq" | grep -w "$newminfreq" 2>/dev/null`" ] && [ "$newminfreq" -le "$minfreqLimit" ]; then
+			if [ "$newminfreq" -gt "$newmaxfreq" ]; then
+				echo -e "\n[W] MIN frequency can not be greater than MAX frequency"; sleep 3; clear; setcpufreq;
+			fi
+		elif [[ $newminfreq == "q" || $newminfreq == "Q" || $newminfreq == "r" || $newminfreq == "R" ]]; then
+			backdrop;
+		else
+			echo -e "\n[W] If you want to set min frequency"; echo "    above $minfreqLimit, then use a CPU app"; sleep 3; clear; setcpufreq;
+		fi
+	elif [[ $newmaxfreq == "q" || $newmaxfreq == "Q" || $newmaxfreq == "r" || $newmaxfreq == "R" ]]; then
+	backdrop;
+	else
+		echo -e "\n[W] If you want to set max frequency"; echo "    below $maxfreqLimit, then use a CPU app"; sleep 3; clear; setcpufreq;
+fi
+
+echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+	echo -e "\n[*] Applying new frequencies\n"
+	echo -n "[*] MAX freq = "; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq;
+	echo -n "[*] MIN freq = "; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+
+	sync
 	sleep 2
-	echo -n "New Max Freq: " && sleep 1; read newmaxfreq;
-	echo -n "New Min Freq: " && sleep 1; read newminfreq;
-	sleep 1
 
-	$kkrw
-	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-	$kkro
-	sleep 1
-
-	clear
-	echo "${yellow}New Freq's applied!${nc}"
-	sleep 2
-
-	kernel_kontrol
+	backdrop;
 }
 
 setgov(){
