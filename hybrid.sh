@@ -364,11 +364,27 @@ zram_disable(){
 
 options(){
 	clear
-	echo "NOPE!"
-	sleep 1
-	echo "WIP..."
-	sleep 1
-	backdrop
+	echo "${yellow}Options:${nc}"
+	echo " 1|Debug mode toggle"
+	echo " 2|Temp/Perm mode toggle"
+	echo " B|Back"
+	echo ""
+	echo -n "> "
+	read selection_opt
+	case $selection_opt in
+		1 ) clear && debug_mode_toggle;;
+		2 ) clear && usage_mode_toggle;;
+		b|B ) backdrop;;
+		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
+	esac
+}
+
+debug_mode_toggle(){
+	#temp
+}
+
+usage_mode_toggle(){
+	#temp
 }
 
 safe_exit(){
