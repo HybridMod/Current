@@ -548,6 +548,9 @@ setiosched(){
 
 
 zram_disable(){
+	echo "10 seconds to quit incase you change your mind"
+	echo "some say this causes bootloops."
+	sleep 10
 	echo "${yellow}Disabling zRAM...${nc}"
 	sleep 1
 
@@ -565,7 +568,7 @@ options(){
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
 	echo " 2|Temp/Perm mode toggle"
-	echo " 3|Disable zRAM"
+	echo " 3|Disable zRAM (can potentially bootloop you)"
 	echo " B|Back"
 	echo ""
 	echo -n "> "
