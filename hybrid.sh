@@ -431,16 +431,16 @@ debug_info(){
 
 #session_behaviour(){
 	#call startup functions
-#	clear
-#	var
-#	rom
+	clear
+	var
+	rom
 
 	#run conditional statements
-#	if [ $userdebug == 1 ]; then
-#		debug_info
-#	fi
+	if [ $userdebug == 1 ]; then
+		debug_info
+	fi
 
 	#call main functions
-#	title
-#	body
+	title
+	body
 #}
