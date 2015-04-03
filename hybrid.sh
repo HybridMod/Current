@@ -245,6 +245,7 @@ vm_tune(){
 	if [ $usage_type == 1 ]; then
 		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
+			$sysrw
 			mkdir -p /system/etc/init.d
 			touch /system/etc/init.d/75vm
 			chmod 755 /system/etc/init.d/75vm
@@ -295,6 +296,7 @@ fi
 EOF
 		fi
 
+	$sysro
 	sleep 3;
 	clear
 	echo "${yellow}VM Optimized!${nc}"
@@ -348,6 +350,7 @@ lmk_apply(){
 			touch /system/etc/init.d/95lmk
 			chmod 755 /system/etc/init.d/95lmk
 			echo -ne "" > /system/etc/init.d/95lmk
+			$sysrw
 cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
 sleep 30;
@@ -358,6 +361,7 @@ fi
 EOF
 		fi
 
+	$sysro
 	sleep 3;
 	clear
 	echo "${yellow}LMK Optimized!${nc}"
