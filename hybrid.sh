@@ -77,7 +77,7 @@ body(){
 
 backdrop(){
 	clear
-	sleep 1;
+	sleep 1
 	title
 	body
 }
@@ -86,7 +86,7 @@ drop_caches(){
 	echo "${yellow}Caches dropped!${nc}"
 	sync;
 	echo "3" > /proc/sys/vm/drop_caches;
-	sleep 3
+	sleep 2
 	backdrop
 }
 
@@ -147,7 +147,7 @@ clean_up(){
 	$sysro
 	clear
 	echo "${yellow}Clean up complete!${nc}"
-	sleep 3
+	sleep 2
 	backdrop
 }
 
@@ -181,19 +181,18 @@ sql_optimize(){
 		if [ $useradv == 1 ]; then
 			clear; echo "${yellow}Vacuumed: $i${nc}"
 		fi
-		sleep 1;
+		sleep 1
 		$SQLLOC $i 'REINDEX;'
 		if [ $useradv == 1 ]; then
 			echo "${yellow}Reindexed : $i${nc}"
 		fi
-		sleep 1;
+		sleep 1
 	done
 
 	$sysro
-	sleep 5;
 	clear
 	echo "SQLite database optimizations complete!"
-	sleep 3;
+	sleep 2
 	backdrop
 }
 
@@ -298,16 +297,16 @@ EOF
 	fi
 
 	$sysro
-	sleep 3;
+	sleep 3
 	clear
 	echo "${yellow}VM Optimized!${nc}"
-	sleep 2;
+	sleep 2
 	backdrop
 }
 
 lmk_tune_opt(){
 	echo "${yellow}LMK Optimization!${nc}"
-	sleep 3;
+	sleep 3
 	clear
 
 	echo "${yellow}Minfree profiles available:${nc}"
@@ -354,7 +353,7 @@ lmk_apply(){
 			$sysrw
 cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
-sleep 30;
+sleep 30
 
 if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
 	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
@@ -364,16 +363,16 @@ EOF
 	fi
 
 	$sysro
-	sleep 3;
+	sleep 3
 	clear
 	echo "${yellow}LMK Optimized!${nc}"
-	sleep 2;
+	sleep 2
 	backdrop
 }
 
 zram_disable(){
 	echo "${yellow}Disabling zRAM...${nc}"
-	sleep 1;
+	sleep 1
 
 	swapoff /dev/zram0
 	echo 1 > /sys/block/zram0/reset
@@ -387,9 +386,9 @@ zram_disable(){
 options(){
 	clear
 	echo "NOPE!"
-	sleep 1;
+	sleep 1
 	echo "WIP..."
-	sleep 1;
+	sleep 1
 	backdrop
 }
 
@@ -408,7 +407,7 @@ about_info(){
 	echo "Pizza_Dox - Diamond Bond : Me!"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
 	echo ""
-	sleep 5;
+	sleep 5
 	backdrop
 }
 
@@ -424,7 +423,7 @@ debug_info(){
 	echo "${yellow}SCRIPT${nc}"
 	echo "Hybrid Version: $DATE"
 	echo ""
-	sleep 5;
+	sleep 5
 	clear
 	backdrop
 }
