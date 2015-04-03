@@ -394,6 +394,7 @@ safe_exit(){
 	sleep 1;
 	clear
 	title
+	$sysro
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo "${cyan}     by Pizza_Dox...${nc}"
 }
