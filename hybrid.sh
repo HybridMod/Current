@@ -324,15 +324,15 @@ lmk_tune_opt(){
 }
 
 lmk_apply(){
-	if [ $lmk_profile == b|B ]; then
+	if [ $lmk_profile == b ] || [ $lmk_profile = B ]; then
 		minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
-	if [ $lmk_profile == m|M ]; then
+	if [ $lmk_profile == m ] || [ $lmk_profile = M ]; then
 		minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
-	if [ $lmk_profile == g|G ]; then
+	if [ $lmk_profile == g ] || [ $lmk_profile = G ]; then
 		minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
