@@ -13,6 +13,8 @@ var(){
 	DATE=`date +%d-%m-%Y`
 	sysrw='mount -o remount rw /system'
 	sysro='mount -o remount ro /system'
+	kkrw='mount -o remount rw /sys'
+	kkro='mount -o remount ro /sys'
 
 	#color control
 	red='\033[0;31m'
@@ -453,7 +455,7 @@ setcpufreq(){
 	maxfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`
 	minfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`
 	curfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`
-	listfreq='cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'
+	listfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
 
 	echo "${yellow}CPU Control${nc}"
 	echo ""
@@ -469,15 +471,17 @@ setcpufreq(){
 	echo -n "New Min Freq: " && sleep 1; read newminfreq;
 	sleep 1
 
-	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	$kkrw
 	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	$kkro
 	sleep 1
 
 	clear
 	echo "${yellow}New Freq's applied!${nc}"
 	sleep 2
 
-	backdrop
+	kernel_kontrol
 }
 
 setgov(){
@@ -497,14 +501,16 @@ setgov(){
 	echo -n "New Governor: " && sleep 1; read newgov;
 	sleep 1
 
+	$kkrw
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	$kkro
 	sleep 1
 
 	clear
 	echo "${yellow}New Governor applied!${nc}"
 	sleep 2
 
-	backdrop
+	kernel_kontrol
 }
 
 
@@ -525,16 +531,18 @@ setiosched(){
 	echo -n "New Scheduler: " && sleep 1; read newiosched;
 	sleep 1
 
+	$kkrw
 	for j in /sys/block/*/queue/scheduler; do
 		echo "$newio" > \$j
 	done
+	$kkro
 	sleep 1
 
 	clear
 	echo "${yellow}New I/O Scheduler applied!${nc}"
 	sleep 2
 
-	backdrop
+	kernel_kontrol
 }
 
 
