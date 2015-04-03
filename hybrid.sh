@@ -6,7 +6,7 @@ var(){
 
 	#options
 	userdebug=0
-	usage_type=0
+	usagetype=0
 	initd=1
 
 	#misc control
@@ -180,7 +180,7 @@ sql_optimize(){
 vm_tune(){
 	echo "${yellow}Optimizing VM...${nc}"
 
-	if [ $usage_type == 0 ]; then
+	if [ $usagetype == 0 ]; then
 		if [ -e /proc/sys/vm/swappiness ]; then
 			echo "80" > /proc/sys/vm/swappiness
 		fi
@@ -222,7 +222,7 @@ vm_tune(){
 		fi
 	fi
 
-	if [ $usage_type == 1 ]; then
+	if [ $usagetype == 1 ]; then
 		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
 			$sysrw
@@ -317,13 +317,13 @@ lmk_apply(){
 		minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
-	if [ $usage_type == 0 ]; then
+	if [ $usagetype == 0 ]; then
 		if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
 			echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 		fi
 	fi
 
-	if [ $usage_type == 1 ]; then
+	if [ $usagetype == 1 ]; then
 		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
 			mkdir -p /system/etc/init.d
@@ -382,12 +382,21 @@ options(){
 
 debug_mode_toggle(){
 	clear
+	#configure sub-variables
+	if [ $userdebug == 0 ]; then
+		usagetype_status=temporary
+	fi
+
+	if [ $userdebug == 1 ]; then
+		usagetype_status=permanent
+	fi
+
 	sleep 1;
 	echo "${yellow}Debug Mode:${nc}"
 	echo "E|Enable"
 	echo "D|Disable"
 	echo ""
-	echo "${yellow}Currently: $userdebug (1=E/0=D)${nc}"
+	echo "${yellow}Currently:${nc} $userdebug_status"
 	echo -n "> "
 	read debug_mode_toggle_opt
 	case $debug_mode_toggle_opt in
@@ -399,17 +408,26 @@ debug_mode_toggle(){
 
 usage_mode_toggle(){
 	clear
+	#configure sub-variables
+	if [ $userdebug == 1 ]; then
+		userdebug_status=enabled
+	fi
+
+	if [ $userdebug == 0 ]; then
+		userdebug_status=disabled
+	fi
+
 	sleep 1;
 	echo "${yellow}Usage Mode:${nc}"
 	echo "T|Temporary installs"
 	echo "P|Permanent installs"
 	echo ""
-	echo "${yellow}Currently: $usage_type (0=T/1=P)${nc}"
+	echo "${yellow}Currently:${nc} $usagetype_status"
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
-		t|T ) echo "Ok!" && sleep 2 && clear && usage_type=0 && options;;
-		p|P ) echo "Ok!" && sleep 2 && clear && usage_type=1 && options;;
+		t|T ) echo "Ok!" && sleep 2 && clear && usagetype=0 && options;;
+		p|P ) echo "Ok!" && sleep 2 && clear && usagetype=1 && options;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
 }
