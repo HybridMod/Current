@@ -359,7 +359,7 @@ zram_disable(){
 	clear
 	echo "${yellow}zRAM disabled!${nc}"
 	sleep 2
-	backdrop
+	options
 }
 
 options(){
@@ -368,6 +368,7 @@ options(){
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
 	echo " 2|Temp/Perm mode toggle"
+	echo " 3|Disable zRAM"
 	echo " B|Back"
 	echo ""
 	echo -n "> "
@@ -375,6 +376,7 @@ options(){
 	case $options_opt in
 		1 ) clear && debug_mode_toggle;;
 		2 ) clear && usage_mode_toggle;;
+		3 ) clear && zram_disable;;
 		b|B ) backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
