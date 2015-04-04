@@ -569,6 +569,7 @@ options(){
 	echo " 1|Debug mode toggle"
 	echo " 2|Temp/Perm mode toggle"
 	echo " 3|Disable zRAM (can potentially bootloop you)"
+	echo " 4|Install Xposed (4.4.x)"
 	echo " B|Back"
 	echo ""
 	echo -n "> "
@@ -577,6 +578,7 @@ options(){
 		1 ) clear && debug_mode_toggle;;
 		2 ) clear && usage_mode_toggle;;
 		3 ) clear && zram_disable;;
+		4 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" && clear && body;;
 		b|B ) backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
