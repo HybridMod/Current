@@ -44,6 +44,7 @@ body(){
 	echo " 6|Tune my Networks"
 	echo " 7|Remove logger"
 	echo " 8|Kernel Kontrol"
+	echo " 9|Recommended Apps"
 	echo ""
 	echo " O|Options"
 	echo " A|About"
@@ -62,6 +63,7 @@ body(){
 		6 ) clear && network_tune;;
 		7 ) clear && kill_log;;
 		8 ) clear && kernel_kontrol;;
+		9 ) clear && app_wise;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid" && clear && body;;
@@ -562,6 +564,30 @@ zram_disable(){
 	options
 }
 
+app_wise(){
+	sleep 1
+	clear
+	echo "${yellow}Apps:${nc}"
+	echo " 1|Xposed (4.4.x)"
+	echo " 2|Greenify"
+	echo " 3|Amplify"
+	echo " 4|Nova Launcher"
+	echo " 5|AdAway"
+	echo " B|Back"
+	echo ""
+	echo -n "> "
+	read options_opt
+	case $options_opt in
+		1 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" && clear && app_wise;;
+		2 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851" && clear && app_wise;;
+		3 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk" && clear && app_wise;;
+		4 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" && clear && app_wise;;
+		5 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk" && clear && app_wise;;
+		b|B ) backdrop;;
+		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
+	esac
+}
+
 options(){
 	sleep 1
 	clear
@@ -569,7 +595,6 @@ options(){
 	echo " 1|Debug mode toggle"
 	echo " 2|Temp/Perm mode toggle"
 	echo " 3|Disable zRAM (can potentially bootloop you)"
-	echo " 4|Install Xposed (4.4.x)"
 	echo " B|Back"
 	echo ""
 	echo -n "> "
@@ -578,7 +603,6 @@ options(){
 		1 ) clear && debug_mode_toggle;;
 		2 ) clear && usage_mode_toggle;;
 		3 ) clear && zram_disable;;
-		4 ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" && clear && body;;
 		b|B ) backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
