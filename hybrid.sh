@@ -44,7 +44,7 @@ body(){
 	echo " 6|Tune my Networks"
 	echo " 7|Remove logger"
 	echo " 8|Kernel Kontrol"
-	echo " 9|Recommended Apps"
+	echo " 9|Ninite"
 	echo ""
 	echo " O|Options"
 	echo " A|About"
