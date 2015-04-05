@@ -2,7 +2,7 @@
 
 var(){
 	#version_control
-	ver_revision=1.0
+	ver_revision=1.2
 
 	#options
 	userdebug=0
@@ -36,7 +36,7 @@ title(){
 
 body(){
 	echo "${yellow}Menu:${nc}"
-	echo " 1|Drop my caches"
+	echo " 1|Instant Boost"
 	echo " 2|Clean up my crap"
 	echo " 3|Optimize my SQLite DB's"
 	echo " 4|Tune my VM"
@@ -45,6 +45,7 @@ body(){
 	echo " 7|Remove logger"
 	echo " 8|Kernel Kontrol"
 	echo " 9|Ninite"
+	echo " 10|Game Booster"
 	echo ""
 	echo " O|Options"
 	echo " A|About"
@@ -64,6 +65,7 @@ body(){
 		7 ) clear && kill_log;;
 		8 ) clear && kernel_kontrol;;
 		9 ) clear && app_wise;;
+		10 ) clear && catalyst_control;;
 		o|O ) clear && options;;
 		a|A ) clear && about_info;;
 		s|S ) clear && su -c "LD_LIBRARY_PATH=/vendor/lib:/system/lib am start https://github.com/Pizza-Dox/Hybrid" && clear && body;;
@@ -710,6 +712,68 @@ setiosched(){
 	sleep 2
 
 	kernel_kontrol
+}
+
+catalyst_control(){
+	echo "${yellow}Game Booster${nc}"
+	echo "[1] Boost"
+	echo "[2] Options"
+	echo "[B] Back"
+	echo -n "> "
+	read game_booster_opt
+	case $game_booster_opt in
+		1 ) clear && catalyst_inject;;
+		2 ) clear && catalyst_time_cfg;;
+		B ) backdrop;;
+		* ) clear && echo "?";;
+	esac
+}
+
+catalyst_inject(){
+	#configure sub-variables
+	waiter=60
+
+	echo "Please leave the terminal emulator running"
+	echo "This will continue to run untill you press X or Close"
+
+	if [ "$user_debug" == 1 ]; then
+		echo
+		echo "log:"
+  fi
+
+	sleep 3;
+	#clear
+(
+while [ 1 ]
+do
+	sleep $waiter;
+	sync; #write to disk
+  	echo "3" > /proc/sys/vm/drop_caches
+  	if [ "$user_debug" == 1 ]; then
+  		echo -n "game booster exec time: " && date
+  	fi
+done
+)
+
+catalyst_control
+}
+
+catalyst_time_cfg(){
+	echo "Current rate: $waiter"
+	echo "60 - Every minute - Default"
+	echo "3600 - Every hour"
+	sleep 1;
+	echo ""
+	echo "Please enter a rate:"
+	echo -n "> "
+	read catalyst_time_in
+	waiter=$catalyst_time_in
+	echo ""
+	clear && echo "Time updated!"
+	sleep 2;
+	clear
+
+	catalyst_control #back
 }
 
 
