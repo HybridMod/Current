@@ -460,59 +460,127 @@ EOF
 }
 
 network_tune(){
-	clear
-	echo "${yellow}Optimizing Networks...${nc}"
+	if [ $usagetype == 0 ]; then
+		clear
+		echo "${yellow}Optimizing Networks...${nc}"
 
-	#General
-	echo 2097152 > /proc/sys/net/core/wmem_max
-	echo 2097152 > /proc/sys/net/core/rmem_max
-	echo 20480 > /proc/sys/net/core/optmem_max
-	echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-	echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
-	echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
-	echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
-	echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
-	echo 0 > /proc/sys/net/ipv4/tcp_timestamps
-	echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-	echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-	echo 1 > /proc/sys/net/ipv4/tcp_sack
-	echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
-	echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
-	echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
-	echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-	echo 0 > /proc/sys/net/ipv4/tcp_ecn
-	echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
-	echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
-	echo 1 > /proc/sys/net/ipv4/route/flush
-	echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
-	echo 524288 > /proc/sys/net/core/wmem_max
-	echo 524288 > /proc/sys/net/core/rmem_max
-	echo 110592 > /proc/sys/net/core/rmem_default
-	echo 110592 > /proc/sys/net/core/wmem_default
+		#General
+		echo 2097152 > /proc/sys/net/core/wmem_max
+		echo 2097152 > /proc/sys/net/core/rmem_max
+		echo 20480 > /proc/sys/net/core/optmem_max
+		echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+		echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
+		echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
+		echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
+		echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
+		echo 0 > /proc/sys/net/ipv4/tcp_timestamps
+		echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+		echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
+		echo 1 > /proc/sys/net/ipv4/tcp_sack
+		echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
+		echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
+		echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+		echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
+		echo 0 > /proc/sys/net/ipv4/tcp_ecn
+		echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
+		echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+		echo 1 > /proc/sys/net/ipv4/route/flush
+		echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
+		echo 524288 > /proc/sys/net/core/wmem_max
+		echo 524288 > /proc/sys/net/core/rmem_max
+		echo 110592 > /proc/sys/net/core/rmem_default
+		echo 110592 > /proc/sys/net/core/wmem_default
 
-	#WIFI Specific
-	# Turn on Source Address Verification in all interfaces.
-	echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
-	echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-	# Do not accept ICMP redirects.
-	echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
-	echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-	# Do not send ICMP redirects.
-	echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
-	echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-	# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
-	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-	# Ignore bogus ICMP errors.
-	echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-	# Do not accept IP source route packets.
-	echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
-	echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-	# Turn on log Martian Packets with impossible addresses.
-	echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
-	echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
+		#WIFI Specific
+		# Turn on Source Address Verification in all interfaces.
+		echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
+		echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
+		# Do not accept ICMP redirects.
+		echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
+		echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
+		# Do not send ICMP redirects.
+		echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
+		echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
+		# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
+		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+		# Ignore bogus ICMP errors.
+		echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+		# Do not accept IP source route packets.
+		echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
+		echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
+		# Turn on log Martian Packets with impossible addresses.
+		echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
+		echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
-	echo "${yellow}Networks Optimized!${nc}"
-	sleep 2
+		echo "${yellow}Networks Optimized!${nc}"
+		sleep 2
+	fi
+
+	if [ $usagetype == 1 ]; then
+	  if [ $initd == 1 ]; then
+	    $sysrw
+	    mkdir -p /system/etc/init.d
+	    touch /system/etc/init.d/56net
+	    chmod 755 /system/etc/init.d/56net
+	    echo -ne "" > /system/etc/init.d/56net
+cat >> /system/etc/init.d/#temp <<EOF
+#!/system/bin/sh
+sleep 5;
+
+#General
+echo 2097152 > /proc/sys/net/core/wmem_max
+echo 2097152 > /proc/sys/net/core/rmem_max
+echo 20480 > /proc/sys/net/core/optmem_max
+echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
+echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
+echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
+echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
+echo 0 > /proc/sys/net/ipv4/tcp_timestamps
+echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
+echo 1 > /proc/sys/net/ipv4/tcp_sack
+echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
+echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
+echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 0 > /proc/sys/net/ipv4/tcp_ecn
+echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
+echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+echo 1 > /proc/sys/net/ipv4/route/flush
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
+echo 524288 > /proc/sys/net/core/wmem_max
+echo 524288 > /proc/sys/net/core/rmem_max
+echo 110592 > /proc/sys/net/core/rmem_default
+echo 110592 > /proc/sys/net/core/wmem_default
+
+#WIFI Specific
+# Turn on Source Address Verification in all interfaces.
+echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
+echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
+# Do not accept ICMP redirects.
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
+# Do not send ICMP redirects.
+echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
+echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
+# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
+echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+# Ignore bogus ICMP errors.
+echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+# Do not accept IP source route packets.
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
+# Turn on log Martian Packets with impossible addresses.
+echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
+echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
+
+EOF
+	  fi
+	  echo "${yellow}Installed!${nc}"
+	fi
+
+	$sysro
 	backdrop
 }
 
