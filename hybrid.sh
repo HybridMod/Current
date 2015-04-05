@@ -81,10 +81,37 @@ backdrop(){
 }
 
 drop_caches(){
-	echo "${yellow}Caches dropped!${nc}"
-	sync;
-	echo "3" > /proc/sys/vm/drop_caches;
-	sleep 2
+	if [ $usagetype == 0 ]; then
+		echo "${yellow}Caches dropped!${nc}"
+		sync;
+		echo "3" > /proc/sys/vm/drop_caches;
+		sleep 2
+	fi
+
+	if [ $usagetype == 1 ]; then
+	  if [ $initd == 1 ]; then
+	    $sysrw
+	    mkdir -p /system/etc/init.d
+	    touch /system/etc/init.d/97cache_drop
+	    chmod 755 /system/etc/init.d/97cache_drop
+	    echo -ne "" > /system/etc/init.d/97cache_drop
+cat >> /system/etc/init.d/97cache_drop <<EOF
+#!/system/bin/sh
+sleep 17;
+
+sync;
+echo "3" > /proc/sys/vm/drop_caches;
+
+EOF
+	  fi
+
+		echo "${yellow}Installed!${nc}"
+
+	fi
+
+
+	$sysro
+
 	backdrop
 }
 
@@ -236,7 +263,6 @@ vm_tune(){
 	fi
 
 	if [ $usagetype == 1 ]; then
-		#if [ $rom=userdebug ]; then
 		if [ $initd == 1 ]; then
 			$sysrw
 			mkdir -p /system/etc/init.d
