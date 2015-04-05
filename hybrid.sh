@@ -92,20 +92,20 @@ clean_up(){
 	echo "${yellow}Cleaning up...${nc}"
 	sleep 3
 	$sysrw
-	# remove cache apps
-	if [ -e /cache/*.apk ];then
-		rm -f /cache/*.apk > /dev/null 2>&1
-	fi
+	# # remove cache apps
+	# if [ -e /cache/*.apk ];then
+	# 	rm -f /cache/*.apk > /dev/null 2>&1
+	# fi
 
 	# remove cache temp
 	if [ -e /cache/*.tmp ]; then
 		rm -f /cache/*.tmp > /dev/null 2>&1
 	fi
 
-	# remove dalvik-cache apps
-	if [ -e /data/dalvik-cache/*.apk ]; then
-		rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
-	fi
+	# # remove dalvik-cache apps
+	# if [ -e /data/dalvik-cache/*.apk ]; then
+	# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
+	# fi
 
 	# remove dalvik-cache temp
 	if [ -e /data/dalvik-cache/*.tmp ]; then
@@ -122,7 +122,7 @@ clean_up(){
 		rm -f /data/system/appusagestats/* > /dev/null 2>&1
 	fi
 
-	# remove dropbox data content
+	# # remove dropbox data content
 	# if [ -e /data/system/dropbox/* ]; then
 	# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
 	# fi
