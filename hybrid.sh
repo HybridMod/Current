@@ -116,63 +116,133 @@ EOF
 }
 
 clean_up(){
-	echo "${yellow}Cleaning up...${nc}"
-	sleep 3
-	$sysrw
-	# # remove cache apps
-	# if [ -e /cache/*.apk ];then
-	# 	rm -f /cache/*.apk > /dev/null 2>&1
-	# fi
+	if [ $usagetype == 0 ]; then
+		echo "${yellow}Cleaning up...${nc}"
+		sleep 3
+		$sysrw
+		# # remove cache apps
+		# if [ -e /cache/*.apk ];then
+		# 	rm -f /cache/*.apk > /dev/null 2>&1
+		# fi
 
-	# remove cache temp
-	if [ -e /cache/*.tmp ]; then
-		rm -f /cache/*.tmp > /dev/null 2>&1
+		# remove cache temp
+		if [ -e /cache/*.tmp ]; then
+			rm -f /cache/*.tmp > /dev/null 2>&1
+		fi
+
+		# # remove dalvik-cache apps
+		# if [ -e /data/dalvik-cache/*.apk ]; then
+		# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
+		# fi
+
+		# remove dalvik-cache temp
+		if [ -e /data/dalvik-cache/*.tmp ]; then
+			rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
+		fi
+
+		# remove usuage stats
+		if [ -e /data/system/usagestats/* ]; then
+			rm -f /data/system/usagestats/* > /dev/null 2>&1
+		fi
+
+		# remove app usuage stats
+		if [ -e /data/system/appusagestats/* ]; then
+			rm -f /data/system/appusagestats/* > /dev/null 2>&1
+		fi
+
+		# # remove dropbox data content
+		# if [ -e /data/system/dropbox/* ]; then
+		# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
+		# fi
+
+		# remove user behaviour
+		if  [ -e /data/system/userbehavior.db ]; then
+			rm -f /data/system/userbehavior.db > /dev/null 2>&1
+		fi
+
+		# disable usuage stats
+		if  [ -d /data/system/usagestats ]; then
+			chmod 0400 /data/system/usagestats > /dev/null 2>&1
+		fi
+
+		# disable app usage stats
+		if  [ -d /data/system/appusagestats ]; then
+			chmod 0400 /data/system/appusagestats > /dev/null 2>&1
+		fi
+
+		$sysro
+		clear
+		echo "${yellow}Clean up complete!${nc}"
+		sleep 2
 	fi
 
-	# # remove dalvik-cache apps
-	# if [ -e /data/dalvik-cache/*.apk ]; then
-	# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
-	# fi
+	if [ $usagetype == 1 ]; then
+		if [ $initd == 1 ]; then
+			$sysrw
+			mkdir -p /system/etc/init.d
+			touch /system/etc/init.d/99clean_up
+			chmod 755 /system/etc/init.d/99clean_up
+			echo -ne "" > /system/etc/init.d/99clean_up
+cat >> /system/etc/init.d/99clean_up <<EOF
+#!/system/bin/sh
+sleep 17;
 
-	# remove dalvik-cache temp
-	if [ -e /data/dalvik-cache/*.tmp ]; then
-		rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
-	fi
+# # remove cache apps
+# if [ -e /cache/*.apk ];then
+# 	rm -f /cache/*.apk > /dev/null 2>&1
+# fi
 
-	# remove usuage stats
-	if [ -e /data/system/usagestats/* ]; then
-		rm -f /data/system/usagestats/* > /dev/null 2>&1
-	fi
+# remove cache temp
+if [ -e /cache/*.tmp ]; then
+	rm -f /cache/*.tmp > /dev/null 2>&1
+fi
 
-	# remove app usuage stats
-	if [ -e /data/system/appusagestats/* ]; then
-		rm -f /data/system/appusagestats/* > /dev/null 2>&1
-	fi
+# # remove dalvik-cache apps
+# if [ -e /data/dalvik-cache/*.apk ]; then
+# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
+# fi
 
-	# # remove dropbox data content
-	# if [ -e /data/system/dropbox/* ]; then
-	# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
-	# fi
+# remove dalvik-cache temp
+if [ -e /data/dalvik-cache/*.tmp ]; then
+	rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
+fi
 
-	# remove user behaviour
-	if  [ -e /data/system/userbehavior.db ]; then
-		rm -f /data/system/userbehavior.db > /dev/null 2>&1
-	fi
+# remove usuage stats
+if [ -e /data/system/usagestats/* ]; then
+	rm -f /data/system/usagestats/* > /dev/null 2>&1
+fi
 
-	# disable usuage stats
-	if  [ -d /data/system/usagestats ]; then
-		chmod 0400 /data/system/usagestats > /dev/null 2>&1
-	fi
+# remove app usuage stats
+if [ -e /data/system/appusagestats/* ]; then
+	rm -f /data/system/appusagestats/* > /dev/null 2>&1
+fi
 
-	# disable app usage stats
-	if  [ -d /data/system/appusagestats ]; then
-		chmod 0400 /data/system/appusagestats > /dev/null 2>&1
+# # remove dropbox data content
+# if [ -e /data/system/dropbox/* ]; then
+# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
+# fi
+
+# remove user behaviour
+if  [ -e /data/system/userbehavior.db ]; then
+	rm -f /data/system/userbehavior.db > /dev/null 2>&1
+fi
+
+# disable usuage stats
+if  [ -d /data/system/usagestats ]; then
+	chmod 0400 /data/system/usagestats > /dev/null 2>&1
+fi
+
+# disable app usage stats
+if  [ -d /data/system/appusagestats ]; then
+	chmod 0400 /data/system/appusagestats > /dev/null 2>&1
+fi
+
+EOF
+		fi
+		echo "${yellow}Installed!${nc}"
 	fi
 
 	$sysro
-	clear
-	echo "${yellow}Clean up complete!${nc}"
-	sleep 2
 	backdrop
 }
 
