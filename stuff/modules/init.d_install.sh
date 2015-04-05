@@ -17,9 +17,8 @@ sleep #temp;
 
 EOF
   fi
-
   echo "${yellow}Installed!${nc}"
-
 fi
 
 $sysro
+backdrop
