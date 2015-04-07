@@ -2,7 +2,7 @@
 
 var(){
 	#version_control
-	ver_revision=1.3
+	ver_revision=1.4_stable
 
 	#options
 	userdebug=0
@@ -900,12 +900,14 @@ rom(){
 about_info(){
 	echo -e "${green}About:${nc}"
 	echo ""
+	echo "Hybrid Version: $ver_revision"
+	echo ""
 	echo "${yellow}INFO${nc}"
 	echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!${nc} because its < 1MB!"
+	echo "But this script is ${cyan}AWESOME!${nc} because its < ${bld}1MB!${nc}"
 	echo ""
 	echo "${yellow}CREDITS${nc}"
-	echo "Pizza_Dox - Diamond Bond : Me!"
+	echo "Pizza_Dox : Script creator & maintainer"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
 	echo ""
 
@@ -923,7 +925,7 @@ debug_info(){
 	echo "Android Version: $( getprop ro.build.version.release )"
 	echo ""
 	echo "${yellow}SCRIPT${nc}"
-	echo "Hybrid Version: $DATE"
+	echo "Hybrid Version: $ver_revision"
 	echo ""
 	sleep 5
 	clear
