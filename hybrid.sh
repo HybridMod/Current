@@ -118,8 +118,6 @@ EOF
 }
 
 clean_up(){
-	echo "This can potentially bootloop you, you have 10 seconds to exit!"
-	sleep 10;
 	if [ $usagetype == 0 ]; then
 		echo "${yellow}Cleaning up...${nc}"
 		sleep 3
@@ -128,51 +126,51 @@ clean_up(){
 		# if [ -e /cache/*.apk ];then
 		# 	rm -f /cache/*.apk > /dev/null 2>&1
 		# fi
-
-		# remove cache temp
-		if [ -e /cache/*.tmp ]; then
-			rm -f /cache/*.tmp > /dev/null 2>&1
-		fi
-
+		#
+		# # remove cache temp
+		# if [ -e /cache/*.tmp ]; then
+		# 	rm -f /cache/*.tmp > /dev/null 2>&1
+		# fi
+		#
 		# # remove dalvik-cache apps
 		# if [ -e /data/dalvik-cache/*.apk ]; then
 		# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
 		# fi
-
-		# remove dalvik-cache temp
-		if [ -e /data/dalvik-cache/*.tmp ]; then
-			rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
-		fi
-
-		# remove usuage stats
-		if [ -e /data/system/usagestats/* ]; then
-			rm -f /data/system/usagestats/* > /dev/null 2>&1
-		fi
-
-		# remove app usuage stats
-		if [ -e /data/system/appusagestats/* ]; then
-			rm -f /data/system/appusagestats/* > /dev/null 2>&1
-		fi
-
+		#
+		# # remove dalvik-cache temp
+		# if [ -e /data/dalvik-cache/*.tmp ]; then
+		# 	rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
+		# fi
+		#
+		# # remove usuage stats
+		# if [ -e /data/system/usagestats/* ]; then
+		# 	rm -f /data/system/usagestats/* > /dev/null 2>&1
+		# fi
+		#
+		# # remove app usuage stats
+		# if [ -e /data/system/appusagestats/* ]; then
+		# 	rm -f /data/system/appusagestats/* > /dev/null 2>&1
+		# fi
+		#
 		# # remove dropbox data content
 		# if [ -e /data/system/dropbox/* ]; then
 		# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
 		# fi
-
-		# remove user behaviour
-		if  [ -e /data/system/userbehavior.db ]; then
-			rm -f /data/system/userbehavior.db > /dev/null 2>&1
-		fi
-
-		# disable usuage stats
-		if  [ -d /data/system/usagestats ]; then
-			chmod 0400 /data/system/usagestats > /dev/null 2>&1
-		fi
-
-		# disable app usage stats
-		if  [ -d /data/system/appusagestats ]; then
-			chmod 0400 /data/system/appusagestats > /dev/null 2>&1
-		fi
+		#
+		# # remove user behaviour
+		# if  [ -e /data/system/userbehavior.db ]; then
+		# 	rm -f /data/system/userbehavior.db > /dev/null 2>&1
+		# fi
+		#
+		# # disable usuage stats
+		# if  [ -d /data/system/usagestats ]; then
+		# 	chmod 0400 /data/system/usagestats > /dev/null 2>&1
+		# fi
+		#
+		# # disable app usage stats
+		# if  [ -d /data/system/appusagestats ]; then
+		# 	chmod 0400 /data/system/appusagestats > /dev/null 2>&1
+		# fi
 
 		$sysro
 		clear
