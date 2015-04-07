@@ -2,7 +2,7 @@
 
 var(){
 	#version_control
-	ver_revision=1.2
+	ver_revision=1.3
 
 	#options
 	userdebug=0
@@ -118,6 +118,8 @@ EOF
 }
 
 clean_up(){
+	echo "This can potentially bootloop you, you have 10 seconds to exit!"
+	sleep 10;
 	if [ $usagetype == 0 ]; then
 		echo "${yellow}Cleaning up...${nc}"
 		sleep 3
