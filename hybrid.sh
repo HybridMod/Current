@@ -605,6 +605,7 @@ kernel_kontrol(){
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
+	echo " 4|View KCal Values"
 	echo ""
 	echo " B|Back"
 	echo -n "> "
@@ -613,6 +614,7 @@ kernel_kontrol(){
 		1) clear && setcpufreq;;
 		2) clear && setgov;;
 		3) clear && setiosched;;
+		4) clear && kcal_ro;;
 		b|B) clear && backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 3 && backdrop;;
 	 esac
@@ -811,6 +813,21 @@ app_wise(){
 		b|B ) backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
+}
+
+kcal_ro(){
+	sleep 1
+	clear
+	echo "${yellow}Current KCal Values:${nc}"
+	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
+	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
+	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
+	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
+	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
+	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
+	sleep 5
+
+	kernel_kontrol
 }
 
 options(){
