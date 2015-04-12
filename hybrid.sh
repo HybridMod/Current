@@ -11,8 +11,6 @@ var(){
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
-	sysrw='mount -o remount rw /system'
-	sysro='mount -o remount ro /system'
 	kkrw='mount -o remount rw /sys'
 	kkro='mount -o remount ro /sys'
 
@@ -122,55 +120,32 @@ clean_up(){
 		echo "${yellow}Cleaning up...${nc}"
 		sleep 3
 		$sysrw
-		# # remove cache apps
-		# if [ -e /cache/*.apk ];then
-		# 	rm -f /cache/*.apk > /dev/null 2>&1
-		# fi
-		#
-		# # remove cache temp
-		# if [ -e /cache/*.tmp ]; then
-		# 	rm -f /cache/*.tmp > /dev/null 2>&1
-		# fi
-		#
-		# # remove dalvik-cache apps
-		# if [ -e /data/dalvik-cache/*.apk ]; then
-		# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
-		# fi
-		#
-		# # remove dalvik-cache temp
-		# if [ -e /data/dalvik-cache/*.tmp ]; then
-		# 	rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
-		# fi
-		#
-		# # remove usuage stats
-		# if [ -e /data/system/usagestats/* ]; then
-		# 	rm -f /data/system/usagestats/* > /dev/null 2>&1
-		# fi
-		#
-		# # remove app usuage stats
-		# if [ -e /data/system/appusagestats/* ]; then
-		# 	rm -f /data/system/appusagestats/* > /dev/null 2>&1
-		# fi
-		#
-		# # remove dropbox data content
-		# if [ -e /data/system/dropbox/* ]; then
-		# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
-		# fi
-		#
-		# # remove user behaviour
-		# if  [ -e /data/system/userbehavior.db ]; then
-		# 	rm -f /data/system/userbehavior.db > /dev/null 2>&1
-		# fi
-		#
-		# # disable usuage stats
-		# if  [ -d /data/system/usagestats ]; then
-		# 	chmod 0400 /data/system/usagestats > /dev/null 2>&1
-		# fi
-		#
-		# # disable app usage stats
-		# if  [ -d /data/system/appusagestats ]; then
-		# 	chmod 0400 /data/system/appusagestats > /dev/null 2>&1
-		# fi
+
+		#cleaner
+		rm -f /cache/*.apk
+		rm -f /cache/*.tmp
+		rm -f /cache/recovery/*
+		rm -f /data/*.log
+		rm -f /data/*.txt
+		rm -f /data/anr/*.*
+		rm -f /data/backup/pending/*.tmp
+		rm -f /data/cache/*.*
+		rm -f /data/dalvik-cache/*.apk
+		rm -f /data/dalvik-cache/*.tmp
+		rm -f /data/log/*.*
+		rm -f /data/local/*.apk
+		rm -f /data/local/*.log
+		rm -f /data/local/tmp/*.*
+		rm -f /data/last_alog/*
+		rm -f /data/last_kmsg/*
+		rm -f /data/mlog/*
+		rm -f /data/tombstones/*
+		rm -f /data/system/dropbox/*
+		rm -f /data/system/usagestats/*
+		rm -rf /sdcard/LOST.DIR
+
+		#drop caches
+		echo "3" > /proc/sys/vm/drop_caches;
 
 		$sysro
 		clear
@@ -848,6 +823,22 @@ options(){
 		b|B ) backdrop;;
 		* ) echo && echo "error 404, function not found." && sleep 2 && options;;
 	esac
+}
+
+sysrw(){
+	mount -o remount,rw /
+	mount -o remount,rw rootfs
+	mount -o remount,rw /system
+	mount -o remount,rw /data
+	mount -o remount,rw /cache
+}
+
+sysro(){
+	mount -o remount,ro /
+	mount -o remount,ro rootfs
+	mount -o remount,ro /system
+	mount -o remount,ro /data
+	mount -o remount,ro /cache
 }
 
 debug_mode_toggle(){
