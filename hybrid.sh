@@ -142,7 +142,7 @@ clean_up(){
 		rm -f /data/tombstones/*
 		rm -f /data/system/dropbox/*
 		rm -f /data/system/usagestats/*
-		rm -rf /sdcard/LOST.DIR
+		rm -rf /sdcard/LOST.DIR #update permanent options future diamond :P
 
 		#drop caches
 		echo "3" > /proc/sys/vm/drop_caches;
