@@ -142,7 +142,7 @@ clean_up(){
 		rm -f /data/tombstones/*
 		rm -f /data/system/dropbox/*
 		rm -f /data/system/usagestats/*
-		rm -rf /sdcard/LOST.DIR #update permanent options future diamond :P
+		rm -rf /sdcard/LOST.DIR
 
 		#drop caches
 		echo "3" > /proc/sys/vm/drop_caches;
@@ -164,55 +164,27 @@ cat >> /system/etc/init.d/99clean_up <<EOF
 #!/system/bin/sh
 sleep 17;
 
-# # remove cache apps
-# if [ -e /cache/*.apk ];then
-# 	rm -f /cache/*.apk > /dev/null 2>&1
-# fi
-
-# remove cache temp
-if [ -e /cache/*.tmp ]; then
-	rm -f /cache/*.tmp > /dev/null 2>&1
-fi
-
-# # remove dalvik-cache apps
-# if [ -e /data/dalvik-cache/*.apk ]; then
-# 	rm -f /data/dalvik-cache/*.apk > /dev/null 2>&1
-# fi
-
-# remove dalvik-cache temp
-if [ -e /data/dalvik-cache/*.tmp ]; then
-	rm -f /data/dalvik-cache/*.tmp > /dev/null 2>&1
-fi
-
-# remove usuage stats
-if [ -e /data/system/usagestats/* ]; then
-	rm -f /data/system/usagestats/* > /dev/null 2>&1
-fi
-
-# remove app usuage stats
-if [ -e /data/system/appusagestats/* ]; then
-	rm -f /data/system/appusagestats/* > /dev/null 2>&1
-fi
-
-# # remove dropbox data content
-# if [ -e /data/system/dropbox/* ]; then
-# 	rm -f /data/system/dropbox/* > /dev/null 2>&1
-# fi
-
-# remove user behaviour
-if  [ -e /data/system/userbehavior.db ]; then
-	rm -f /data/system/userbehavior.db > /dev/null 2>&1
-fi
-
-# disable usuage stats
-if  [ -d /data/system/usagestats ]; then
-	chmod 0400 /data/system/usagestats > /dev/null 2>&1
-fi
-
-# disable app usage stats
-if  [ -d /data/system/appusagestats ]; then
-	chmod 0400 /data/system/appusagestats > /dev/null 2>&1
-fi
+rm -f /cache/*.apk
+rm -f /cache/*.tmp
+rm -f /cache/recovery/*
+rm -f /data/*.log
+rm -f /data/*.txt
+rm -f /data/anr/*.*
+rm -f /data/backup/pending/*.tmp
+rm -f /data/cache/*.*
+rm -f /data/dalvik-cache/*.apk
+rm -f /data/dalvik-cache/*.tmp
+rm -f /data/log/*.*
+rm -f /data/local/*.apk
+rm -f /data/local/*.log
+rm -f /data/local/tmp/*.*
+rm -f /data/last_alog/*
+rm -f /data/last_kmsg/*
+rm -f /data/mlog/*
+rm -f /data/tombstones/*
+rm -f /data/system/dropbox/*
+rm -f /data/system/usagestats/*
+rm -rf /sdcard/LOST.DIR
 
 EOF
 		fi
