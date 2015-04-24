@@ -853,7 +853,7 @@ usage_mode_toggle(){
 	fi
 
 	sleep 1;
-	echo "${yellow}Usage Mode:${nc}"
+	echo "${yellow}Install Mode:${nc}"
 	echo "T|Temporary installs"
 	echo "P|Permanent installs"
 	echo ""
