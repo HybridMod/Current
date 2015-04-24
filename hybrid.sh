@@ -691,7 +691,7 @@ catalyst_inject(){
   fi
 
 	sleep 3;
-	
+
 (
 while [ 1 ]
 do
@@ -782,7 +782,7 @@ options(){
 	clear
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
-	echo " 2|Temp/Perm mode toggle"
+	echo " 2|Install type toggle"
 	echo " 3|Disable zRAM"
 	echo " B|Back"
 	echo ""
@@ -798,6 +798,7 @@ options(){
 }
 
 sysrw(){
+	#type=rw
 	mount -o remount,rw /
 	mount -o remount,rw rootfs
 	mount -o remount,rw /system
@@ -806,6 +807,7 @@ sysrw(){
 }
 
 sysro(){
+	#type=ro
 	mount -o remount,ro /
 	mount -o remount,ro rootfs
 	mount -o remount,ro /system
