@@ -691,7 +691,7 @@ catalyst_inject(){
   fi
 
 	sleep 3;
-	#clear
+	
 (
 while [ 1 ]
 do
