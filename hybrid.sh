@@ -534,13 +534,13 @@ EOF
 }
 
 kill_log(){
-	echo "${yellow}Removing log operations...${nc}"
+	echo "${yellow}Removing logger...${nc}"
 
 	if [ -e /dev/log/main ]; then
 		rm -f /dev/log/main
 	fi
 
-	echo "${yellow}Log operations removed!${nc}"
+	echo "${yellow}Logger removed!${nc}"
 	sleep 2
 	backdrop
 }
