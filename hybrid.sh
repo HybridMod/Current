@@ -142,6 +142,7 @@ clean_up(){
 		rm -f /data/tombstones/*
 		rm -f /data/system/dropbox/*
 		rm -f /data/system/usagestats/*
+		rm -f /sdcard/LOST.DIR/*
 		rm -rf /sdcard/LOST.DIR
 
 		#drop caches
