@@ -723,7 +723,7 @@ catalyst_time_cfg(){
 	sleep 2;
 	clear
 
-	catalyst_control #back
+	catalyst_control #fallback
 }
 
 
