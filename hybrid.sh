@@ -697,7 +697,7 @@ catalyst_inject(){
 while [ 1 ]
 do
 	sleep $waiter;
-	sync; #write to disk
+	sync;
   	echo "3" > /proc/sys/vm/drop_caches
   	if [ "$user_debug" == 1 ]; then
   		echo -n "game booster exec time: " && date
@@ -723,9 +723,20 @@ catalyst_time_cfg(){
 	sleep 2;
 	clear
 
-	catalyst_control #fallback
+	catalyst_control
 }
 
+zram_enable(){
+	echo "${yellow}Enabling zRAM...${nc}"
+	sleep 1
+
+	swapon /dev/block/zram0
+
+	clear
+	echo "${yellow}zRAM enabled!${nc}"
+	sleep 2
+	options
+}
 
 zram_disable(){
 	echo "${yellow}Disabling zRAM...${nc}"
