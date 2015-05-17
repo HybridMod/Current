@@ -3,7 +3,7 @@
 
 variables(){
 	ver=0.1
-	user_debug=0
+	user_debug=1
 	waiter=60
 }
 
