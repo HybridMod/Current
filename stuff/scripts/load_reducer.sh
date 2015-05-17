@@ -13,8 +13,8 @@ variables #call it m8
 
 if [ "$user_debug" == 1 ]; then
 	echo "android has this file called the drop_caches file,"
-	echo "stored in /proc/sys/vm and entering 1 drops some stuff"
-	echo "2, drops more and 3 all of it, so basically we drop"
+	echo "stored in /proc/sys/vm and entering 1 drops some stuff,"
+	echo "2 drops more and 3 all of it, so basically we drop"
 	echo "all the stuffs to try and free up more resources for that"
 	echo "resource intensive task and such (gaming, heavy apps)"
 	echo ""
@@ -47,8 +47,8 @@ do
 	sleep $waiter;
 	sync;
   	echo "3" > /proc/sys/vm/drop_caches
-  	if [ "$user_debug" == 1 ]; then
-  		echo -n "exec at: " && date
-  	fi
+  	# if [ "$user_debug" == 1 ]; then
+  	# 	echo -n "exec at: " && date
+  	# fi
 done
 )
