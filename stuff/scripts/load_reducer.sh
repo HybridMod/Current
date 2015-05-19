@@ -59,8 +59,8 @@ do
 	sleep $waiter;
 	sync;
   	echo "3" > /proc/sys/vm/drop_caches
-  	# if [ "$user_debug" == 1 ]; then
-  	# 	echo -n "exec at: " && date
-  	# fi
+  	if [ "$user_debug" == 1 ]; then
+  		echo -n "exec at: " && date
+  	fi
 done
 )
