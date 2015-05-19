@@ -47,7 +47,7 @@ if [ "$user_debug" == 1 ]; then
 	sleep 1;
 	echo -n "> "
 	read waiter
-	echo "tnx m8, lemme boost yer stuff now..."
+	echo "tnx m9, lemme boost yer stuff now..."
 	sleep 1;
 	echo ""
 fi
