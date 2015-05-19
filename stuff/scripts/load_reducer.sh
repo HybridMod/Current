@@ -1,4 +1,4 @@
-#linear game booster created by Diamond Bond
+#super duper load reducer created by Diamond Bond
 #based on many concepts, merged together.
 
 variables(){
