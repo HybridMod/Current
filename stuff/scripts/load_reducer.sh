@@ -64,8 +64,3 @@ do
   	fi
 done
 )
-
-# #tempfs stuffs
-# #mkdir -p /data/potatoes #if -e above here pls
-# echo "<logme>" > /data/
-#gone with the tempfs idea
