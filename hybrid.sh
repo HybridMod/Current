@@ -2,7 +2,7 @@
 
 var(){
 	#version_control
-	ver_revision=1.6
+	ver_revision=1.7
 
 	#options
 	userdebug=0
