@@ -8,6 +8,7 @@ var(){
 	userdebug=0
 	usagetype=0
 	initd=1
+	motod=0
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
