@@ -285,7 +285,7 @@ vm_tune(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
-			$sysrw
+			$sysrw #possibly change sysrw into function
 			mkdir -p /system/etc/init.d
 			touch /system/etc/init.d/75vm
 			chmod 755 /system/etc/init.d/75vm
