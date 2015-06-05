@@ -886,6 +886,7 @@ safe_exit(){
 	$sysro
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo "${cyan}     by Pizza_Dox...${nc}"
+exit
 }
 
 rom(){
@@ -938,7 +939,20 @@ debug_info(){
 		debug_info
 	fi
 
-	#call main functions
-	title
-	body
+#run script with default sh
+shfix="/data/sh_fix.temp"
+if [ "`grep 1 $shfix`" ]; then
+echo "0" > $shfix
+mount -o remount ro /data
+#call main functions
+title
+body
+fi
+mount -o remount rw /data
+touch $shfix
+echo "0" > $shfix
+if [ "`grep 0 $shfix`" ]; then
+echo "1" > $shfix
+$SHELL -c hybrid
+fi
 #}
