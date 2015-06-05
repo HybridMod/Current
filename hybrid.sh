@@ -1,4 +1,4 @@
-#hybrid.sh by Pizza_Dox
+#hybrid.sh by DiamondBond & Deic
 
 var(){
 	#version_control
