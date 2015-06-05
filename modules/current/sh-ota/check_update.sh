@@ -1,12 +1,13 @@
-#SH-OTA v1.1 By Deic and Diamond Bond
+#check_update.sh v1.2 By Deic and Diamond Bond
 
-var(){} #temp
-name="script.sh" #Name of your script
-version="1.0_stable" #Version of your script
-locallocation="/system/xbin/" #Location of your script on device
-cloudlocation="https://www.yourpage.com/script.sh" #Location of your new script in the cloud
-check="$EXTERNAL_STORAGE/Download/check_update"
-script="$EXTERNAL_STORAGE/Download/$name"
+var(){
+  name="example" #Name of your script - refer to example.sh within this tree
+  version="1.0"
+  local_location="/system/xbin/$name"
+  cloud_location="https://www.yourpage.com/$name-1.1.sh" #notice how the cloud script is .1 ahead of the locally running one 
+  check="$EXTERNAL_STORAGE/Download/check_update"
+  script="$EXTERNAL_STORAGE/Download/$name"
+}
 
 check_update(){ #to be edited past this point
   echo
