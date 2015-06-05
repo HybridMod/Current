@@ -1,6 +1,6 @@
 #SH-OTA v1.1 By Deic and Diamond Bond
 
-#Variables
+var(){} #temp
 name="script.sh" #Name of your script
 version="1.0_stable" #Version of your script
 locallocation="/system/xbin/" #Location of your script on device
