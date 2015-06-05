@@ -5,7 +5,7 @@ name="script.sh" #Name of your script
 version="1.0_stable" #Version of your script
 locallocation="/system/xbin/" #Location of your script on device
 cloudlocation="https://www.yourpage.com/script.sh" #Location of your new script in the cloud
-check="$EXTERNAL_STORAGE/Download/check.update"
+check="$EXTERNAL_STORAGE/Download/check_update"
 script="$EXTERNAL_STORAGE/Download/$name"
 
 check_update(){ #to be edited past this point
