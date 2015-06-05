@@ -1,4 +1,4 @@
-#check_update.sh v1.2 By Deic and Diamond Bond
+#sh-ota-framework v1.2 By Deic and Diamond Bond
 
 var(){
   name="example" #Name of your script - refer to example.sh within this tree

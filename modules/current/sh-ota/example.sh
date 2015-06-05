@@ -1,4 +1,7 @@
+#example.sh v1.1 by Deic & Diamond Bond
+
 # This is your script, the below snippet of code is the code that you want to be at top of your script
+
 check_update(){
 	cloudurl=https://www.yoursite.com/check_update #URL to download your check_update file
 	
