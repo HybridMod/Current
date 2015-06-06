@@ -1,4 +1,5 @@
 #hybrid.sh by DiamondBond & Deic
+#major revamp underway
 
 var(){
 	#version_control
