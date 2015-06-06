@@ -2,18 +2,20 @@
 
 var(){
 	#version_control
-	ver_revision=1.9
+	ver_revision=1.8
 
 	#options
-	userdebug=0
+	userdebug=1 #non release type variables
 	usagetype=0
 	initd=1
 	motod=0
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
-	kkrw='mount -o remount rw /sys'
-	kkro='mount -o remount ro /sys'
+	#kkrw='mount -o remount rw /sys'
+	#kkro='mount -o remount ro /sys'
+	sysrw='mount -o remount rw /sys'
+	sysro='mount -o remount ro /sys'
 
 	#color control
 	red='\033[0;31m'
@@ -285,7 +287,7 @@ vm_tune(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
-			$sysrw #possibly change sysrw into function
+			$sysrw
 			mkdir -p /system/etc/init.d
 			touch /system/etc/init.d/75vm
 			chmod 755 /system/etc/init.d/75vm
