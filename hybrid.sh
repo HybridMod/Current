@@ -5,10 +5,11 @@ var(){
 	ver_revision=1.8
 
 	#options
-	userdebug=1 #non release type variables
+	userdebug=1
 	usagetype=0
 	initd=1
 	motod=0
+	shfixrun=0
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
@@ -932,7 +933,7 @@ debug_info(){
 	backdrop
 }
 
-session_behaviour(){
+shfix_session_behaviour(){
 	#call startup functions
 	clear
 	cli_displaytype
@@ -964,3 +965,26 @@ session_behaviour(){
 		$SHELL -c hybrid
 	fi
 }
+
+session_behaviour(){
+	#call startup functions
+	clear
+	cli_displaytype
+	var
+	rom
+
+	#run conditional statements
+	if [ $userdebug == 1 ]; then
+		debug_info
+	fi
+
+	#call main functions
+	title
+	body
+}
+
+#call
+if [ $shfixrun == 1 ]; then
+	shfix_session_behaviour
+else
+	sub_session_behaviour
