@@ -947,7 +947,7 @@ shfix_session_behaviour(){
 	fi
 	
 	#default sh
-	shfix="/data/sh_fix.temp" #really should be defined up top but anyways...
+	shfix="/data/sh_fix.temp"
 	if [ "`grep 1 $shfix`" ]; then
 		echo "0" > $shfix
 		$sysro
