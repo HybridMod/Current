@@ -16,7 +16,9 @@ var(){
 	#kkro='mount -o remount ro /sys'
 	sysrw='mount -o remount rw /sys'
 	sysro='mount -o remount ro /sys'
+}
 
+cli_displaytype(){
 	#color control
 	red='\033[0;31m'
 	green='\033[0;32m'
@@ -24,7 +26,7 @@ var(){
 	cyan='\033[0;36m'
 	white='\033[0;97m'
 
-	#format control
+	#formatting control
 	bld='\033[0;1m' #bold
 	blnk='\033[0;5m' #blinking
 	nc='\033[0m' # no color
@@ -930,31 +932,35 @@ debug_info(){
 	backdrop
 }
 
-#session_behaviour(){
+session_behaviour(){
 	#call startup functions
 	clear
+	cli_displaytype
 	var
 	rom
-
+	
 	#run conditional statements
+	#userdebug mode
 	if [ $userdebug == 1 ]; then
 		debug_info
 	fi
-
-#run script with default sh
-shfix="/data/sh_fix.temp"
-if [ "`grep 1 $shfix`" ]; then
-echo "0" > $shfix
-mount -o remount ro /data
-#call main functions
-title
-body
-fi
-mount -o remount rw /data
-touch $shfix
-echo "0" > $shfix
-if [ "`grep 0 $shfix`" ]; then
-echo "1" > $shfix
-$SHELL -c hybrid
-fi
-#}
+	
+	#default sh
+	shfix="/data/sh_fix.temp" #really should be defined up top but anyways...
+	if [ "`grep 1 $shfix`" ]; then
+		echo "0" > $shfix
+		$sysro
+		#call main functions
+		title
+		body
+	fi
+	
+	$sysrw
+	touch $shfix
+	echo "0" > $shfix
+	
+	if [ "`grep 0 $shfix`" ]; then
+		echo "1" > $shfix
+		$SHELL -c hybrid
+	fi
+}
