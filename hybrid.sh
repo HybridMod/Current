@@ -71,8 +71,8 @@ body(){
 		10 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
-		s|S ) am start https://github.com/HybridMod/Current/";;
-		r|R ) vreboot;;
+		s|S ) am start "https://github.com/HybridMod/Current/" $null;;
+		r|R ) creboot;;
 		e|E ) safe_exit;;
 		* ) error_404 && backdrop;;
 	esac
@@ -101,7 +101,7 @@ drop_caches(){
 
 	if [ $usagetype == 1 ]; then
 	  if [ $initd == 1 ]; then
-	    sysrw
+	    sysrw $null
 	    mkdir -p /system/etc/init.d
 	    touch /system/etc/init.d/97cache_drop
 	    chmod 755 /system/etc/init.d/97cache_drop
@@ -723,11 +723,11 @@ app_wise(){
 	echo -n "> "
 	read options_opt
 	case $options_opt in
-		1 ) am start http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk && $null && app_wise;;
-		2 ) am start http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851 && $null && app_wise;;
-		3 ) am start http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk && $null && app_wise;;
-		4 ) am start http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher && $null && app_wise;;
-		5 ) am start http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk && $null && app_wise;;
+		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" $null && app_wise;;
+		2 ) am start "http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851" $null && app_wise;;
+		3 ) am start "http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk" $null && app_wise;;
+		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" $null && app_wise;;
+		5 ) am start "http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk" $null && app_wise;;
 		b|B ) backdrop;;
 		* ) error_404 && app_wise;;
 	esac
