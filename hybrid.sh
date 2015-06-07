@@ -14,10 +14,6 @@ var(){
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	null=`> /dev/null 2>&1`
-	#kkrw='mount -o remount rw /sys'
-	#kkro='mount -o remount ro /sys'
-	#sysrw='mount -o remount rw /sys'
-	#sysro='mount -o remount ro /sys'
 }
 
 cli_displaytype(){
