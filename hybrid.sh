@@ -1,5 +1,43 @@
 #hybrid.sh by DiamondBond & Deic
 
+sh_ota(){
+	#SH-OTA.sh By Deic & DiamondBond
+
+	#Variables
+	var(){
+		name="SH-OTA.sh"
+		download="https://www.Your-Site/SH-OTA.sh"
+		check="$EXTERNAL_STORAGE/Download/$name"
+		browser="am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity"
+		term="am start -a android.intent.action.MAIN -n jackpal.androidterm/.Term"
+		null=`>/dev/null 2>&1`
+	}
+
+	download(){
+		$browser $download $null
+		$term $null
+		check_update
+	}
+
+	check_update(){
+		if [ -e $check ]; then
+			am force-stop com.android.browser
+			$SHELL -c $check
+		else
+			wait_download
+		fi
+	}
+
+	wait_download(){
+		check_update
+	}
+
+	#Start
+	clear
+	var
+	download
+}
+
 var(){
 	#version_control
 	ver_revision=1.8
@@ -13,7 +51,7 @@ var(){
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
-	null=`> /dev/null 2>&1`
+	null=`>/dev/null 2>&1`
 }
 
 cli_displaytype(){
@@ -926,7 +964,7 @@ shfix_session_behaviour(){
 
 session_behaviour(){
 	#call startup functions
-	clear
+	sh_ota
 	cli_displaytype
 	var
 	rom
