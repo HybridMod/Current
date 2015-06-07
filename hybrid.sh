@@ -984,3 +984,4 @@ if [ $shfixrun == 1 ]; then
 	shfix_session_behaviour
 else
 	sub_session_behaviour
+fi
