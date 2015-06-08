@@ -10,12 +10,11 @@ sh_ota(){
 		check="$EXTERNAL_STORAGE/Download/$name"
 		browser="am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity"
 		term="am start -a android.intent.action.MAIN -n jackpal.androidterm/.Term"
-		null=`>/dev/null 2>&1`
 	}
 
 	download(){
-		$browser $download $null
-		$term $null
+		$browser $download >/dev/null 2>&1
+		$term $null >/dev/null 2>&1
 		check_update
 	}
 
@@ -51,7 +50,7 @@ var(){
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
-	null=`>/dev/null 2>&1`
+	shfix="/data/sh_fix.temp"
 }
 
 cli_displaytype(){
@@ -65,13 +64,12 @@ cli_displaytype(){
 	#formatting control
 	bld='\033[0;1m' #bold
 	blnk='\033[0;5m' #blinking
-	nc='\033[0m' # no color
+	nc='\033[0m' #no color
 }
 
 body(){
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo
-
 	echo "${yellow}Menu:${nc}"
 	echo " 1|Instant Boost"
 	echo " 2|Clean up my crap"
@@ -105,7 +103,7 @@ body(){
 		10 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
-		s|S ) am start "https://github.com/HybridMod/Current/" $null;;
+		s|S ) am start "https://github.com/HybridMod/Current/" >/dev/null 2>&1;;
 		r|R ) creboot;;
 		e|E ) safe_exit;;
 		* ) error_404 && backdrop;;
@@ -122,6 +120,48 @@ error_404(){
 	echo
 	echo "error 404, function not found."
 	sleep 3
+}
+
+creboot(){
+	clear
+	sysro
+	echo "Rebooting in 3"
+	sleep 1
+	clear
+	echo "Rebooting in 2."
+	sleep 1
+	clear
+	echo "Rebooting in 1.."
+	sleep 1
+	clear
+	echo "Rebooting..."
+	sleep 1
+	reboot
+}
+
+safe_exit(){
+	sleep 1
+	clear
+	sysro
+	echo "${cyan}[-=The Hybrid Project=-]${nc}"
+	echo "${cyan}     by DiamondBond...${nc}"
+exit
+}
+
+sysrw(){
+	#type=rw
+	mount -o remount rw /
+	mount -o remount rw /system
+	mount -o remount rw /data
+	mount -o remount rw /cache
+}
+
+sysro(){
+	#type=ro
+	mount -o remount ro /
+	mount -o remount ro /system
+	mount -o remount ro /data
+	mount -o remount ro /cache
 }
 
 drop_caches(){
@@ -757,11 +797,11 @@ app_wise(){
 	echo -n "> "
 	read options_opt
 	case $options_opt in
-		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" $null && app_wise;;
-		2 ) am start "http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851" $null && app_wise;;
-		3 ) am start "http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk" $null && app_wise;;
-		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" $null && app_wise;;
-		5 ) am start "http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk" $null && app_wise;;
+		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" >/dev/null 2>&1 && app_wise;;
+		2 ) am start "http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851" >/dev/null 2>&1 && app_wise;;
+		3 ) am start "http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk" >/dev/null 2>&1 && app_wise;;
+		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" >/dev/null 2>&1 && app_wise;;
+		5 ) am start "http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk" >/dev/null 2>&1 && app_wise;;
 		b|B ) backdrop;;
 		* ) error_404 && app_wise;;
 	esac
@@ -800,22 +840,6 @@ options(){
 		b|B ) backdrop;;
 		* ) error_404 && options;;
 	esac
-}
-
-sysrw(){
-	#type=rw
-	mount -o remount rw rootfs /
-	mount -o remount rw /system
-	mount -o remount rw /data
-	mount -o remount rw /cache
-}
-
-sysro(){
-	#type=ro
-	mount -o remount ro rootfs /
-	mount -o remount ro /system
-	mount -o remount ro /data
-	mount -o remount ro /cache
 }
 
 debug_mode_toggle(){
@@ -870,23 +894,6 @@ usage_mode_toggle(){
 	esac
 }
 
-creboot(){
-	clear
-	echo "Rebooting in 3..."
-	sysro
-	sleep 3
-	reboot
-}
-
-safe_exit(){
-	sleep 1
-	clear
-	sysro
-	echo "${cyan}[-=The Hybrid Project=-]${nc}"
-	echo "${cyan}     by DiamondBond...${nc}"
-exit
-}
-
 rom(){
 	rom=`getprop ro.build.type`
 }
@@ -931,6 +938,7 @@ debug_info(){
 shfix_session_behaviour(){
 	#call startup functions
 	clear
+	#sh_ota
 	cli_displaytype
 	var
 	rom
@@ -942,12 +950,10 @@ shfix_session_behaviour(){
 	fi
 	
 	#default sh
-	shfix="/data/sh_fix.temp"
-	if [ "`grep 1 $shfix`" ]; then
+	if [ grep 1 $shfix ]; then
 		echo "0" > $shfix
 		sysro
 		#call main functions
-		title
 		body
 	fi
 	
@@ -956,7 +962,7 @@ shfix_session_behaviour(){
 	chmod 777 $shfix
 	echo "0" > $shfix
 	
-	if [ "`grep 0 $shfix`" ]; then
+	if [ grep 0 $shfix ]; then
 		echo "1" > $shfix
 		$SHELL -c hybrid
 	fi
@@ -964,7 +970,8 @@ shfix_session_behaviour(){
 
 session_behaviour(){
 	#call startup functions
-	sh_ota
+	clear
+	#sh_ota
 	cli_displaytype
 	var
 	rom
@@ -975,7 +982,6 @@ session_behaviour(){
 	fi
 
 	#call main functions
-	title
 	body
 }
 
@@ -983,5 +989,5 @@ session_behaviour(){
 if [ $shfixrun == 1 ]; then
 	shfix_session_behaviour
 else
-	sub_session_behaviour
+	session_behaviour
 fi
