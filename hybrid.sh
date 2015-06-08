@@ -8,13 +8,11 @@ sh_ota(){
 		name="SH-OTA.sh"
 		download="https://www.Your-Site/SH-OTA.sh"
 		check="$EXTERNAL_STORAGE/Download/$name"
-		browser="am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity"
-		term="am start -a android.intent.action.MAIN -n jackpal.androidterm/.Term"
 	}
 
 	download(){
-		$browser $download >/dev/null 2>&1
-		$term >/dev/null 2>&1
+		am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity $download >/dev/null 2>&1
+		am start -a android.intent.action.MAIN -n jackpal.androidterm/.Term >/dev/null 2>&1
 		check_update
 	}
 
@@ -42,7 +40,7 @@ var(){
 	ver_revision=1.8
 
 	#options
-	userdebug=1
+	userdebug=0
 	usagetype=0
 	initd=1
 	motod=0
