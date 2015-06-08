@@ -1,38 +1,44 @@
 #hybrid.sh by DiamondBond & Deic
 
 sh_ota(){
-	#SH-OTA.sh By Deic & DiamondBond
+	#SH-OTA Your-Script By Deic & DiamondBond
 
 	#Variables
-	var(){
-		name="SH-OTA.sh"
-		download="https://www.Your-Site/SH-OTA.sh"
-		check="$EXTERNAL_STORAGE/Download/$name"
+	a1(){
+		#Version of your script = "1.0_stable" <---- IMPORTANT
+		na="SH-OTA.sh" #Name of your SH-OTA file
+		do="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
+		ch="$EXTERNAL_STORAGE/Download/$name"
+		br="com.android.browser"
+		am=`am start -a android.intent.action`
 	}
 
-	download(){
-		am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity $download >/dev/null 2>&1
-		am start -a android.intent.action.MAIN -n jackpal.androidterm/.Term >/dev/null 2>&1
-		check_update
+	#Download SH-OTA file
+	a2(){
+		$am.VIEW -n $br/.BrowserActivity $download >/dev/null 2>&1
+		$am.MAIN -n jackpal.androidterm/.Term >/dev/null 2>&1
+		a3
 	}
 
-	check_update(){
-		if [ -e $check ]; then
-			am force-stop com.android.browser
-			$SHELL -c $check
+	#Wait download
+	a3(){
+		a4
+	}
+
+	#Run SH-OTA file
+	a4(){
+		if [ -e $ch ]; then
+			am force-stop $br
+			$SHELL -c $ch
 		else
-			wait_download
+			a3
 		fi
 	}
 
-	wait_download(){
-		check_update
-	}
-
-	#Start
+	#Script start
 	clear
-	var
-	download
+	a1
+	a2
 }
 
 var(){
