@@ -5,7 +5,6 @@ sh_ota(){
 
 	#Variables
 	a1(){
-		#Version of your script = "1.0_stable" <---- IMPORTANT
 		na="SH-OTA.sh" #Name of your SH-OTA file
 		do="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
 		ch="$EXTERNAL_STORAGE/Download/$name"
