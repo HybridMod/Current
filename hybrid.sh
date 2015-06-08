@@ -53,7 +53,17 @@ var(){
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
-	shfix="/data/sh_fix.temp"
+	rom=`getprop ro.build.type`
+	shfix="/data/hybrid/shfix.cfg"
+	usagetypecfg="/data/hybrid/usagetype.cfg"
+	
+	if [ grep 0 $usagetypecfg ]; then
+		usagetype=0
+	fi
+	
+	if [ grep 1 $usagetypecfg ]; then
+		usagetype=1
+	fi
 }
 
 cli_displaytype(){
@@ -117,14 +127,13 @@ body(){
 
 backdrop(){
 	clear
-	sleep 1
 	body
 }
 
 error_404(){
 	echo
 	echo "error 404, function not found."
-	sleep 3
+	sleep 1
 }
 
 creboot(){
@@ -145,7 +154,6 @@ creboot(){
 }
 
 safe_exit(){
-	sleep 1
 	clear
 	sysro
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
@@ -175,12 +183,12 @@ drop_caches(){
 		echo "${yellow}Caches dropped!${nc}"
 		sync
 		echo "3" > /proc/sys/vm/drop_caches
-		sleep 2
+		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
 	  if [ $initd == 1 ]; then
-	    sysrw $null
+	    sysrw
 	    mkdir -p /system/etc/init.d
 	    touch /system/etc/init.d/97cache_drop
 	    chmod 755 /system/etc/init.d/97cache_drop
@@ -196,6 +204,7 @@ EOF
 	  fi
 
 		echo "${yellow}Installed!${nc}"
+		sleep 1
 
 	fi
 
@@ -209,7 +218,6 @@ clean_up(){
 	clear
 	if [ $usagetype == 0 ]; then
 		echo "${yellow}Cleaning up...${nc}"
-		sleep 3
 		sysrw
 
 		#cleaner
@@ -242,7 +250,7 @@ clean_up(){
 		sysro
 		clear
 		echo "${yellow}Clean up complete!${nc}"
-		sleep 2
+		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
@@ -281,6 +289,7 @@ rm -rf /sdcard/LOST.DIR
 EOF
 		fi
 		echo "${yellow}Installed!${nc}"
+		sleep 1
 	fi
 
 	sysro
@@ -292,6 +301,7 @@ sql_optimize(){
 	sysrw
 
 	echo "${yellow}Optimizing SQLite databases!"
+	sleep 1
 
 	if [ -e /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
@@ -316,23 +326,22 @@ sql_optimize(){
 	for i in `find ./ -iname "*.db"`; do
 		$SQLLOC $i 'VACUUM;'
 		clear; echo "${yellow}Vacuumed: $i${nc}"
-		sleep 1
 		$SQLLOC $i 'REINDEX;'
 		echo "${yellow}Reindexed : $i${nc}"
-		sleep 1
 	done
 
 	sysro
 	clear
 	echo "SQLite database optimizations complete!"
-	sleep 2
+	sleep 1
 	backdrop
 }
 
 vm_tune(){
 	clear
 	echo "${yellow}Optimizing VM...${nc}"
-
+	sleep 1
+	
 	if [ $usagetype == 0 ]; then
 		echo "80" > /proc/sys/vm/swappiness
 		echo "10" > /proc/sys/vm/vfs_cache_pressure
@@ -374,16 +383,14 @@ EOF
 	sysro
 	clear
 	echo "${yellow}VM Optimized!${nc}"
-	sleep 2
+	sleep 1
 	backdrop
 }
 
 lmk_tune_opt(){
 	clear
 	echo "${yellow}LMK Optimization!${nc}"
-	sleep 2
-	clear
-
+	echo
 	echo "${yellow}Minfree profiles available:${nc}"
 	echo " B|Balanced"
 	echo " M|Multitasking|"
@@ -391,10 +398,7 @@ lmk_tune_opt(){
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B|m|M|g|G ) echo "Ok!"
-					sleep 3
-					lmk_profile=$lmk_opt
-					lmk_apply;;
+		b|B|m|M|g|G ) echo "Ok!" && sleep 1 && lmk_profile=$lmk_opt && lmk_apply;;
 		* ) error_404 && lmk_tune_opt;;
 	esac
 }
@@ -434,10 +438,9 @@ EOF
 	fi
 
 	sysro
-	sleep 3
 	clear
 	echo "${yellow}LMK Optimized!${nc}"
-	sleep 2
+	sleep 1
 	backdrop
 }
 
@@ -446,33 +449,34 @@ network_tune(){
 	if [ $usagetype == 0 ]; then
 		clear
 		echo "${yellow}Optimizing Networks...${nc}"
+		sleep 1
 
 		#General
-		echo 2097152 > /proc/sys/net/core/wmem_max
-		echo 2097152 > /proc/sys/net/core/rmem_max
-		echo 20480 > /proc/sys/net/core/optmem_max
-		echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-		echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
-		echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
-		echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
-		echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
-		echo 0 > /proc/sys/net/ipv4/tcp_timestamps
-		echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-		echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-		echo 1 > /proc/sys/net/ipv4/tcp_sack
-		echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
-		echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
-		echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
-		echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-		echo 0 > /proc/sys/net/ipv4/tcp_ecn
-		echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
-		echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
-		echo 1 > /proc/sys/net/ipv4/route/flush
-		echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
-		echo 524288 > /proc/sys/net/core/wmem_max
-		echo 524288 > /proc/sys/net/core/rmem_max
-		echo 110592 > /proc/sys/net/core/rmem_default
-		echo 110592 > /proc/sys/net/core/wmem_default
+		echo "2097152" > /proc/sys/net/core/wmem_max
+		echo "2097152" > /proc/sys/net/core/rmem_max
+		echo "20480" > /proc/sys/net/core/optmem_max
+		echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+		echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
+		echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
+		echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
+		echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
+		echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+		echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+		echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+		echo "1" > /proc/sys/net/ipv4/tcp_sack
+		echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+		echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
+		echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
+		echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
+		echo "0" > /proc/sys/net/ipv4/tcp_ecn
+		echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
+		echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
+		echo "1" > /proc/sys/net/ipv4/route/flush
+		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+		echo "524288" > /proc/sys/net/core/wmem_max
+		echo "524288" > /proc/sys/net/core/rmem_max
+		echo "110592" > /proc/sys/net/core/rmem_default
+		echo "110592" > /proc/sys/net/core/wmem_default
 
 		#WIFI Specific
 		# Turn on Source Address Verification in all interfaces.
@@ -495,8 +499,9 @@ network_tune(){
 		echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 		echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
+		clear
 		echo "${yellow}Networks Optimized!${nc}"
-		sleep 2
+		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
@@ -511,31 +516,31 @@ cat >> /system/etc/init.d/56net <<EOF
 sleep 5
 
 #General
-echo 2097152 > /proc/sys/net/core/wmem_max
-echo 2097152 > /proc/sys/net/core/rmem_max
-echo 20480 > /proc/sys/net/core/optmem_max
-echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
-echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
-echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
-echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
-echo 0 > /proc/sys/net/ipv4/tcp_timestamps
-echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-echo 1 > /proc/sys/net/ipv4/tcp_sack
-echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
-echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
-echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
-echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-echo 0 > /proc/sys/net/ipv4/tcp_ecn
-echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
-echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
-echo 1 > /proc/sys/net/ipv4/route/flush
-echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
-echo 524288 > /proc/sys/net/core/wmem_max
-echo 524288 > /proc/sys/net/core/rmem_max
-echo 110592 > /proc/sys/net/core/rmem_default
-echo 110592 > /proc/sys/net/core/wmem_default
+echo "2097152" > /proc/sys/net/core/wmem_max
+echo "2097152" > /proc/sys/net/core/rmem_max
+echo "20480" > /proc/sys/net/core/optmem_max
+echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
+echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
+echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+echo "1" > /proc/sys/net/ipv4/tcp_sack
+echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
+echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
+echo "0" > /proc/sys/net/ipv4/tcp_ecn
+echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
+echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
+echo "1" > /proc/sys/net/ipv4/route/flush
+echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+echo "524288" > /proc/sys/net/core/wmem_max
+echo "524288" > /proc/sys/net/core/rmem_max
+echo "110592" > /proc/sys/net/core/rmem_default
+echo "110592" > /proc/sys/net/core/wmem_default
 
 #WIFI Specific
 # Turn on Source Address Verification in all interfaces.
@@ -561,6 +566,7 @@ echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 EOF
 	  fi
 	  echo "${yellow}Installed!${nc}"
+	  sleep 1
 	fi
 
 	sysro
@@ -570,23 +576,24 @@ EOF
 kill_log(){
 	clear
 	echo "${yellow}Removing logger...${nc}"
+	sleep 1
 
 	rm -f /dev/log/main
 
+	clear
 	echo "${yellow}Logger removed!${nc}"
-	sleep 2
+	sleep 1
 	backdrop
 }
 
 kernel_kontrol(){
 	clear
-	sleep 1
 	echo "${yellow}Kernel Kontrol${nc}"
+	echo
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
 	echo " 4|View KCal Values"
-	echo
 	echo " B|Back"
 	echo -n "> "
 	read kk_opt
@@ -617,20 +624,17 @@ setcpufreq(){
 	echo "${bld}Available Freq's:${nc} "
 	echo "$listfreq"
 	echo ""
-	sleep 2
 	echo -n "New Max Freq: " && sleep 1; read newmaxfreq;
 	echo -n "New Min Freq: " && sleep 1; read newminfreq;
-	sleep 1
 
 	sysrw
 	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 	sysro
-	sleep 1
 
 	clear
 	echo "${yellow}New Freq's applied!${nc}"
-	sleep 2
+	sleep 1
 
 	kernel_kontrol
 }
@@ -648,18 +652,15 @@ setgov(){
 	echo "${bld}Available Governors:${nc} "
 	echo "$listgov"
 	echo
-	sleep 2
 	echo -n "New Governor: " && sleep 1; read newgov;
-	sleep 1
 
 	sysrw
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 	sysro
-	sleep 1
 
 	clear
 	echo "${yellow}New Governor applied!${nc}"
-	sleep 2
+	sleep 1
 
 	kernel_kontrol
 }
@@ -678,118 +679,37 @@ setiosched(){
 	echo "${bld}Available I/O Schedulers:${nc} "
 	echo "$listiosched"
 	echo
-	sleep 2
 	echo -n "New Scheduler: " && sleep 1; read newiosched;
-	sleep 1
 
 	sysrw
 	for j in /sys/block/*/queue/scheduler; do
 		echo "$newio" > \$j
 	done
 	sysro
-	sleep 1
 
 	clear
 	echo "${yellow}New I/O Scheduler applied!${nc}"
-	sleep 2
+	sleep 1
 
 	kernel_kontrol
 }
 
-catalyst_control(){
-	clear
-	echo "${yellow}Game Booster${nc}"
-	echo "[1] Boost"
-	echo "[2] Options"
-	echo "[B] Back"
-	echo -n "> "
-	read game_booster_opt
-	case $game_booster_opt in
-		1 ) catalyst_inject;;
-		2 ) catalyst_time_cfg;;
-		B ) backdrop;;
-		* ) error_404 && catalyst_control;;
-	esac
-}
-
-catalyst_inject(){
-	clear
-	#configure sub-variables
-	waiter=60
-
-	echo "Please leave the terminal emulator running"
-	echo "This will continue to run untill you press X or Close"
-
-	if [ "$user_debug" == 1 ]; then
-		echo
-		echo "log:"
-  fi
-
-	sleep 3
-
-(
-while [ 1 ]
-do
-	sleep $waiter
-	sync
-  	echo "3" > /proc/sys/vm/drop_caches
-  	if [ "$user_debug" == 1 ]; then
-  		echo -n "game booster exec time: " && date
-  	fi
-done
-)
-
-catalyst_control
-}
-
-catalyst_time_cfg(){
-	clear
-	echo "Current rate: $waiter"
-	echo "60 - Every minute - Default"
-	echo "3600 - Every hour"
+kcal_ro(){
 	sleep 1
-	echo
-	echo "Please enter a rate:"
-	echo -n "> "
-	read catalyst_time_in
-	waiter=$catalyst_time_in
-	echo
 	clear
-	echo "Time updated!"
-	sleep 2
-	clear
+	echo "${yellow}Current KCal Values:${nc}"
+	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
+	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
+	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
+	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
+	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
+	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
+	sleep 5
 
-	catalyst_control
-}
-
-zram_enable(){
-	clear
-	echo "${yellow}Enabling zRAM...${nc}"
-	sleep 1
-
-	swapon /dev/block/zram0
-
-	clear
-	echo "${yellow}zRAM enabled!${nc}"
-	sleep 2
-	options
-}
-
-zram_disable(){
-	clear
-	echo "${yellow}Disabling zRAM...${nc}"
-	sleep 1
-
-	swapoff /dev/block/zram0
-
-	clear
-	echo "${yellow}zRAM disabled!${nc}"
-	sleep 2
-	options
+	kernel_kontrol
 }
 
 app_wise(){
-	sleep 1
 	clear
 	echo "${yellow}Apps:${nc}"
 	echo " 1|Xposed"
@@ -814,23 +734,75 @@ app_wise(){
 	esac
 }
 
-kcal_ro(){
+catalyst_control(){
+	clear
+	echo "${yellow}Game Booster${nc}"
+	echo "[1] Boost"
+	echo "[2] Options"
+	echo "[B] Back"
+	echo -n "> "
+	read game_booster_opt
+	case $game_booster_opt in
+		1 ) catalyst_inject;;
+		2 ) catalyst_time_cfg;;
+		B ) backdrop;;
+		* ) error_404 && catalyst_control;;
+	esac
+}
+
+catalyst_inject(){
+	clear
+	#configure sub-variables
+	waiter=60
+	
+	if [ "$user_debug" == 1 ]; then
+		echo
+		echo "log:"
+  	fi
+
+	sleep 3
+
+	(
+	while [ 1 ]
+	do
+		sleep $waiter
+		sync
+  		echo "3" > /proc/sys/vm/drop_caches
+  		if [ "$user_debug" == 1 ]; then
+  			echo -n "game booster exec time: " && date
+  		fi
+	done
+	)
+
+	echo "Please leave the terminal emulator running"
+	echo "This will continue to run untill you press a key or close the terminal"
+	echo
+	echo -ne "> "
+	read catalyst_inject_opt
+	case $catalyst_inject_opt in
+		* ) catalyst_control;;
+	esac
+}
+
+catalyst_time_cfg(){
+	clear
+	echo "Current rate: $waiter"
+	echo "60 - Every minute - Default"
+	echo "3600 - Every hour"
+	echo
+	echo "Please enter a rate:"
+	echo -n "> "
+	read catalyst_time_in
+	waiter=$catalyst_time_in
+	clear
+	echo "Time updated!"
 	sleep 1
 	clear
-	echo "${yellow}Current KCal Values:${nc}"
-	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
-	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
-	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
-	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
-	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
-	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
-	sleep 5
 
-	kernel_kontrol
+	catalyst_control
 }
 
 options(){
-	sleep 1
 	clear
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
@@ -860,7 +832,6 @@ debug_mode_toggle(){
 		userdebug_status=disabled
 	fi
 
-	sleep 1
 	echo "${yellow}Debug Mode:${nc}"
 	echo "E|Enable"
 	echo "D|Disable"
@@ -869,8 +840,8 @@ debug_mode_toggle(){
 	echo -n "> "
 	read debug_mode_toggle_opt
 	case $debug_mode_toggle_opt in
-		e|E ) echo "Ok!" && sleep 2 && clear && userdebug=1 && options;;
-		d|D ) echo "Ok!" && sleep 2 && clear && userdebug=0 && options;;
+		e|E ) userdebug=1 && echo "Ok!" && sleep 1 && options;;
+		d|D ) userdebug=0 && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && debug_mode_toggle;;
 	esac
 }
@@ -878,15 +849,14 @@ debug_mode_toggle(){
 usage_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $userdebug == 0 ]; then
+	if [ $usagetype == 0 ]; then
 		usagetype_status=temporary
 	fi
 
-	if [ $userdebug == 1 ]; then
+	if [ $usagetype == 1 ]; then
 		usagetype_status=permanent
 	fi
 
-	sleep 1
 	echo "${yellow}Install Mode:${nc}"
 	echo "T|Temporary installs"
 	echo "P|Permanent installs"
@@ -895,14 +865,36 @@ usage_mode_toggle(){
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
-		t|T ) echo "Ok!" && sleep 2 && clear && usagetype=0 && options;;
-		p|P ) echo "Ok!" && sleep 2 && clear && usagetype=1 && options;;
+		t|T ) usage_type && echo "0" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && options;;
+		p|P ) usage_type && echo "1" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && usage_mode_toggle;;
 	esac
 }
 
-rom(){
-	rom=`getprop ro.build.type`
+zram_enable(){
+	clear
+	echo "${yellow}Enabling zRAM...${nc}"
+	sleep 1
+
+	swapon /dev/block/zram0
+
+	clear
+	echo "${yellow}zRAM enabled!${nc}"
+	sleep 1
+	options
+}
+
+zram_disable(){
+	clear
+	echo "${yellow}Disabling zRAM...${nc}"
+	sleep 1
+
+	swapoff /dev/block/zram0
+
+	clear
+	echo "${yellow}zRAM disabled!${nc}"
+	sleep 1
+	options
 }
 
 about_info(){
@@ -942,13 +934,36 @@ debug_info(){
 	backdrop
 }
 
+usage_type_first_start(){
+	echo "${yellow}How to Install tweaks?${nc}"
+	echo
+	echo " T|Temporary installs"
+	echo " P|Permanent installs"
+	echo
+	echo " You can change it in Options"
+	echo
+	echo -ne "> "
+	read usage_type_first_start_opt
+	case $usage_type_first_start_opt
+		t|T ) usage_type && echo "0" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
+		p|P ) usage_type && echo "1" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
+		* ) error_404 && usage_type_first_start;;
+	esac
+}
+
+usage_type(){
+	sysrw
+	mkdir -p /data/hybrid/
+	touch $usagetypecfg
+	chmod 777 $usagetypecfg
+}
+
 shfix_session_behaviour(){
 	#call startup functions
 	clear
 	#sh_ota
 	cli_displaytype
 	var
-	rom
 	
 	#run conditional statements
 	#userdebug mode
@@ -960,8 +975,12 @@ shfix_session_behaviour(){
 	if [ grep 1 $shfix ]; then
 		echo "0" > $shfix
 		sysro
-		#call main functions
-		body
+		if [ -e $usagetypecfg ]; then
+			#call main functions
+			body
+		else
+			usage_type_first_start	
+		fi
 	fi
 	
 	sysrw
@@ -981,15 +1000,18 @@ session_behaviour(){
 	#sh_ota
 	cli_displaytype
 	var
-	rom
 
 	#run conditional statements
 	if [ $userdebug == 1 ]; then
 		debug_info
 	fi
 
-	#call main functions
-	body
+	if [ -e $usagetypecfg ]; then
+		#call main functions
+		body
+	else
+		usage_type_first_start	
+	fi
 }
 
 #call
