@@ -87,6 +87,7 @@ body(){
 	echo
 	echo " O|Options"
 	echo " A|About"
+	echo " F|Forum"
 	echo " S|Source"
 	echo " R|Reboot"
 	echo " E|Exit"
@@ -106,7 +107,8 @@ body(){
 		10 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
-		s|S ) am start "https://github.com/HybridMod/Current/" >/dev/null 2>&1;;
+		f|F ) am start "http://forum.xda-developers.com/moto-g-2014/development/mod-disable-zram-t3071658" >/dev/null 2>&1 && backdrop;;
+		s|S ) am start "https://github.com/HybridMod/Current/" >/dev/null 2>&1 && backdrop;;
 		r|R ) creboot;;
 		e|E ) safe_exit;;
 		* ) error_404 && backdrop;;
@@ -790,21 +792,23 @@ app_wise(){
 	sleep 1
 	clear
 	echo "${yellow}Apps:${nc}"
-	echo " 1|Xposed (4.4.x)"
+	echo " 1|Xposed"
 	echo " 2|Greenify"
 	echo " 3|Amplify"
 	echo " 4|Nova Launcher"
-	echo " 5|AdAway"
+	echo " 5|Adblock Plus"
+	echo " 6|Opera Max"
 	echo " B|Back"
 	echo
 	echo -n "> "
 	read options_opt
 	case $options_opt in
-		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v33_36570c.apk" >/dev/null 2>&1 && app_wise;;
-		2 ) am start "http://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=5851" >/dev/null 2>&1 && app_wise;;
-		3 ) am start "http://dl-xda.xposed.info/modules/com.ryansteckler.nlpunbounce_v55_83c527.apk" >/dev/null 2>&1 && app_wise;;
-		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" >/dev/null 2>&1 && app_wise;;
-		5 ) am start "http://ca1.androidfilehost.com/dl/rnjIPh_-0Tqn7c28ZOFNGA/1428141697/95916177934538388/AdAway-release_Build-Mar.07.2015.apk" >/dev/null 2>&1 && app_wise;;
+		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v32_de4f0d.apk" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/de.robv.android.xposed.installer_v32_de4f0d.apk && app_wise;;
+		2 ) am start "" >/dev/null 2>&1 && app_wise;;
+		3 ) am start "http://forum.xda-developers.com/attachment.php?attachmentid=3291991&d=1430513980" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/Amplify-v3.0.9.apk && app_wise;;
+		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/Nova Launcher_4.0.1.apk && app_wise;;
+		5 ) am start "https://update.adblockplus.org/latest/adblockplusandroid.apk" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/adblockplusandroid.apk && app_wise;;
+		6 ) am start "" >/dev/null 2>&1 && app_wise;;
 		b|B ) backdrop;;
 		* ) error_404 && app_wise;;
 	esac
