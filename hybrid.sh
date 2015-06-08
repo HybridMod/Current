@@ -14,7 +14,7 @@ sh_ota(){
 
 	download(){
 		$browser $download >/dev/null 2>&1
-		$term $null >/dev/null 2>&1
+		$term >/dev/null 2>&1
 		check_update
 	}
 
