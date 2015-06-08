@@ -14,7 +14,7 @@ sh_ota(){
 
 	#Download SH-OTA file
 	a2(){
-		$am.VIEW -n $br/.BrowserActivity $download >/dev/null 2>&1
+		$am.VIEW -n $br/.BrowserActivity $do >/dev/null 2>&1
 		$am.MAIN -n jackpal.androidterm/.Term >/dev/null 2>&1
 		a3
 	}
