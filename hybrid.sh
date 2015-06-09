@@ -777,9 +777,11 @@ catalyst_inject(){
 	echo "Please leave the terminal emulator running"
 	echo "This will continue to run untill you press a key or close the terminal"
 	echo
-	echo -ne "> "
-	read catalyst_inject_opt
-	case $catalyst_inject_opt in
+	stty cbreak -echo
+	f=$(dd bs=1 count=1 >/dev/null 2>&1)
+	stty -cbreak echo
+	echo $f
+	case $f in
 		* ) catalyst_control;;
 	esac
 }
@@ -944,7 +946,7 @@ usage_type_first_start(){
 	echo
 	echo -ne "> "
 	read usage_type_first_start_opt
-	case $usage_type_first_start_opt
+	case $usage_type_first_start_opt in
 		t|T ) usage_type && echo "0" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
 		p|P ) usage_type && echo "1" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
 		* ) error_404 && usage_type_first_start;;
