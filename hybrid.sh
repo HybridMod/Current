@@ -163,53 +163,50 @@ exit
 
 sysrw(){
 	#type=rw
-	mount -o remount rw /
-	mount -o remount rw /system
-	mount -o remount rw /data
-	mount -o remount rw /cache
+	mount -o remount rw / >/dev/null 2>&1
+	mount -o remount rw /system >/dev/null 2>&1
+	mount -o remount rw /data >/dev/null 2>&1
+	mount -o remount rw /cache >/dev/null 2>&1
 }
 
 sysro(){
 	#type=ro
-	mount -o remount ro /
-	mount -o remount ro /system
-	mount -o remount ro /data
-	mount -o remount ro /cache
+	mount -o remount ro / >/dev/null 2>&1
+	mount -o remount ro /system >/dev/null 2>&1
+	mount -o remount ro /data >/dev/null 2>&1
+	mount -o remount ro /cache >/dev/null 2>&1
 }
 
 drop_caches(){
 	clear
 	if [ $usagetype == 0 ]; then
-		echo "${yellow}Caches dropped!${nc}"
+		echo "${yellow}Dropping caches...${nc}"
+		sleep 1
 		sync
 		echo "3" > /proc/sys/vm/drop_caches
+		clear
+		echo "${yellow}Caches dropped!${nc}"
 		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
-	  if [ $initd == 1 ]; then
-	    sysrw
-	    mkdir -p /system/etc/init.d
-	    touch /system/etc/init.d/97cache_drop
-	    chmod 755 /system/etc/init.d/97cache_drop
-	    echo -ne "" > /system/etc/init.d/97cache_drop
+		if [ $initd == 1 ]; then
+			mkdir -p /system/etc/init.d/
+			touch /system/etc/init.d/97cache_drop
+			chmod 755 /system/etc/init.d/97cache_drop
+			echo -ne "" > /system/etc/init.d/97cache_drop
 cat >> /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
 sleep 17
 
 sync
 echo "3" > /proc/sys/vm/drop_caches
-
+			
 EOF
-	  fi
-
+		fi
 		echo "${yellow}Installed!${nc}"
 		sleep 1
-
 	fi
-
-
-	sysro
 
 	backdrop
 }
@@ -218,7 +215,7 @@ clean_up(){
 	clear
 	if [ $usagetype == 0 ]; then
 		echo "${yellow}Cleaning up...${nc}"
-		sysrw
+		sleep 1
 
 		#cleaner
 		rm -f /cache/*.apk
@@ -241,13 +238,11 @@ clean_up(){
 		rm -f /data/tombstones/*
 		rm -f /data/system/dropbox/*
 		rm -f /data/system/usagestats/*
-		rm -f /sdcard/LOST.DIR/*
-		rm -rf /sdcard/LOST.DIR
+		rm -fr $EXTERNAL_STORAGE/LOST.DIR/
 
 		#drop caches
 		echo "3" > /proc/sys/vm/drop_caches
 
-		sysro
 		clear
 		echo "${yellow}Clean up complete!${nc}"
 		sleep 1
@@ -255,8 +250,7 @@ clean_up(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
-			sysrw
-			mkdir -p /system/etc/init.d
+			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/99clean_up
 			chmod 755 /system/etc/init.d/99clean_up
 			echo -ne "" > /system/etc/init.d/99clean_up
@@ -284,7 +278,7 @@ rm -f /data/mlog/*
 rm -f /data/tombstones/*
 rm -f /data/system/dropbox/*
 rm -f /data/system/usagestats/*
-rm -rf /sdcard/LOST.DIR
+rm -fr $EXTERNAL_STORAGE/LOST.DIR/
 
 EOF
 		fi
@@ -292,34 +286,31 @@ EOF
 		sleep 1
 	fi
 
-	sysro
 	backdrop
 }
 
 sql_optimize(){
 	clear
-	sysrw
-
 	echo "${yellow}Optimizing SQLite databases!"
 	sleep 1
 
 	if [ -e /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
-		chmod 0755 /system/xbin/sqlite3
+		chmod 755 /system/xbin/sqlite3
 		SQLLOC=/system/xbin/sqlite3
 		echo
 	fi
 
 	if [ -e /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
-		chmod 0755 /system/bin/sqlite3
+		chmod 755 /system/bin/sqlite3
 		SQLLOC=/system/bin/sqlite3
 		echo
 	fi
 
 	if [ -e /system/sbin/sqlite3 ]; then #legacy support
 		chown root.root /sbin/sqlite3
-		chmod 0755 /sbin/sqlite3
+		chmod 755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
 		echo
 	fi
@@ -330,19 +321,19 @@ sql_optimize(){
 		echo "${yellow}Reindexed : $i${nc}"
 	done
 
-	sysro
 	clear
 	echo "SQLite database optimizations complete!"
 	sleep 1
+	
 	backdrop
 }
 
 vm_tune(){
 	clear
-	echo "${yellow}Optimizing VM...${nc}"
-	sleep 1
-	
 	if [ $usagetype == 0 ]; then
+		echo "${yellow}Optimizing VM...${nc}"
+		sleep 1
+		
 		echo "80" > /proc/sys/vm/swappiness
 		echo "10" > /proc/sys/vm/vfs_cache_pressure
 		echo "3000" > /proc/sys/vm/dirty_expire_centisecs
@@ -353,12 +344,15 @@ vm_tune(){
 		echo "150" > /proc/sys/vm/overcommit_ratio
 		echo "4096" > /proc/sys/vm/min_free_kbytes
 		echo "1" > /proc/sys/vm/oom_kill_allocating_task
+		
+		clear
+		echo "${yellow}VM Optimized!${nc}"
+		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
-			sysrw
-			mkdir -p /system/etc/init.d
+			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/75vm
 			chmod 755 /system/etc/init.d/75vm
 			echo -ne "" > /system/etc/init.d/75vm
@@ -378,12 +372,10 @@ echo "4096" > /proc/sys/vm/min_free_kbytes
 echo "1" > /proc/sys/vm/oom_kill_allocating_task
 EOF
 		fi
+		echo "${yellow}Installed!${nc}"
+		sleep 1
 	fi
-
-	sysro
-	clear
-	echo "${yellow}VM Optimized!${nc}"
-	sleep 1
+	
 	backdrop
 }
 
@@ -418,16 +410,22 @@ lmk_apply(){
 	fi
 
 	if [ $usagetype == 0 ]; then
+		echo "${yellow}Optimizing LMK...${nc}"
+		sleep 1
+		
 		echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+		
+		clear
+		echo "${yellow}LMK Optimized!${nc}"
+		sleep 1
 	fi
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d
+			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/95lmk
 			chmod 755 /system/etc/init.d/95lmk
 			echo -ne "" > /system/etc/init.d/95lmk
-			sysrw
 cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
 sleep 30
@@ -435,12 +433,10 @@ sleep 30
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 EOF
 		fi
+		echo "${yellow}Installed!${nc}"
+		sleep 1
 	fi
-
-	sysro
-	clear
-	echo "${yellow}LMK Optimized!${nc}"
-	sleep 1
+	
 	backdrop
 }
 
@@ -505,12 +501,11 @@ network_tune(){
 	fi
 
 	if [ $usagetype == 1 ]; then
-	  if [ $initd == 1 ]; then
-	    sysrw
-	    mkdir -p /system/etc/init.d
-	    touch /system/etc/init.d/56net
-	    chmod 755 /system/etc/init.d/56net
-	    echo -ne "" > /system/etc/init.d/56net
+		if [ $initd == 1 ]; then
+			mkdir -p /system/etc/init.d/
+			touch /system/etc/init.d/56net
+			chmod 755 /system/etc/init.d/56net
+			echo -ne "" > /system/etc/init.d/56net
 cat >> /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
 sleep 5
@@ -564,12 +559,11 @@ echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
 EOF
-	  fi
-	  echo "${yellow}Installed!${nc}"
-	  sleep 1
+		fi
+		echo "${yellow}Installed!${nc}"
+		sleep 1
 	fi
 
-	sysro
 	backdrop
 }
 
@@ -579,10 +573,11 @@ kill_log(){
 	sleep 1
 
 	rm -f /dev/log/main
-
+	
 	clear
 	echo "${yellow}Logger removed!${nc}"
 	sleep 1
+	
 	backdrop
 }
 
@@ -616,21 +611,19 @@ setcpufreq(){
 	listfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
 
 	echo "${yellow}CPU Control${nc}"
-	echo ""
+	echo
 	echo "${bld}Max Freq:${nc} $maxfreq"
 	echo "${bld}Min Freq:${nc} $minfreq"
 	echo "${bld}Current Freq:${nc} $curfreq"
-	echo ""
+	echo
 	echo "${bld}Available Freq's:${nc} "
 	echo "$listfreq"
-	echo ""
-	echo -n "New Max Freq: " && sleep 1; read newmaxfreq;
-	echo -n "New Min Freq: " && sleep 1; read newminfreq;
+	echo
+	echo -n "New Max Freq: " && read newmaxfreq
+	echo -n "New Min Freq: " && read newminfreq
 
-	sysrw
 	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-	sysro
 
 	clear
 	echo "${yellow}New Freq's applied!${nc}"
@@ -652,11 +645,9 @@ setgov(){
 	echo "${bld}Available Governors:${nc} "
 	echo "$listgov"
 	echo
-	echo -n "New Governor: " && sleep 1; read newgov;
+	echo -n "New Governor: " && read newgov
 
-	sysrw
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-	sysro
 
 	clear
 	echo "${yellow}New Governor applied!${nc}"
@@ -679,13 +670,11 @@ setiosched(){
 	echo "${bld}Available I/O Schedulers:${nc} "
 	echo "$listiosched"
 	echo
-	echo -n "New Scheduler: " && sleep 1; read newiosched;
+	echo -n "New Scheduler: " && read newiosched
 
-	sysrw
 	for j in /sys/block/*/queue/scheduler; do
-		echo "$newio" > \$j
+		echo "$newio" > $j
 	done
-	sysro
 
 	clear
 	echo "${yellow}New I/O Scheduler applied!${nc}"
@@ -695,7 +684,6 @@ setiosched(){
 }
 
 kcal_ro(){
-	sleep 1
 	clear
 	echo "${yellow}Current KCal Values:${nc}"
 	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
@@ -712,6 +700,7 @@ kcal_ro(){
 app_wise(){
 	clear
 	echo "${yellow}Apps:${nc}"
+	echo
 	echo " 1|Xposed"
 	echo " 2|Greenify"
 	echo " 3|Amplify"
@@ -745,7 +734,7 @@ catalyst_control(){
 	case $game_booster_opt in
 		1 ) catalyst_inject;;
 		2 ) catalyst_time_cfg;;
-		B ) backdrop;;
+		b|B ) backdrop;;
 		* ) error_404 && catalyst_control;;
 	esac
 }
@@ -867,8 +856,8 @@ usage_mode_toggle(){
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
-		t|T ) usage_type && echo "0" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && options;;
-		p|P ) usage_type && echo "1" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && options;;
+		t|T ) usage_type && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
+		p|P ) usage_type && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && usage_mode_toggle;;
 	esac
 }
@@ -883,6 +872,7 @@ zram_enable(){
 	clear
 	echo "${yellow}zRAM enabled!${nc}"
 	sleep 1
+	
 	options
 }
 
@@ -896,6 +886,7 @@ zram_disable(){
 	clear
 	echo "${yellow}zRAM disabled!${nc}"
 	sleep 1
+	
 	options
 }
 
@@ -913,8 +904,8 @@ about_info(){
 	echo "DiamondBond : Script creator & maintainer"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
 	echo
-
 	sleep 5
+	
 	backdrop
 }
 
@@ -932,11 +923,12 @@ debug_info(){
 	echo "Hybrid Version: $ver_revision"
 	echo
 	sleep 5
-	clear
+
 	backdrop
 }
 
 usage_type_first_start(){
+	clear
 	echo "${yellow}How to Install tweaks?${nc}"
 	echo
 	echo " T|Temporary installs"
@@ -947,23 +939,23 @@ usage_type_first_start(){
 	echo -ne "> "
 	read usage_type_first_start_opt
 	case $usage_type_first_start_opt in
-		t|T ) usage_type && echo "0" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
-		p|P ) usage_type && echo "1" > $usagetypecfg && sysro && var && echo "Ok!" && sleep 1 && body;;
+		t|T ) usage_type && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
+		p|P ) usage_type && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
 		* ) error_404 && usage_type_first_start;;
 	esac
 }
 
 usage_type(){
-	sysrw
 	mkdir -p /data/hybrid/
 	touch $usagetypecfg
-	chmod 777 $usagetypecfg
+	chmod 755 $usagetypecfg
 }
 
 shfix_session_behaviour(){
 	#call startup functions
 	clear
 	#sh_ota
+	sysrw
 	cli_displaytype
 	var
 	
@@ -976,7 +968,6 @@ shfix_session_behaviour(){
 	#default sh
 	if [ grep 1 $shfix ]; then
 		echo "0" > $shfix
-		sysro
 		if [ -e $usagetypecfg ]; then
 			#call main functions
 			body
@@ -985,13 +976,13 @@ shfix_session_behaviour(){
 		fi
 	fi
 	
-	sysrw
 	touch $shfix
-	chmod 777 $shfix
+	chmod 755 $shfix
 	echo "0" > $shfix
 	
 	if [ grep 0 $shfix ]; then
 		echo "1" > $shfix
+		sysro
 		$SHELL -c hybrid
 	fi
 }
@@ -1000,6 +991,7 @@ session_behaviour(){
 	#call startup functions
 	clear
 	#sh_ota
+	sysrw
 	cli_displaytype
 	var
 
