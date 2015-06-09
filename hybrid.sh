@@ -49,23 +49,15 @@ var(){
 	usagetype=0
 	initd=1
 	motod=0
-	shfixrun=0
+	shfix=0
 
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	rom=`getprop ro.build.type`
 	
 	#config
-	shfix="/data/hybrid/shfix.cfg"
+	shfixcfg="/data/hybrid/shfix.cfg"
 	usagetypecfg="/data/hybrid/usagetype.cfg"
-	
-	if [ grep 0 $usagetypecfg ]; then
-		usagetype=0
-	fi
-	
-	if [ grep 1 $usagetypecfg ]; then
-		usagetype=1
-	fi
 }
 
 cli_displaytype(){
@@ -240,7 +232,7 @@ clean_up(){
 		rm -f /data/tombstones/*
 		rm -f /data/system/dropbox/*
 		rm -f /data/system/usagestats/*
-		rm -fr $EXTERNAL_STORAGE/LOST.DIR/
+		rm -rf $EXTERNAL_STORAGE/LOST.DIR/
 
 		#drop caches
 		echo "3" > /proc/sys/vm/drop_caches
@@ -280,7 +272,7 @@ rm -f /data/mlog/*
 rm -f /data/tombstones/*
 rm -f /data/system/dropbox/*
 rm -f /data/system/usagestats/*
-rm -fr $EXTERNAL_STORAGE/LOST.DIR/
+rm -rf $EXTERNAL_STORAGE/LOST.DIR/
 
 EOF
 		fi
@@ -929,7 +921,7 @@ debug_info(){
 	backdrop
 }
 
-usage_type_first_start(){
+usagetype_first_start(){
 	clear
 	echo "${yellow}How to Install tweaks?${nc}"
 	echo
@@ -939,54 +931,18 @@ usage_type_first_start(){
 	echo " You can change it in Options"
 	echo
 	echo -ne "> "
-	read usage_type_first_start_opt
-	case $usage_type_first_start_opt in
-		t|T ) usage_type && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
-		p|P ) usage_type && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
-		* ) error_404 && usage_type_first_start;;
+	read usagetype_first_start_opt
+	case $usagetype_first_start_opt in
+		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
+		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && body;;
+		* ) error_404 && usagetype_first_start;;
 	esac
 }
 
-usage_type(){
+usagetype_cfg(){
 	mkdir -p /data/hybrid/
 	touch $usagetypecfg
 	chmod 755 $usagetypecfg
-}
-
-shfix_session_behaviour(){
-	#call startup functions
-	clear
-	#sh_ota
-	sysrw
-	cli_displaytype
-	var
-	
-	#run conditional statements
-	#userdebug mode
-	if [ $userdebug == 1 ]; then
-		debug_info
-	fi
-	
-	#default sh
-	if [ grep 1 $shfix ]; then
-		echo "0" > $shfix
-		if [ -e $usagetypecfg ]; then
-			#call main functions
-			body
-		else
-			usage_type_first_start	
-		fi
-	fi
-	
-	touch $shfix
-	chmod 755 $shfix
-	echo "0" > $shfix
-	
-	if [ grep 0 $shfix ]; then
-		echo "1" > $shfix
-		sysro
-		$SHELL -c hybrid
-	fi
 }
 
 session_behaviour(){
@@ -997,22 +953,69 @@ session_behaviour(){
 	cli_displaytype
 	var
 
+	#check shfix.cfg
+	if [ grep 0 $shfixcfg ]; then
+		shfix=0
+	fi
+	
+	if [ grep 1 $shfixcfg ]; then
+		shfix=1
+	fi
+
+	#check usagetype.cfg
+	if [ grep 0 $usagetypecfg ]; then
+		usagetype=0
+	fi
+	
+	if [ grep 1 $usagetypecfg ]; then
+		usagetype=1
+	fi
+
 	#run conditional statements
+	#userdebug mode
 	if [ $userdebug == 1 ]; then
 		debug_info
 	fi
+}
 
+main_functions(){
+	#call main functions
 	if [ -e $usagetypecfg ]; then
-		#call main functions
 		body
 	else
-		usage_type_first_start	
+		usagetype_first_start	
+	fi	
+}
+
+main_session_behaviour(){
+	session_behaviour
+	main_functions
+}
+
+shfix_session_behaviour(){
+	session_behaviour
+	
+	#run with default Android Shell
+	shfixtmp="/data/local/tmp/shfix.tmp"
+	if [ grep 1 $shfixtmp ]; then
+		echo "0" > $shfixtmp
+		main_functions
+	fi
+	
+	touch $shfixtmp
+	chmod 755 $shfixtmp
+	echo "0" > $shfixtmp
+	
+	if [ grep 0 $shfixtmp ]; then
+		echo "1" > $shfixtmp
+		sysro
+		$SHELL -c hybrid
 	fi
 }
 
 #call
-if [ $shfixrun == 1 ]; then
+if [ $shfix == 1 ]; then
 	shfix_session_behaviour
 else
-	session_behaviour
+	main_session_behaviour
 fi
