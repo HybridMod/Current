@@ -54,6 +54,8 @@ var(){
 	#misc control
 	DATE=`date +%d-%m-%Y`
 	rom=`getprop ro.build.type`
+	
+	#config
 	shfix="/data/hybrid/shfix.cfg"
 	usagetypecfg="/data/hybrid/usagetype.cfg"
 	
