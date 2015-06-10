@@ -40,40 +40,36 @@ sh_ota(){
 	#To be heavily refactored...
 
 	#Functions
-	a1(){
-		na="SH-OTA.sh" #Name of your SH-OTA file
-		do="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
-		ch="$EXTERNAL_STORAGE/Download/$name"
+	var(){
+		name="SH-OTA.sh" #Name of your SH-OTA file
+		cloud="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
+		location="$EXTERNAL_STORAGE/Download/$name"
 		br="com.android.browser"
-		am=`am start -a android.intent.action`
 	}
 
-	#Download SH-OTA file
-	a2(){
-		$am.VIEW -n $br/.BrowserActivity $do >/dev/null 2>&1
-		$am.MAIN -n jackpal.androidterm/.Term >/dev/null 2>&1
-		a3
+	get_ota(){
+		am start android.intent.action.VIEW $br $cloud >/dev/null 2>&1
+		am start jackpal.androidterm >/dev/null 2>&1
+		wait_ota
 	}
 
-	#Wait download
-	a3(){
-		a4
+	wait_ota(){
+		run_ota
 	}
 
-	#Run SH-OTA file
-	a4(){
-		if [ -e $ch ]; then
+	run_ota(){
+		if [ -e $location ]; then
 			am force-stop $br
-			$SHELL -c $ch
+			$SHELL -c $location
 		else
-			a3
+			wait_ota
 		fi
 	}
 
 	#Script start
 	clear
-	a1
-	a2
+	var
+	get_ota
 }
 
 body(){
@@ -287,7 +283,7 @@ EOF
 
 sql_optimize(){
 	clear
-	echo "${yellow}Optimizing SQLite databases!"
+	echo "${yellow}Optimizing SQLite databases!${nc}"
 	sleep 1
 
 	if [ -e /system/xbin/sqlite3 ]; then
@@ -335,7 +331,7 @@ vm_tune(){
 		echo "3000" > /proc/sys/vm/dirty_expire_centisecs
 		echo "500" > /proc/sys/vm/dirty_writeback_centisecs
 		echo "90" > /proc/sys/vm/dirty_ratio
-		echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+		echo "70" > /proc/sys/vm/dirty_background_ratio
 		echo "1" > /proc/sys/vm/overcommit_memory
 		echo "150" > /proc/sys/vm/overcommit_ratio
 		echo "4096" > /proc/sys/vm/min_free_kbytes
@@ -361,7 +357,7 @@ echo "10" > /proc/sys/vm/vfs_cache_pressure
 echo "3000" > /proc/sys/vm/dirty_expire_centisecs
 echo "500" > /proc/sys/vm/dirty_writeback_centisecs
 echo "90" > /proc/sys/vm/dirty_ratio
-echo "70" > /proc/sys/vm/dirty_backgroud_ratio
+echo "70" > /proc/sys/vm/dirty_background_ratio
 echo "1" > /proc/sys/vm/overcommit_memory
 echo "150" > /proc/sys/vm/overcommit_ratio
 echo "4096" > /proc/sys/vm/min_free_kbytes
@@ -943,6 +939,7 @@ usagetype_first_start(){
 
 usagetype_cfg(){
 	mkdir -p /data/hybrid/
+	chmod 755 /data/hybrid/
 	touch $usagetypecfg
 	chmod 755 $usagetypecfg
 }
@@ -956,20 +953,20 @@ session_behaviour(){
 	var
 
 	#check shfix.cfg
-	if [ grep 0 $shfixcfg ]; then
+	if [ "`grep 0 $shfixcfg`" ]; then
 		shfix=0
 	fi
 	
-	if [ grep 1 $shfixcfg ]; then
+	if [ "`grep 1 $shfixcfg`" ]; then
 		shfix=1
 	fi
 
 	#check usagetype.cfg
-	if [ grep 0 $usagetypecfg ]; then
+	if [ "`grep 0 $usagetypecfg`" ]; then
 		usagetype=0
 	fi
 	
-	if [ grep 1 $usagetypecfg ]; then
+	if [ "`grep 1 $usagetypecfg`" ]; then
 		usagetype=1
 	fi
 
@@ -999,7 +996,7 @@ shfix_session_behaviour(){
 	
 	#run with default Android Shell
 	shfixtmp="/data/local/tmp/shfix.tmp"
-	if [ grep 1 $shfixtmp ]; then
+	if [ "`grep 1 $shfixtmp`" ]; then
 		echo "0" > $shfixtmp
 		main_functions
 	fi
@@ -1008,7 +1005,7 @@ shfix_session_behaviour(){
 	chmod 755 $shfixtmp
 	echo "0" > $shfixtmp
 	
-	if [ grep 0 $shfixtmp ]; then
+	if [ "`grep 0 $shfixtmp`" ]; then
 		echo "1" > $shfixtmp
 		sysro
 		$SHELL -c hybrid
