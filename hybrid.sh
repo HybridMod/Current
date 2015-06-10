@@ -16,9 +16,11 @@ var(){
 	rom=`getprop ro.build.type`
 	
 	#config
-	shfixcfg="/data/hybrid/shfix.cfg"
-	usagetypecfg="/data/hybrid/usagetype.cfg"
 	userdebugcfg="/data/hybrid/userdebug.cfg"
+	usagetypecfg="/data/hybrid/usagetype.cfg"
+	shfixcfg="/data/hybrid/shfix.cfg"
+
+	sync_config
 }
 
 cli_displaytype(){
@@ -825,8 +827,8 @@ debug_mode_toggle(){
 	echo -n "> "
 	read debug_mode_toggle_opt
 	case $debug_mode_toggle_opt in
-		e|E ) userdebug_cfg && echo "1" > $userdebugcfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
-		d|D ) userdebug_cfg && echo "0" > $userdebugcfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
+		e|E ) userdebug_cfg && echo "1" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
+		d|D ) userdebug_cfg && echo "0" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && debug_mode_toggle;;
 	esac
 }
@@ -850,8 +852,8 @@ usage_mode_toggle(){
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
-		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
-		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
+		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
+		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && usage_mode_toggle;;
 	esac
 }
@@ -868,8 +870,7 @@ shell_mode_toggle(){
 	fi
 
 	echo "${yellow}Shell Mode:${nc}"
-	echo "if you see random characters"
-	echo "in the titles or errors"
+	echo "if you see random characters in the titles or errors."
 	echo "enable this may help."
 	echo
 	echo "E|Enable"
@@ -879,8 +880,8 @@ shell_mode_toggle(){
 	echo -n "> "
 	read shfix_mode_toggle_opt
 	case $shfix_mode_toggle_opt in
-		e|E ) shfix_cfg && echo "1" > $shfixcfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
-		d|D ) shfix_cfg && echo "0" > $shfixcfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
+		e|E ) shfix_cfg && echo "1" > $shfixcfg && var && echo "Ok!" && sleep 1 && shfix_session_behaviour;;
+		d|D ) shfix_cfg && echo "0" > $shfixcfg && var && echo "Ok!" && sleep 1 && shfix_session_behaviour;;
 		* ) error_404 && shell_mode_toggle;;
 	esac
 }
@@ -934,7 +935,7 @@ about_info(){
 
 debug_info(){
 	clear
-	echo -e "${green}Debug information:${nc}"
+	echo "${green}Debug information:${nc}"
 	echo
 	echo "${yellow}SYSTEM${nc}"
 	echo "Vendor: $( getprop ro.product.brand )"
@@ -962,8 +963,8 @@ usagetype_first_start(){
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
-		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
+		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && backdrop;;
+		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && backdrop;;
 		* ) error_404 && usagetype_first_start;;
 	esac
 }
@@ -989,34 +990,8 @@ shfix_cfg(){
 	chmod 755 $shfixcfg
 }
 
-session_behaviour(){
-	#call startup functions
-	clear
-	#sh_ota
-	sysrw
-	cli_displaytype
-
-	#check shfix.cfg
-	if [ -e $shfixcfg ]; then
-		if [ "`grep 0 $shfixcfg`" ]; then
-			shfix=0
-		fi
-		if [ "`grep 1 $shfixcfg`" ]; then
-			shfix=1
-		fi
-	fi
-
-	#check usagetype.cfg
-	if [ -e $usagetypecfg ]; then
-		if [ "`grep 0 $usagetypecfg`" ]; then
-			usagetype=0
-		fi
-		if [ "`grep 1 $usagetypecfg`" ]; then
-			usagetype=1
-		fi
-	fi
-
-	#check userdebug.cfg
+sync_config(){
+	#sync userdebug.cfg
 	if [ -e $userdebugcfg ]; then
 		if [ "`grep 0 $userdebugcfg`" ]; then
 			userdebug=0
@@ -1026,16 +1001,43 @@ session_behaviour(){
 		fi
 	fi
 
-	#run conditional statements
-	#userdebug mode
-	if [ $userdebug == 1 ]; then
-		debug_info
+	#sync usagetype.cfg
+	if [ -e $usagetypecfg ]; then
+		if [ "`grep 0 $usagetypecfg`" ]; then
+			usagetype=0
+		fi
+		if [ "`grep 1 $usagetypecfg`" ]; then
+			usagetype=1
+		fi
 	fi
+
+	#sync shfix.cfg
+	if [ -e $shfixcfg ]; then
+		if [ "`grep 0 $shfixcfg`" ]; then
+			shfix=0
+		fi
+		if [ "`grep 1 $shfixcfg`" ]; then
+			shfix=1
+		fi
+	fi
+}
+
+session_behaviour(){
+	#call startup functions
+	clear
+	#sh_ota
+	sysrw
+	cli_displaytype
 }
 
 main_functions(){
 	#call main functions
 	if [ -e $usagetypecfg ]; then
+	#run conditional statements
+	#userdebug mode
+	 	if [ $userdebug == 1 ]; then
+		debug_info
+	 	fi
 		body
 	else
 		usagetype_first_start	
@@ -1049,7 +1051,13 @@ main_session_behaviour(){
 
 shfix_session_behaviour(){
 	session_behaviour
-	
+
+	if [ -e shfixcfg ]; then
+	 	if [ "`grep 0 shfixcfg`" ]; then
+	 	$SHELL -c hybrid; safe_exit
+	 	fi
+	fi
+
 	#run with default Android Shell
 	shfixtmp="/data/local/tmp/shfix.tmp"
 	if [ -e $shfixtmp ]; then
@@ -1066,7 +1074,7 @@ shfix_session_behaviour(){
 	if [ "`grep 0 $shfixtmp`" ]; then
 		echo "1" > $shfixtmp
 		sysro
-		$SHELL -c hybrid
+		$SHELL -c hybrid; safe_exit
 	fi
 }
 
