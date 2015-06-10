@@ -18,6 +18,7 @@ var(){
 	#config
 	shfixcfg="/data/hybrid/shfix.cfg"
 	usagetypecfg="/data/hybrid/usagetype.cfg"
+	userdebugcfg="/data/hybrid/userdebug.cfg"
 }
 
 cli_displaytype(){
@@ -789,7 +790,8 @@ options(){
 	echo "${yellow}Options:${nc}"
 	echo " 1|Debug mode toggle"
 	echo " 2|Install type toggle"
-	echo " 3|Disable zRAM"
+	echo " 3|Shell mode toggle"
+	echo " 4|Disable zRAM"
 	echo " B|Back"
 	echo
 	echo -n "> "
@@ -797,7 +799,8 @@ options(){
 	case $options_opt in
 		1 ) debug_mode_toggle;;
 		2 ) usage_mode_toggle;;
-		3 ) zram_disable;;
+		3 ) shell_mode_toggle;;
+		4 ) zram_disable;;
 		b|B ) backdrop;;
 		* ) error_404 && options;;
 	esac
@@ -822,8 +825,8 @@ debug_mode_toggle(){
 	echo -n "> "
 	read debug_mode_toggle_opt
 	case $debug_mode_toggle_opt in
-		e|E ) userdebug=1 && echo "Ok!" && sleep 1 && options;;
-		d|D ) userdebug=0 && echo "Ok!" && sleep 1 && options;;
+		e|E ) userdebug_cfg && echo "1" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
+		d|D ) userdebug_cfg && echo "0" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && debug_mode_toggle;;
 	esac
 }
@@ -849,6 +852,34 @@ usage_mode_toggle(){
 	case $usage_mode_toggle_opt in
 		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
 		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
+		* ) error_404 && usage_mode_toggle;;
+	esac
+}
+
+shell_mode_toggle(){
+	clear
+	#configure sub-variables
+	if [ $shfix == 0 ]; then
+		shfix_status=disable
+	fi
+
+	if [ $shfix == 1 ]; then
+		shfix_status=enable
+	fi
+
+	echo "${yellow}Shell Mode:${nc}"
+	echo "if you see random characters in the titles or errors, enable this may help.
+	echo
+	echo "E|Enable"
+	echo "D|Disable"
+	echo
+	echo "${yellow}Currently:${nc} $shfix_status"
+	echo -n "> "
+	echo
+	read shfix_mode_toggle_opt
+	case $shfix_mode_toggle_opt in
+		t|T ) shfix_cfg && echo "0" > $shfixcfg && var && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
+		p|P ) shfix_cfg && echo "1" > $shfixcfg && var && echo "Ok!" && sleep 1 && $SHELL -c hybrid;;
 		* ) error_404 && usage_mode_toggle;;
 	esac
 }
@@ -920,7 +951,7 @@ debug_info(){
 
 usagetype_first_start(){
 	clear
-	echo "${yellow}How to Install tweaks?${nc}"
+	echo "${yellow}How to install tweaks?${nc}"
 	echo
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
@@ -936,11 +967,25 @@ usagetype_first_start(){
 	esac
 }
 
+userdebug_cfg(){
+	mkdir -p /data/hybrid/
+	chmod 755 /data/hybrid/
+	touch $userdebugcfg
+	chmod 755 $userdebugcfg
+}
+
 usagetype_cfg(){
 	mkdir -p /data/hybrid/
 	chmod 755 /data/hybrid/
 	touch $usagetypecfg
 	chmod 755 $usagetypecfg
+}
+
+shfix_cfg(){
+	mkdir -p /data/hybrid/
+	chmod 755 /data/hybrid/
+	touch $shfixcfg
+	chmod 755 $shfixcfg
 }
 
 session_behaviour(){
@@ -964,6 +1009,14 @@ session_behaviour(){
 			usagetype=0
 		elif [ "`grep 1 $usagetypecfg`" ]; then
 			usagetype=1
+	fi
+
+	#check userdebug.cfg
+	if [ -e $userdebugcfg ]; then
+		elif [ "`grep 0 $userdebugcfg`" ]; then
+			userdebug=0
+		elif [ "`grep 1 $userdebugcfg`" ]; then
+			userdebug=1
 	fi
 
 	#run conditional statements
