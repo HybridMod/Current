@@ -667,7 +667,7 @@ setiosched(){
 	echo -n "New Scheduler: " && read newiosched
 
 	for j in /sys/block/*/queue/scheduler; do
-		echo "$newio" > $j
+		echo "$newiosched" > $j
 	done
 
 	clear
