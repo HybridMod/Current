@@ -35,9 +35,11 @@ cli_displaytype(){
 }
 
 sh_ota(){
-	#SH-OTA Your-Script By Deic & DiamondBond
+	#SH-OTA Template By Deic & DiamondBond
 
-	#Variables
+	#To be heavily refactored...
+
+	#Functions
 	a1(){
 		na="SH-OTA.sh" #Name of your SH-OTA file
 		do="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
