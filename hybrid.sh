@@ -1,5 +1,39 @@
 #hybrid.sh by DiamondBond & Deic
 
+var(){
+	#version_control
+	ver_revision=1.8
+
+	#options
+	userdebug=0
+	usagetype=0
+	initd=1
+	motod=0
+	shfix=0
+
+	#misc control
+	DATE=`date +%d-%m-%Y`
+	rom=`getprop ro.build.type`
+	
+	#config
+	shfixcfg="/data/hybrid/shfix.cfg"
+	usagetypecfg="/data/hybrid/usagetype.cfg"
+}
+
+cli_displaytype(){
+	#color control
+	red='\033[0;31m'
+	green='\033[0;32m'
+	yellow='\033[0;33m'
+	cyan='\033[0;36m'
+	white='\033[0;97m'
+
+	#formatting control
+	bld='\033[0;1m' #bold
+	blnk='\033[0;5m' #blinking
+	nc='\033[0m' #no color
+}
+
 sh_ota(){
 	#SH-OTA Your-Script By Deic & DiamondBond
 
@@ -38,40 +72,6 @@ sh_ota(){
 	clear
 	a1
 	a2
-}
-
-var(){
-	#version_control
-	ver_revision=1.8
-
-	#options
-	userdebug=0
-	usagetype=0
-	initd=1
-	motod=0
-	shfix=0
-
-	#misc control
-	DATE=`date +%d-%m-%Y`
-	rom=`getprop ro.build.type`
-	
-	#config
-	shfixcfg="/data/hybrid/shfix.cfg"
-	usagetypecfg="/data/hybrid/usagetype.cfg"
-}
-
-cli_displaytype(){
-	#color control
-	red='\033[0;31m'
-	green='\033[0;32m'
-	yellow='\033[0;33m'
-	cyan='\033[0;36m'
-	white='\033[0;97m'
-
-	#formatting control
-	bld='\033[0;1m' #bold
-	blnk='\033[0;5m' #blinking
-	nc='\033[0m' #no color
 }
 
 body(){
