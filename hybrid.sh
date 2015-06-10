@@ -12,7 +12,7 @@ var(){
 	shfix=0
 
 	#misc control
-	DATE=`date +%d-%m-%Y`
+	date=`date +%d-%m-%Y`
 	rom=`getprop ro.build.type`
 	
 	#config
@@ -283,38 +283,37 @@ EOF
 
 sql_optimize(){
 	clear
-	echo "${yellow}Optimizing SQLite databases!${nc}"
+	echo "${yellow}Optimizing SQLite databases...${nc}"
+	echo
 	sleep 1
 
 	if [ -e /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC=/system/xbin/sqlite3
-		echo
 	fi
 
 	if [ -e /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC=/system/bin/sqlite3
-		echo
 	fi
 
 	if [ -e /system/sbin/sqlite3 ]; then #legacy support
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
-		echo
 	fi
 	for i in `find ./ -iname "*.db"`; do
 		$SQLLOC $i 'VACUUM;'
-		clear; echo "${yellow}Vacuumed: $i${nc}"
+		clear; echo "${yellow}Vacuumed:${nc} $i"
 		$SQLLOC $i 'REINDEX;'
-		echo "${yellow}Reindexed : $i${nc}"
+		echo "${yellow}Reindexed :${nc} $i"
 	done
 
 	clear
-	echo "SQLite database optimizations complete!"
+	echo
+	echo "${yellow}SQLite database optimizations complete!${nc}"
 	sleep 1
 	
 	backdrop
@@ -736,7 +735,7 @@ catalyst_inject(){
 	#configure sub-variables
 	waiter=60
 	
-	if [ "$user_debug" == 1 ]; then
+	if [ $userdebug == 1 ]; then
 		echo
 		echo "log:"
   	fi
@@ -749,22 +748,22 @@ catalyst_inject(){
 		sleep $waiter
 		sync
   		echo "3" > /proc/sys/vm/drop_caches
-  		if [ "$user_debug" == 1 ]; then
-  			echo -n "game booster exec time: " && date
+  		if [ $userdebug == 1 ]; then
+  			echo -n "game booster exec time: $date"
   		fi
 	done
 	)
 
-	echo "Please leave the terminal emulator running"
-	echo "This will continue to run untill you press a key or close the terminal"
-	echo
-	stty cbreak -echo
-	f=$(dd bs=1 count=1 >/dev/null 2>&1)
-	stty -cbreak echo
-	echo $f
-	case $f in
-		* ) catalyst_control;;
-	esac
+	#echo "Please leave the terminal emulator running"
+	#echo "This will continue to run untill you press a key or close the terminal"
+	#echo
+	#stty cbreak -echo
+	#f=$(dd bs=1 count=1 >/dev/null 2>&1)
+	#stty -cbreak echo
+	#echo $f
+	#case $f in
+	#	* ) catalyst_control;;
+	#esac
 }
 
 catalyst_time_cfg(){
@@ -848,8 +847,8 @@ usage_mode_toggle(){
 	echo -n "> "
 	read usage_mode_toggle_opt
 	case $usage_mode_toggle_opt in
-		t|T ) usage_type && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
-		p|P ) usage_type && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
+		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
+		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
 		* ) error_404 && usage_mode_toggle;;
 	esac
 }
@@ -950,24 +949,21 @@ session_behaviour(){
 	#sh_ota
 	sysrw
 	cli_displaytype
-	var
 
 	#check shfix.cfg
-	if [ "`grep 0 $shfixcfg`" ]; then
-		shfix=0
-	fi
-	
-	if [ "`grep 1 $shfixcfg`" ]; then
-		shfix=1
+	if [ -e $shfixcfg ]; then
+		elif [ "`grep 0 $shfixcfg`" ]; then
+			shfix=0
+		elif [ "`grep 1 $shfixcfg`" ]; then
+			shfix=1
 	fi
 
 	#check usagetype.cfg
-	if [ "`grep 0 $usagetypecfg`" ]; then
-		usagetype=0
-	fi
-	
-	if [ "`grep 1 $usagetypecfg`" ]; then
-		usagetype=1
+	if [ -e $usagetypecfg ]; then
+		elif [ "`grep 0 $usagetypecfg`" ]; then
+			usagetype=0
+		elif [ "`grep 1 $usagetypecfg`" ]; then
+			usagetype=1
 	fi
 
 	#run conditional statements
@@ -1013,6 +1009,7 @@ shfix_session_behaviour(){
 }
 
 #call
+var
 if [ $shfix == 1 ]; then
 	shfix_session_behaviour
 else
