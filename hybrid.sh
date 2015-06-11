@@ -5,20 +5,22 @@ var(){
 	ver_revision=1.8
 
 	#options
-	userdebug=0
-	usagetype=0
+	#if change from value to 0-1, config files will be ignored
+	userdebug=value
+	usagetype=value
+	shfix=value
 	initd=1
-	motod=0
-	shfix=0
+	motod=0 #<- What is this? xD
 
 	#misc control
-	date=`date +%d-%m-%Y`
 	rom=`getprop ro.build.type`
 	
 	#config
-	userdebugcfg="/data/hybrid/userdebug.cfg"
-	usagetypecfg="/data/hybrid/usagetype.cfg"
-	shfixcfg="/data/hybrid/shfix.cfg"
+	hybrid="/data/hybrid/"
+	userdebugcfg="$hybrid/userdebug.cfg"
+	usagetypecfg="$hybrid/usagetype.cfg"
+	shfixcfg="$hybrid/shfix.cfg"
+	catalystcfg="$hybrid/catalyst.cfg"
 
 	sync_config
 }
@@ -735,31 +737,31 @@ catalyst_control(){
 
 catalyst_inject(){
 	clear
-	#configure sub-variables
-	waiter=60
-	
-	if [ $userdebug == 1 ]; then
-		echo
-		echo "log:"
-  	fi
+	echo "Please leave the terminal emulator running"
+	echo "This will continue to run untill close the terminal"
+	echo
 
-	sleep 3
+	#configure sub-variables
+	catalystsec=60
+
+	if [ $userdebug == 1 ]; then
+	 	echo "log:"
+  	fi
 
 	(
 	while [ 1 ]
 	do
-		sleep $waiter
 		sync
   		echo "3" > /proc/sys/vm/drop_caches
+
   		if [ $userdebug == 1 ]; then
-  			echo -n "game booster exec time: $date"
+  			echo -n "game booster exec time: "; date +%c
   		fi
+
+		sleep $catalystsec
 	done
 	)
 
-	#echo "Please leave the terminal emulator running"
-	#echo "This will continue to run untill you press a key or close the terminal"
-	#echo
 	#stty cbreak -echo
 	#f=$(dd bs=1 count=1 >/dev/null 2>&1)
 	#stty -cbreak echo
@@ -771,14 +773,15 @@ catalyst_inject(){
 
 catalyst_time_cfg(){
 	clear
-	echo "Current rate: $waiter"
+	echo "Current rate: $catalystsec"
 	echo "60 - Every minute - Default"
 	echo "3600 - Every hour"
 	echo
 	echo "Please enter a rate:"
 	echo -n "> "
 	read catalyst_time_in
-	waiter=$catalyst_time_in
+	catalyst_cfg
+	echo $catalyst_time_in > $catalystcfg; var
 	clear
 	echo "Time updated!"
 	sleep 1
@@ -811,11 +814,9 @@ options(){
 debug_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $userdebug == 1 ]; then
+	if [ $userdebug == value ] || [ $userdebug == 1 ]; then
 		userdebug_status=enabled
-	fi
-
-	if [ $userdebug == 0 ]; then
+	elif [ $userdebug == 0 ]; then
 		userdebug_status=disabled
 	fi
 
@@ -836,11 +837,9 @@ debug_mode_toggle(){
 usage_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $usagetype == 0 ]; then
+	if [ $usagetype == value ] || [ $usagetype == 0 ]; then
 		usagetype_status=temporary
-	fi
-
-	if [ $usagetype == 1 ]; then
+	elif [ $usagetype == 1 ]; then
 		usagetype_status=permanent
 	fi
 
@@ -861,11 +860,9 @@ usage_mode_toggle(){
 shell_mode_toggle(){
 	clear
 	#configure sub-variables
-	if [ $shfix == 0 ]; then
+	if [ $shfix == value ] || [ $shfix == 0 ]; then
 		shfix_status=disable
-	fi
-
-	if [ $shfix == 1 ]; then
+	elif [ $shfix == 1 ]; then
 		shfix_status=enable
 	fi
 
@@ -958,76 +955,92 @@ usagetype_first_start(){
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
 	echo
-	echo " You can change it in Options"
+	echo " You can change it in Options later"
 	echo
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && backdrop;;
-		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && backdrop;;
+		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && sync_config && echo "Ok!" && sleep 1 && backdrop;;
+		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && sync_config && echo "Ok!" && sleep 1 && backdrop;;
 		* ) error_404 && usagetype_first_start;;
 	esac
 }
 
 userdebug_cfg(){
-	mkdir -p /data/hybrid/
-	chmod 755 /data/hybrid/
+	mkdir -p $hybrid
+	chmod 755 $hybrid
 	touch $userdebugcfg
 	chmod 755 $userdebugcfg
 }
 
 usagetype_cfg(){
-	mkdir -p /data/hybrid/
-	chmod 755 /data/hybrid/
+	mkdir -p $hybrid
+	chmod 755 $hybrid
 	touch $usagetypecfg
 	chmod 755 $usagetypecfg
 }
 
 shfix_cfg(){
-	mkdir -p /data/hybrid/
-	chmod 755 /data/hybrid/
+	mkdir -p $hybrid
+	chmod 755 $hybrid
 	touch $shfixcfg
 	chmod 755 $shfixcfg
 }
 
+catalyst_cfg(){
+	mkdir -p $hybrid
+	chmod 755 $hybrid
+	touch $catalystcfg
+	chmod 755 $catalystcfg
+}
+
 sync_config(){
 	#sync userdebug.cfg
-	if [ -e $userdebugcfg ]; then
-		if [ "`grep 0 $userdebugcfg`" ]; then
-			userdebug=0
-		fi
-		if [ "`grep 1 $userdebugcfg`" ]; then
-			userdebug=1
-		fi
+	if [ $userdebug == value ]; then
+		if [ -e $userdebugcfg ]; then
+	 	 	if [ "`grep 0 $userdebugcfg`" ]; then
+	 			userdebug=0
+	 	  	elif [ "`grep 1 $userdebugcfg`" ]; then
+	 	 	 	userdebug=1
+	 	 	fi
+	 	fi
 	fi
 
 	#sync usagetype.cfg
-	if [ -e $usagetypecfg ]; then
-		if [ "`grep 0 $usagetypecfg`" ]; then
-			usagetype=0
-		fi
-		if [ "`grep 1 $usagetypecfg`" ]; then
-			usagetype=1
+	if [ $usagetype == value ]; then
+	 	if [ -e $usagetypecfg ]; then
+	 		if [ "`grep 0 $usagetypecfg`" ]; then
+	 			usagetype=0
+	 	 	elif [ "`grep 1 $usagetypecfg`" ]; then
+	 	 		usagetype=1
+	 	 	fi
 		fi
 	fi
 
 	#sync shfix.cfg
-	if [ -e $shfixcfg ]; then
-		if [ "`grep 0 $shfixcfg`" ]; then
-			shfix=0
-		fi
-		if [ "`grep 1 $shfixcfg`" ]; then
-			shfix=1
+	if [ $shfix == value ]; then
+	 	if [ -e $shfixcfg ]; then
+	 		if [ "`grep 0 $shfixcfg`" ]; then
+	 			shfix=0
+	 	 	elif [ "`grep 1 $shfixcfg`" ]; then
+	 	 	 	shfix=1
+	 	 	fi
 		fi
 	fi
+
+#wip
+	#sync catalyst.cfg
+	#if [ -e $catalystcfg ]; then
+		#
+	#fi
 }
 
 session_behaviour(){
 	#call startup functions
 	clear
 	#sh_ota
-	sysrw
 	cli_displaytype
+	sysrw
 }
 
 main_functions(){
@@ -1054,7 +1067,7 @@ shfix_session_behaviour(){
 
 	if [ -e shfixcfg ]; then
 	 	if [ "`grep 0 shfixcfg`" ]; then
-	 	$SHELL -c hybrid; safe_exit
+	 	 	hybrid; safe_exit
 	 	fi
 	fi
 
