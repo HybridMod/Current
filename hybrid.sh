@@ -1,8 +1,5 @@
 #!/system/bin/sh
-
-#
 # hybrid.sh by DiamondBond & Deic
-#
 
 ver_revision="2.0"
 
@@ -19,30 +16,30 @@ cyan='\033[0;36m'
 white='\033[0;97m'
 
 #formatting control
-bld='\033[0;1m' #bold
-blnk='\033[0;5m' #blinking
-nc='\033[0m' #no color
+bld='\033[0;1m'
+blnk='\033[0;5m'
+nc='\033[0m'
 
 body(){
-	echo "${cyan}[-=The Hybrid Project=-]${nc}"
-	echo
-	echo "${yellow}Menu:${nc}"
-	echo " 1|Instant Boost"
-	echo " 2|Clean up my crap"
-	echo " 3|Optimize my SQLite DB's"
-	echo " 4|Tune my VM"
-	echo " 5|Tune my LMK"
-	echo " 6|Tune my Networks"
-	echo " 7|Kernel Kontrol"
-	echo " 8|zRAM Settings"
-	echo " 9|Game Booster"
-	echo
-	echo " O|Options"
-	echo " A|About"
-	echo " R|Reboot"
-	echo " E|Exit"
-	echo
-	echo -n "> "
+	# echo "${cyan}[-=The Hybrid Project=-]${nc}"
+	# echo
+	# echo "${yellow}Menu:${nc}"
+	# echo " 1|Instant Boost"
+	# echo " 2|Clean up my crap"
+	# echo " 3|Optimize my SQLite DB's"
+	# echo " 4|Tune my VM"
+	# echo " 5|Tune my LMK"
+	# echo " 6|Tune my Networks"
+	# echo " 7|Kernel Kontrol"
+	# echo " 8|zRAM Settings"
+	# echo " 9|Game Booster"
+	# echo
+	# echo " O|Options"
+	# echo " A|About"
+	# echo " R|Reboot"
+	# echo " E|Exit"
+	# echo
+	echo -n " ~ "
 	read selection_opt
 	case $selection_opt in
 		1 ) drop_caches;;
@@ -64,16 +61,16 @@ body(){
 
 creboot(){
 	clear
-	echo "Rebooting in 3"
+	echo "Rebooting in 3..."
 	sleep 1
 	clear
-	echo "Rebooting in 2."
+	echo "Rebooting in 2..."
 	sleep 1
 	clear
-	echo "Rebooting in 1.."
+	echo "Rebooting in 1..."
 	sleep 1
 	clear
-	echo "Rebooting..."
+	echo "Bam!"
 	sleep 1
 	sync && reboot
 }
@@ -106,10 +103,7 @@ drop_caches(){
 		echo -ne "" > /system/etc/init.d/97cache_drop
 cat >> /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
-
-sync
-echo "3" > /proc/sys/vm/drop_caches
-			
+sync && echo "3" > /proc/sys/vm/drop_caches
 EOF
 	echo "${yellow}Installed!${nc}"
 	sleep 1
@@ -143,9 +137,6 @@ clean_up(){
 	rm -f /data/system/dropbox/*
 	rm -f /data/system/usagestats/*
 	rm -rf $EXTERNAL_STORAGE/LOST.DIR/
-
-	#drop caches
-	echo "3" > /proc/sys/vm/drop_caches
 
 	clear
 	echo "${yellow}Clean up complete!${nc}"
@@ -204,7 +195,7 @@ sql_optimize(){
 		SQLLOC=/system/bin/sqlite3
 	fi
 
-	if [ -e /system/sbin/sqlite3 ]; then #legacy support
+	if [ -e /system/sbin/sqlite3 ]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
@@ -324,7 +315,7 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...${nc}"
 	sleep 1
 
-	#General
+	#TCP
 	echo "2097152" > /proc/sys/net/core/wmem_max
 	echo "2097152" > /proc/sys/net/core/rmem_max
 	echo "20480" > /proc/sys/net/core/optmem_max
@@ -351,24 +342,17 @@ network_tune(){
 	echo "110592" > /proc/sys/net/core/rmem_default
 	echo "110592" > /proc/sys/net/core/wmem_default
 
-	#WIFI Specific
-	# Turn on Source Address Verification in all interfaces.
+	#IPv4
 	echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
 	echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-	# Do not accept ICMP redirects.
 	echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
 	echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-	# Do not send ICMP redirects.
 	echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
 	echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-	# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
 	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-	# Ignore bogus ICMP errors.
 	echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-	# Do not accept IP source route packets.
 	echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
 	echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-	# Turn on log Martian Packets with impossible addresses.
 	echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 	echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
@@ -383,8 +367,7 @@ network_tune(){
 		echo -ne "" > /system/etc/init.d/56net
 cat >> /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
-
-#General
+#TCP
 echo "2097152" > /proc/sys/net/core/wmem_max
 echo "2097152" > /proc/sys/net/core/rmem_max
 echo "20480" > /proc/sys/net/core/optmem_max
@@ -411,27 +394,19 @@ echo "524288" > /proc/sys/net/core/rmem_max
 echo "110592" > /proc/sys/net/core/rmem_default
 echo "110592" > /proc/sys/net/core/wmem_default
 
-#WIFI Specific
-# Turn on Source Address Verification in all interfaces.
+#IPv4
 echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
 echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-# Do not accept ICMP redirects.
 echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
 echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-# Do not send ICMP redirects.
 echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
 echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
 echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-# Ignore bogus ICMP errors.
 echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-# Do not accept IP source route packets.
 echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
 echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-# Turn on log Martian Packets with impossible addresses.
 echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
-
 EOF
 		echo "${yellow}Installed!${nc}"
 		sleep 1
@@ -491,7 +466,8 @@ setcpufreq(){
 
 setgov(){
 	clear
-	#configure sub variables
+
+	#sub-variables
 	curgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
 	listgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`
 
@@ -516,7 +492,8 @@ setgov(){
 
 setiosched(){
 	clear
-	#configure sub variables
+
+	#sub-variables
 	curiosched=`cat /sys/block/mmcblk0/queue/scheduler | sed 's/.*\[\([a-zA-Z0-9_]*\)\].*/\1/'`
 	listiosched=`cat /sys/block/mmcblk0/queue/scheduler | tr -s "[[:blank:]]" "\n" | sed 's/\[\([a-zA-Z0-9_]*\)\]/\1/'`
 
