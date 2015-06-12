@@ -23,15 +23,6 @@ bld='\033[0;1m' #bold
 blnk='\033[0;5m' #blinking
 nc='\033[0m' #no color
 
-sh_ota(){
-	#SH-OTA Template By Deic & DiamondBond
-	name="hybrid.sh"
-	cloud=""
-	location="$EXTERNAL_STORAGE/Download/$name"
-
-	# am start android.intent.action.VIEW $br $cloud >/dev/null 2>&1 Fix it please
-}
-
 body(){
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo
@@ -42,10 +33,9 @@ body(){
 	echo " 4|Tune my VM"
 	echo " 5|Tune my LMK"
 	echo " 6|Tune my Networks"
-	echo " 7|Remove logger"
-	echo " 8|Kernel Kontrol"
-	echo " 9|Apps"
-	echo " 10|Game Booster"
+	echo " 7|Kernel Kontrol"
+	echo " 8|zRAM Settings"
+	echo " 9|Game Booster"
 	echo
 	echo " O|Options"
 	echo " A|About"
@@ -61,15 +51,14 @@ body(){
 		4 ) vm_tune;;
 		5 ) lmk_tune_opt;;
 		6 ) network_tune;;
-		7 ) kill_log;;
-		8 ) kernel_kontrol;;
-		9 ) app_wise;;
-		10 ) catalyst_control;;
+		7 ) kernel_kontrol;;
+		8 ) zram_settings;;
+		9 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
 		r|R ) creboot;;
-		e|E ) safe_exit && break;;
-		* ) echo "Unknown Option";;
+		e|E ) exit 0;;
+		* ) echo "Unknown Option" && sleep 2;;
 	esac
 }
 
@@ -87,14 +76,6 @@ creboot(){
 	echo "Rebooting..."
 	sleep 1
 	sync && reboot
-}
-
-sysrw(){
-	mount -o remount rw /system >/dev/null 2>&1
-}
-
-sysro(){
-	mount -o remount ro /system >/dev/null 2>&1
 }
 
 init_sleep () {
@@ -472,9 +453,9 @@ kernel_kontrol(){
 		1) setcpufreq;;
 		2) setgov;;
 		3) setiosched;;
-		4) kcal_ro;;
+		4) kcal;;
 		b|B) backdrop;;
-		* ) error_404 && kernel_kontrol;;
+		* ) echo "Unknown Option" && sleep 2 && kernel_kontrol;;
 	 esac
 }
 
@@ -559,15 +540,19 @@ setiosched(){
 	kernel_kontrol
 }
 
-kcal_ro(){
+kcal(){
 	clear
-	echo "${yellow}Current KCal Values:${nc}"
-	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
-	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
-	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
-	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
-	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
-	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
+	if [ -d /sys/devices/platform/kcal_ctrl.0 ]; then
+		echo "${yellow}Current KCal Values:${nc}"
+		rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
+		sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
+		cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
+		hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
+		gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
+		echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
+	else
+		echo "KCal driver is missing"
+	fi
 	sleep 5
 
 	kernel_kontrol
@@ -620,9 +605,9 @@ catalyst_time_cfg(){
 	catalyst_control
 }
 
-options(){
+zram_settings(){
 	clear
-	echo "${yellow}Options:${nc}"
+	echo "${yellow}zRAM Options:${nc}"
 	echo " 1|Disable zRAM"
 	echo " 2|Enable zRAM"
 	echo " B|Back"
@@ -631,9 +616,9 @@ options(){
 	read options_opt
 	case $options_opt in
 		1 ) zram_disable;;
-		1 ) zram_enable;;
+		2 ) zram_enable;;
 		b|B ) clear && body;;
-		* ) echo "Unknown Option" && options;;
+		* ) echo "Unknown Option" && zram_settings;;
 	esac
 }
 
@@ -650,7 +635,7 @@ zram_enable(){
 	echo "${yellow}zRAM enabled!${nc}"
 	sleep 1
 	
-	options
+	zram_settings
 }
 
 zram_disable(){
@@ -666,7 +651,7 @@ zram_disable(){
 	echo "${yellow}zRAM disabled!${nc}"
 	sleep 1
 	
-	options
+	zram_settings
 }
 
 about_info(){
@@ -688,7 +673,7 @@ about_info(){
 	backdrop
 }
 
-usagetype_first_start(){
+options(){
 	clear
 	echo "${yellow}How to install tweaks?${nc}"
 	echo
@@ -700,15 +685,15 @@ usagetype_first_start(){
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) setprop hynrid.perm 0 && echo "Ok!" && sleep 1 && backdrop;;
-		p|P ) setprop hynrid.perm 1 && echo "Ok!" && sleep 1 && backdrop;;
-		* ) echo "Unknown Option" && usagetype_first_start;;
+		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1 && backdrop;;
+		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1 && backdrop;;
+		* ) echo "Unknown Option" && options;;
 	esac
 }
 
 #sh-ota
 if [[ $EUID -ne 0 ]]; then
-	echo "This script must be run as root" 1>&2
+	echo "This script must be run as root"
 	exit 1
 elif [ "$perm" = "" ]; then
 	options
