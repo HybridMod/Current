@@ -4,16 +4,17 @@ var(){ #generic variables
 	#version_control
 	ver_revision=1.9
 
-	#options
-	#if change from value to 0-1, config files will be ignored
+	#misc control
+	rom=`getprop ro.build.type`
+}
+
+legacy_config(){
+	#changing any of these values to 0-1 will ignore the config files.
 	userdebug=value
 	usagetype=value
 	shfix=value
 	initd=1
 	motod=0
-
-	#misc control
-	rom=`getprop ro.build.type`
 }
 
 config(){
