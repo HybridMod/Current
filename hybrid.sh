@@ -10,7 +10,7 @@ var(){ #generic variables
 	usagetype=value
 	shfix=value
 	initd=1
-	motod=0 #<- What is this? xD #moto install, theres init.d and then there moto type install, eg init.rc :P
+	motod=0
 
 	#misc control
 	rom=`getprop ro.build.type`
