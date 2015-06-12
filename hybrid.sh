@@ -1,6 +1,6 @@
 #hybrid.sh by DiamondBond & Deic
 
-var(){
+var(){ #generic variables
 	#version_control
 	ver_revision=1.9
 
@@ -14,7 +14,9 @@ var(){
 
 	#misc control
 	rom=`getprop ro.build.type`
-	
+}
+
+config(){
 	#config
 	hybrid="/data/hybrid/"
 	userdebugcfg="$hybrid/userdebug.cfg"
