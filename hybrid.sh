@@ -2,7 +2,7 @@
 
 var(){
 	#version_control
-	ver_revision=1.8
+	ver_revision=1.9
 
 	#options
 	#if change from value to 0-1, config files will be ignored
@@ -174,6 +174,19 @@ sysro(){
 	mount -o remount ro /cache >/dev/null 2>&1
 }
 
+init_sleep () {
+	if [ ! -f system/etc/init.d/50sleep ]; then
+		mkdir -p /system/etc/init.d/
+		touch /system/etc/init.d/50sleep
+		chmod 755 /system/etc/init.d/50sleep
+		echo -ne "" > /system/etc/init.d/50sleep
+cat >> /system/etc/init.d/50slepp <<EOF
+#!/system/bin/sh
+sleep 10
+EOF
+	fi
+}
+
 drop_caches(){
 	clear
 	if [ $usagetype == 0 ]; then
@@ -188,13 +201,13 @@ drop_caches(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
+			init_sleep
 			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/97cache_drop
 			chmod 755 /system/etc/init.d/97cache_drop
 			echo -ne "" > /system/etc/init.d/97cache_drop
 cat >> /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
-sleep 17
 
 sync
 echo "3" > /proc/sys/vm/drop_caches
@@ -247,13 +260,13 @@ clean_up(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
+			init_sleep
 			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/99clean_up
 			chmod 755 /system/etc/init.d/99clean_up
 			echo -ne "" > /system/etc/init.d/99clean_up
 cat >> /system/etc/init.d/99clean_up <<EOF
 #!/system/bin/sh
-sleep 17
 
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
@@ -348,13 +361,13 @@ vm_tune(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
+			init_sleep
 			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/75vm
 			chmod 755 /system/etc/init.d/75vm
 			echo -ne "" > /system/etc/init.d/75vm
 cat >> /system/etc/init.d/75vm <<EOF
 #!/system/bin/sh
-sleep 15
 
 echo "80" > /proc/sys/vm/swappiness
 echo "10" > /proc/sys/vm/vfs_cache_pressure
@@ -418,13 +431,13 @@ lmk_apply(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
+			init_sleep
 			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/95lmk
 			chmod 755 /system/etc/init.d/95lmk
 			echo -ne "" > /system/etc/init.d/95lmk
 cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
-sleep 30
 
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 EOF
@@ -498,13 +511,13 @@ network_tune(){
 
 	if [ $usagetype == 1 ]; then
 		if [ $initd == 1 ]; then
+			init_sleep
 			mkdir -p /system/etc/init.d/
 			touch /system/etc/init.d/56net
 			chmod 755 /system/etc/init.d/56net
 			echo -ne "" > /system/etc/init.d/56net
 cat >> /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
-sleep 5
 
 #General
 echo "2097152" > /proc/sys/net/core/wmem_max
