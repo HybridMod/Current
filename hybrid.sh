@@ -1,80 +1,35 @@
-#hybrid.sh by DiamondBond & Deic
+#!/system/bin/sh
 
-var(){
-	#version_control
-	ver_revision=1.8
+#
+# hybrid.sh by DiamondBond & Deic
+#
 
-	#options
-	#if change from value to 0-1, config files will be ignored
-	userdebug=value
-	usagetype=value
-	shfix=value
-	initd=1
-	motod=0 #<- What is this? xD
+ver_revision="2.0"
 
-	#misc control
-	rom=`getprop ro.build.type`
-	
-	#config
-	hybrid="/data/hybrid/"
-	userdebugcfg="$hybrid/userdebug.cfg"
-	usagetypecfg="$hybrid/usagetype.cfg"
-	shfixcfg="$hybrid/shfix.cfg"
-	catalystcfg="$hybrid/catalyst.cfg"
+#options
+initd=`if [ -d /system/etc/init.d ]; then echo "1"; else echo "0" ; fi`
+perm=`getprop hybrid.perm`
+catalyst_time=`getprop hybrid.catalyst_time`
 
-	sync_config
-}
+#color control
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+cyan='\033[0;36m'
+white='\033[0;97m'
 
-cli_displaytype(){
-	#color control
-	red='\033[0;31m'
-	green='\033[0;32m'
-	yellow='\033[0;33m'
-	cyan='\033[0;36m'
-	white='\033[0;97m'
-
-	#formatting control
-	bld='\033[0;1m' #bold
-	blnk='\033[0;5m' #blinking
-	nc='\033[0m' #no color
-}
+#formatting control
+bld='\033[0;1m' #bold
+blnk='\033[0;5m' #blinking
+nc='\033[0m' #no color
 
 sh_ota(){
 	#SH-OTA Template By Deic & DiamondBond
+	name="hybrid.sh"
+	cloud=""
+	location="$EXTERNAL_STORAGE/Download/$name"
 
-	#To be heavily refactored...
-
-	#Functions
-	var(){
-		name="SH-OTA.sh" #Name of your SH-OTA file
-		cloud="https://www.Your-Site/SH-OTA.sh" #Link of your SH-OTA file
-		location="$EXTERNAL_STORAGE/Download/$name"
-		br="com.android.browser"
-	}
-
-	get_ota(){
-		am start android.intent.action.VIEW $br $cloud >/dev/null 2>&1
-		am start jackpal.androidterm >/dev/null 2>&1
-		wait_ota
-	}
-
-	wait_ota(){
-		run_ota
-	}
-
-	run_ota(){
-		if [ -e $location ]; then
-			am force-stop $br
-			$SHELL -c $location
-		else
-			wait_ota
-		fi
-	}
-
-	#Script start
-	clear
-	var
-	get_ota
+	# am start android.intent.action.VIEW $br $cloud >/dev/null 2>&1 Fix it please
 }
 
 body(){
@@ -94,8 +49,6 @@ body(){
 	echo
 	echo " O|Options"
 	echo " A|About"
-	echo " F|Forum"
-	echo " S|Source"
 	echo " R|Reboot"
 	echo " E|Exit"
 	echo
@@ -114,28 +67,14 @@ body(){
 		10 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
-		f|F ) am start "http://forum.xda-developers.com/moto-g-2014/development/mod-disable-zram-t3071658" >/dev/null 2>&1 && backdrop;;
-		s|S ) am start "https://github.com/HybridMod/Current/" >/dev/null 2>&1 && backdrop;;
 		r|R ) creboot;;
-		e|E ) safe_exit;;
-		* ) error_404 && backdrop;;
+		e|E ) safe_exit && break;;
+		* ) echo "Unknown Option";;
 	esac
-}
-
-backdrop(){
-	clear
-	body
-}
-
-error_404(){
-	echo
-	echo "error 404, function not found."
-	sleep 1
 }
 
 creboot(){
 	clear
-	sysro
 	echo "Rebooting in 3"
 	sleep 1
 	clear
@@ -147,113 +86,96 @@ creboot(){
 	clear
 	echo "Rebooting..."
 	sleep 1
-	reboot
-}
-
-safe_exit(){
-	clear
-	sysro
-	echo "${cyan}[-=The Hybrid Project=-]${nc}"
-	echo "${cyan}     by DiamondBond...${nc}"
-exit
+	sync && reboot
 }
 
 sysrw(){
-	#type=rw
-	mount -o remount rw / >/dev/null 2>&1
 	mount -o remount rw /system >/dev/null 2>&1
-	mount -o remount rw /data >/dev/null 2>&1
-	mount -o remount rw /cache >/dev/null 2>&1
 }
 
 sysro(){
-	#type=ro
-	mount -o remount ro / >/dev/null 2>&1
 	mount -o remount ro /system >/dev/null 2>&1
-	mount -o remount ro /data >/dev/null 2>&1
-	mount -o remount ro /cache >/dev/null 2>&1
+}
+
+init_sleep () {
+	if [ ! -f system/etc/init.d/50sleep ]; then
+		touch /system/etc/init.d/50sleep
+		chmod 755 /system/etc/init.d/50sleep
+		echo -ne "" > /system/etc/init.d/50sleep
+cat >> /system/etc/init.d/50slepp <<EOF
+#!/system/bin/sh
+sleep 10
+EOF
+	fi
 }
 
 drop_caches(){
 	clear
-	if [ $usagetype == 0 ]; then
-		echo "${yellow}Dropping caches...${nc}"
-		sleep 1
-		sync
-		echo "3" > /proc/sys/vm/drop_caches
-		clear
-		echo "${yellow}Caches dropped!${nc}"
-		sleep 1
-	fi
-
-	if [ $usagetype == 1 ]; then
-		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d/
-			touch /system/etc/init.d/97cache_drop
-			chmod 755 /system/etc/init.d/97cache_drop
-			echo -ne "" > /system/etc/init.d/97cache_drop
+	echo "${yellow}Dropping caches...${nc}"
+	sleep 1
+	sync
+	echo "3" > /proc/sys/vm/drop_caches
+	clear
+	echo "${yellow}Caches dropped!${nc}"
+	sleep 1
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
+		init_sleep
+		touch /system/etc/init.d/97cache_drop
+		chmod 755 /system/etc/init.d/97cache_drop
+		echo -ne "" > /system/etc/init.d/97cache_drop
 cat >> /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
-sleep 17
 
 sync
 echo "3" > /proc/sys/vm/drop_caches
 			
 EOF
-		fi
-		echo "${yellow}Installed!${nc}"
-		sleep 1
+	echo "${yellow}Installed!${nc}"
+	sleep 1
 	fi
-
-	backdrop
 }
 
 clean_up(){
 	clear
-	if [ $usagetype == 0 ]; then
-		echo "${yellow}Cleaning up...${nc}"
-		sleep 1
+	echo "${yellow}Cleaning up...${nc}"
+	sleep 1
 
-		#cleaner
-		rm -f /cache/*.apk
-		rm -f /cache/*.tmp
-		rm -f /cache/recovery/*
-		rm -f /data/*.log
-		rm -f /data/*.txt
-		rm -f /data/anr/*.*
-		rm -f /data/backup/pending/*.tmp
-		rm -f /data/cache/*.*
-		rm -f /data/dalvik-cache/*.apk
-		rm -f /data/dalvik-cache/*.tmp
-		rm -f /data/log/*.*
-		rm -f /data/local/*.apk
-		rm -f /data/local/*.log
-		rm -f /data/local/tmp/*.*
-		rm -f /data/last_alog/*
-		rm -f /data/last_kmsg/*
-		rm -f /data/mlog/*
-		rm -f /data/tombstones/*
-		rm -f /data/system/dropbox/*
-		rm -f /data/system/usagestats/*
-		rm -rf $EXTERNAL_STORAGE/LOST.DIR/
+	#cleaner
+	rm -f /cache/*.apk
+	rm -f /cache/*.tmp
+	rm -f /cache/recovery/*
+	rm -f /data/*.log
+	rm -f /data/*.txt
+	rm -f /data/anr/*.*
+	rm -f /data/backup/pending/*.tmp
+	rm -f /data/cache/*.*
+	rm -f /data/dalvik-cache/*.apk
+	rm -f /data/dalvik-cache/*.tmp
+	rm -f /data/log/*.*
+	rm -f /data/local/*.apk
+	rm -f /data/local/*.log
+	rm -f /data/local/tmp/*.*
+	rm -f /data/last_alog/*
+	rm -f /data/last_kmsg/*
+	rm -f /data/mlog/*
+	rm -f /data/tombstones/*
+	rm -f /data/system/dropbox/*
+	rm -f /data/system/usagestats/*
+	rm -rf $EXTERNAL_STORAGE/LOST.DIR/
 
-		#drop caches
-		echo "3" > /proc/sys/vm/drop_caches
+	#drop caches
+	echo "3" > /proc/sys/vm/drop_caches
 
-		clear
-		echo "${yellow}Clean up complete!${nc}"
-		sleep 1
-	fi
-
-	if [ $usagetype == 1 ]; then
-		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d/
-			touch /system/etc/init.d/99clean_up
-			chmod 755 /system/etc/init.d/99clean_up
-			echo -ne "" > /system/etc/init.d/99clean_up
+	clear
+	echo "${yellow}Clean up complete!${nc}"
+	sleep 1
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
+		init_sleep
+		touch /system/etc/init.d/99clean_up
+		chmod 755 /system/etc/init.d/99clean_up
+		echo -ne "" > /system/etc/init.d/99clean_up
 cat >> /system/etc/init.d/99clean_up <<EOF
 #!/system/bin/sh
-sleep 17
 
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
@@ -278,12 +200,9 @@ rm -f /data/system/usagestats/*
 rm -rf $EXTERNAL_STORAGE/LOST.DIR/
 
 EOF
-		fi
-		echo "${yellow}Installed!${nc}"
-		sleep 1
+	echo "${yellow}Installed!${nc}"
+	sleep 1
 	fi
-
-	backdrop
 }
 
 sql_optimize(){
@@ -320,41 +239,34 @@ sql_optimize(){
 	echo
 	echo "${yellow}SQLite database optimizations complete!${nc}"
 	sleep 1
-	
-	backdrop
 }
 
 vm_tune(){
 	clear
-	if [ $usagetype == 0 ]; then
-		echo "${yellow}Optimizing VM...${nc}"
-		sleep 1
+	echo "${yellow}Optimizing VM...${nc}"
+	sleep 1
 		
-		echo "80" > /proc/sys/vm/swappiness
-		echo "10" > /proc/sys/vm/vfs_cache_pressure
-		echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-		echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-		echo "90" > /proc/sys/vm/dirty_ratio
-		echo "70" > /proc/sys/vm/dirty_background_ratio
-		echo "1" > /proc/sys/vm/overcommit_memory
-		echo "150" > /proc/sys/vm/overcommit_ratio
-		echo "4096" > /proc/sys/vm/min_free_kbytes
-		echo "1" > /proc/sys/vm/oom_kill_allocating_task
+	echo "80" > /proc/sys/vm/swappiness
+	echo "10" > /proc/sys/vm/vfs_cache_pressure
+	echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+	echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+	echo "90" > /proc/sys/vm/dirty_ratio
+	echo "70" > /proc/sys/vm/dirty_background_ratio
+	echo "1" > /proc/sys/vm/overcommit_memory
+	echo "150" > /proc/sys/vm/overcommit_ratio
+	echo "4096" > /proc/sys/vm/min_free_kbytes
+	echo "1" > /proc/sys/vm/oom_kill_allocating_task
 		
-		clear
-		echo "${yellow}VM Optimized!${nc}"
-		sleep 1
-	fi
-
-	if [ $usagetype == 1 ]; then
-		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d/
-			touch /system/etc/init.d/75vm
-			chmod 755 /system/etc/init.d/75vm
-			echo -ne "" > /system/etc/init.d/75vm
+	clear
+	echo "${yellow}VM Optimized!${nc}"
+	sleep 1
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
+		init_sleep
+		touch /system/etc/init.d/75vm
+		chmod 755 /system/etc/init.d/75vm
+		echo -ne "" > /system/etc/init.d/75vm
 cat >> /system/etc/init.d/75vm <<EOF
 #!/system/bin/sh
-sleep 15
 
 echo "80" > /proc/sys/vm/swappiness
 echo "10" > /proc/sys/vm/vfs_cache_pressure
@@ -367,12 +279,9 @@ echo "150" > /proc/sys/vm/overcommit_ratio
 echo "4096" > /proc/sys/vm/min_free_kbytes
 echo "1" > /proc/sys/vm/oom_kill_allocating_task
 EOF
-		fi
 		echo "${yellow}Installed!${nc}"
 		sleep 1
 	fi
-	
-	backdrop
 }
 
 lmk_tune_opt(){
@@ -405,106 +314,94 @@ lmk_apply(){
 		minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
-	if [ $usagetype == 0 ]; then
-		echo "${yellow}Optimizing LMK...${nc}"
-		sleep 1
+	echo "${yellow}Optimizing LMK...${nc}"
+	sleep 1
 		
-		echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 		
-		clear
-		echo "${yellow}LMK Optimized!${nc}"
-		sleep 1
-	fi
+	clear
+	echo "${yellow}LMK Optimized!${nc}"
+	sleep 1
 
-	if [ $usagetype == 1 ]; then
-		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d/
-			touch /system/etc/init.d/95lmk
-			chmod 755 /system/etc/init.d/95lmk
-			echo -ne "" > /system/etc/init.d/95lmk
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
+		init_sleep
+		touch /system/etc/init.d/95lmk
+		chmod 755 /system/etc/init.d/95lmk
+		echo -ne "" > /system/etc/init.d/95lmk
 cat >> /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
-sleep 30
 
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 EOF
-		fi
 		echo "${yellow}Installed!${nc}"
 		sleep 1
 	fi
-	
-	backdrop
 }
 
 network_tune(){
 	clear
-	if [ $usagetype == 0 ]; then
-		clear
-		echo "${yellow}Optimizing Networks...${nc}"
-		sleep 1
+	echo "${yellow}Optimizing Networks...${nc}"
+	sleep 1
 
-		#General
-		echo "2097152" > /proc/sys/net/core/wmem_max
-		echo "2097152" > /proc/sys/net/core/rmem_max
-		echo "20480" > /proc/sys/net/core/optmem_max
-		echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-		echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
-		echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
-		echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
-		echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
-		echo "0" > /proc/sys/net/ipv4/tcp_timestamps
-		echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
-		echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
-		echo "1" > /proc/sys/net/ipv4/tcp_sack
-		echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
-		echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
-		echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
-		echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
-		echo "0" > /proc/sys/net/ipv4/tcp_ecn
-		echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
-		echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
-		echo "1" > /proc/sys/net/ipv4/route/flush
-		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
-		echo "524288" > /proc/sys/net/core/wmem_max
-		echo "524288" > /proc/sys/net/core/rmem_max
-		echo "110592" > /proc/sys/net/core/rmem_default
-		echo "110592" > /proc/sys/net/core/wmem_default
+	#General
+	echo "2097152" > /proc/sys/net/core/wmem_max
+	echo "2097152" > /proc/sys/net/core/rmem_max
+	echo "20480" > /proc/sys/net/core/optmem_max
+	echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+	echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
+	echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
+	echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
+	echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
+	echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+	echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+	echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+	echo "1" > /proc/sys/net/ipv4/tcp_sack
+	echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+	echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
+	echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
+	echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
+	echo "0" > /proc/sys/net/ipv4/tcp_ecn
+	echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
+	echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
+	echo "1" > /proc/sys/net/ipv4/route/flush
+	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+	echo "524288" > /proc/sys/net/core/wmem_max
+	echo "524288" > /proc/sys/net/core/rmem_max
+	echo "110592" > /proc/sys/net/core/rmem_default
+	echo "110592" > /proc/sys/net/core/wmem_default
 
-		#WIFI Specific
-		# Turn on Source Address Verification in all interfaces.
-		echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
-		echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-		# Do not accept ICMP redirects.
-		echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
-		echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-		# Do not send ICMP redirects.
-		echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
-		echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-		# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
-		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-		# Ignore bogus ICMP errors.
-		echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-		# Do not accept IP source route packets.
-		echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
-		echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-		# Turn on log Martian Packets with impossible addresses.
-		echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
-		echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
+	#WIFI Specific
+	# Turn on Source Address Verification in all interfaces.
+	echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
+	echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
+	# Do not accept ICMP redirects.
+	echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
+	echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
+	# Do not send ICMP redirects.
+	echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
+	echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
+	# Ignore ICMP broadcasts will stop gateway from responding to broadcast pings.
+	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+	# Ignore bogus ICMP errors.
+	echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+	# Do not accept IP source route packets.
+	echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
+	echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
+	# Turn on log Martian Packets with impossible addresses.
+	echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
+	echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
-		clear
-		echo "${yellow}Networks Optimized!${nc}"
-		sleep 1
-	fi
+	clear
+	echo "${yellow}Networks Optimized!${nc}"
+	sleep 1
 
-	if [ $usagetype == 1 ]; then
-		if [ $initd == 1 ]; then
-			mkdir -p /system/etc/init.d/
-			touch /system/etc/init.d/56net
-			chmod 755 /system/etc/init.d/56net
-			echo -ne "" > /system/etc/init.d/56net
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
+		init_sleep
+		touch /system/etc/init.d/56net
+		chmod 755 /system/etc/init.d/56net
+		echo -ne "" > /system/etc/init.d/56net
 cat >> /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
-sleep 5
 
 #General
 echo "2097152" > /proc/sys/net/core/wmem_max
@@ -555,26 +452,9 @@ echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
 EOF
-		fi
 		echo "${yellow}Installed!${nc}"
 		sleep 1
 	fi
-
-	backdrop
-}
-
-kill_log(){
-	clear
-	echo "${yellow}Removing logger...${nc}"
-	sleep 1
-
-	rm -f /dev/log/main
-	
-	clear
-	echo "${yellow}Logger removed!${nc}"
-	sleep 1
-	
-	backdrop
 }
 
 kernel_kontrol(){
@@ -693,32 +573,6 @@ kcal_ro(){
 	kernel_kontrol
 }
 
-app_wise(){
-	clear
-	echo "${yellow}Apps:${nc}"
-	echo
-	echo " 1|Xposed"
-	echo " 2|Greenify"
-	echo " 3|Amplify"
-	echo " 4|Nova Launcher"
-	echo " 5|Adblock Plus"
-	echo " 6|Opera Max"
-	echo " B|Back"
-	echo
-	echo -n "> "
-	read options_opt
-	case $options_opt in
-		1 ) am start "http://dl-xda.xposed.info/modules/de.robv.android.xposed.installer_v32_de4f0d.apk" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/de.robv.android.xposed.installer_v32_de4f0d.apk && app_wise;;
-		2 ) am start "" >/dev/null 2>&1 && app_wise;;
-		3 ) am start "http://forum.xda-developers.com/attachment.php?attachmentid=3291991&d=1430513980" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/Amplify-v3.0.9.apk && app_wise;;
-		4 ) am start "http://teslacoilsw.com/tesladirect/download.pl?packageName=com.teslacoilsw.launcher" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/Nova Launcher_4.0.1.apk && app_wise;;
-		5 ) am start "https://update.adblockplus.org/latest/adblockplusandroid.apk" >/dev/null 2>&1 && pm install $EXTERNAL_STORAGE/Download/adblockplusandroid.apk && app_wise;;
-		6 ) am start "" >/dev/null 2>&1 && app_wise;;
-		b|B ) backdrop;;
-		* ) error_404 && app_wise;;
-	esac
-}
-
 catalyst_control(){
 	clear
 	echo "${yellow}Game Booster${nc}"
@@ -730,8 +584,8 @@ catalyst_control(){
 	case $game_booster_opt in
 		1 ) catalyst_inject;;
 		2 ) catalyst_time_cfg;;
-		b|B ) backdrop;;
-		* ) error_404 && catalyst_control;;
+		b|B ) clear && body;;
+		* ) echo "Unknown Option" && catalyst_control;;
 	esac
 }
 
@@ -741,34 +595,11 @@ catalyst_inject(){
 	echo "This will continue to run untill close the terminal"
 	echo
 
-	#configure sub-variables
-	catalystsec=60
-
-	if [ $userdebug == 1 ]; then
-	 	echo "log:"
-  	fi
-
-	(
-	while [ 1 ]
-	do
+	while true; do
 		sync
   		echo "3" > /proc/sys/vm/drop_caches
-
-  		if [ $userdebug == 1 ]; then
-  			echo -n "game booster exec time: "; date +%c
-  		fi
-
-		sleep $catalystsec
+		sleep $catalyst_time
 	done
-	)
-
-	#stty cbreak -echo
-	#f=$(dd bs=1 count=1 >/dev/null 2>&1)
-	#stty -cbreak echo
-	#echo $f
-	#case $f in
-	#	* ) catalyst_control;;
-	#esac
 }
 
 catalyst_time_cfg(){
@@ -777,11 +608,10 @@ catalyst_time_cfg(){
 	echo "60 - Every minute - Default"
 	echo "3600 - Every hour"
 	echo
-	echo "Please enter a rate:"
+	echo "Please enter a rate in seconds:"
 	echo -n "> "
-	read catalyst_time_in
-	catalyst_cfg
-	echo $catalyst_time_in > $catalystcfg; var
+	read catalyst_time_val
+	setprop hybrid.catalyst_time $catalyst_time_val;
 	clear
 	echo "Time updated!"
 	sleep 1
@@ -793,93 +623,17 @@ catalyst_time_cfg(){
 options(){
 	clear
 	echo "${yellow}Options:${nc}"
-	echo " 1|Debug mode toggle"
-	echo " 2|Install type toggle"
-	echo " 3|Shell mode toggle"
-	echo " 4|Disable zRAM"
+	echo " 1|Disable zRAM"
+	echo " 2|Enable zRAM"
 	echo " B|Back"
 	echo
 	echo -n "> "
 	read options_opt
 	case $options_opt in
-		1 ) debug_mode_toggle;;
-		2 ) usage_mode_toggle;;
-		3 ) shell_mode_toggle;;
-		4 ) zram_disable;;
-		b|B ) backdrop;;
-		* ) error_404 && options;;
-	esac
-}
-
-debug_mode_toggle(){
-	clear
-	#configure sub-variables
-	if [ $userdebug == value ] || [ $userdebug == 1 ]; then
-		userdebug_status=enabled
-	elif [ $userdebug == 0 ]; then
-		userdebug_status=disabled
-	fi
-
-	echo "${yellow}Debug Mode:${nc}"
-	echo "E|Enable"
-	echo "D|Disable"
-	echo
-	echo "${yellow}Currently:${nc} $userdebug_status"
-	echo -n "> "
-	read debug_mode_toggle_opt
-	case $debug_mode_toggle_opt in
-		e|E ) userdebug_cfg && echo "1" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
-		d|D ) userdebug_cfg && echo "0" > $userdebugcfg && var && echo "Ok!" && sleep 1 && options;;
-		* ) error_404 && debug_mode_toggle;;
-	esac
-}
-
-usage_mode_toggle(){
-	clear
-	#configure sub-variables
-	if [ $usagetype == value ] || [ $usagetype == 0 ]; then
-		usagetype_status=temporary
-	elif [ $usagetype == 1 ]; then
-		usagetype_status=permanent
-	fi
-
-	echo "${yellow}Install Mode:${nc}"
-	echo "T|Temporary installs"
-	echo "P|Permanent installs"
-	echo
-	echo "${yellow}Currently:${nc} $usagetype_status"
-	echo -n "> "
-	read usage_mode_toggle_opt
-	case $usage_mode_toggle_opt in
-		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
-		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && var && echo "Ok!" && sleep 1 && options;;
-		* ) error_404 && usage_mode_toggle;;
-	esac
-}
-
-shell_mode_toggle(){
-	clear
-	#configure sub-variables
-	if [ $shfix == value ] || [ $shfix == 0 ]; then
-		shfix_status=disable
-	elif [ $shfix == 1 ]; then
-		shfix_status=enable
-	fi
-
-	echo "${yellow}Shell Mode:${nc}"
-	echo "if you see random characters in the titles or errors."
-	echo "enable this may help."
-	echo
-	echo "E|Enable"
-	echo "D|Disable"
-	echo
-	echo "${yellow}Currently:${nc} $shfix_status"
-	echo -n "> "
-	read shfix_mode_toggle_opt
-	case $shfix_mode_toggle_opt in
-		e|E ) shfix_cfg && echo "1" > $shfixcfg && var && echo "Ok!" && sleep 1 && shfix_session_behaviour;;
-		d|D ) shfix_cfg && echo "0" > $shfixcfg && var && echo "Ok!" && sleep 1 && shfix_session_behaviour;;
-		* ) error_404 && shell_mode_toggle;;
+		1 ) zram_disable;;
+		1 ) zram_enable;;
+		b|B ) clear && body;;
+		* ) echo "Unknown Option" && options;;
 	esac
 }
 
@@ -888,7 +642,9 @@ zram_enable(){
 	echo "${yellow}Enabling zRAM...${nc}"
 	sleep 1
 
-	swapon /dev/block/zram0
+	for l in `ls /dev/block/zram*`; do
+		swapon $l
+	done
 
 	clear
 	echo "${yellow}zRAM enabled!${nc}"
@@ -902,7 +658,9 @@ zram_disable(){
 	echo "${yellow}Disabling zRAM...${nc}"
 	sleep 1
 
-	swapoff /dev/block/zram0
+	for l in `ls /dev/block/zram*`; do
+		swapoff $l
+	done
 
 	clear
 	echo "${yellow}zRAM disabled!${nc}"
@@ -930,24 +688,6 @@ about_info(){
 	backdrop
 }
 
-debug_info(){
-	clear
-	echo "${green}Debug information:${nc}"
-	echo
-	echo "${yellow}SYSTEM${nc}"
-	echo "Vendor: $( getprop ro.product.brand )"
-	echo "Model: $( getprop ro.product.model )"
-	echo "ROM: $( getprop ro.build.display.id )"
-	echo "Android Version: $( getprop ro.build.version.release )"
-	echo
-	echo "${yellow}SCRIPT${nc}"
-	echo "Hybrid Version: $ver_revision"
-	echo
-	sleep 5
-
-	backdrop
-}
-
 usagetype_first_start(){
 	clear
 	echo "${yellow}How to install tweaks?${nc}"
@@ -960,141 +700,22 @@ usagetype_first_start(){
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) usagetype_cfg && echo "0" > $usagetypecfg && sync_config && echo "Ok!" && sleep 1 && backdrop;;
-		p|P ) usagetype_cfg && echo "1" > $usagetypecfg && sync_config && echo "Ok!" && sleep 1 && backdrop;;
-		* ) error_404 && usagetype_first_start;;
+		t|T ) setprop hynrid.perm 0 && echo "Ok!" && sleep 1 && backdrop;;
+		p|P ) setprop hynrid.perm 1 && echo "Ok!" && sleep 1 && backdrop;;
+		* ) echo "Unknown Option" && usagetype_first_start;;
 	esac
 }
 
-userdebug_cfg(){
-	mkdir -p $hybrid
-	chmod 755 $hybrid
-	touch $userdebugcfg
-	chmod 755 $userdebugcfg
-}
-
-usagetype_cfg(){
-	mkdir -p $hybrid
-	chmod 755 $hybrid
-	touch $usagetypecfg
-	chmod 755 $usagetypecfg
-}
-
-shfix_cfg(){
-	mkdir -p $hybrid
-	chmod 755 $hybrid
-	touch $shfixcfg
-	chmod 755 $shfixcfg
-}
-
-catalyst_cfg(){
-	mkdir -p $hybrid
-	chmod 755 $hybrid
-	touch $catalystcfg
-	chmod 755 $catalystcfg
-}
-
-sync_config(){
-	#sync userdebug.cfg
-	if [ $userdebug == value ]; then
-		if [ -e $userdebugcfg ]; then
-	 	 	if [ "`grep 0 $userdebugcfg`" ]; then
-	 			userdebug=0
-	 	  	elif [ "`grep 1 $userdebugcfg`" ]; then
-	 	 	 	userdebug=1
-	 	 	fi
-	 	fi
-	fi
-
-	#sync usagetype.cfg
-	if [ $usagetype == value ]; then
-	 	if [ -e $usagetypecfg ]; then
-	 		if [ "`grep 0 $usagetypecfg`" ]; then
-	 			usagetype=0
-	 	 	elif [ "`grep 1 $usagetypecfg`" ]; then
-	 	 		usagetype=1
-	 	 	fi
-		fi
-	fi
-
-	#sync shfix.cfg
-	if [ $shfix == value ]; then
-	 	if [ -e $shfixcfg ]; then
-	 		if [ "`grep 0 $shfixcfg`" ]; then
-	 			shfix=0
-	 	 	elif [ "`grep 1 $shfixcfg`" ]; then
-	 	 	 	shfix=1
-	 	 	fi
-		fi
-	fi
-
-#wip
-	#sync catalyst.cfg
-	#if [ -e $catalystcfg ]; then
-		#
-	#fi
-}
-
-session_behaviour(){
-	#call startup functions
-	clear
-	#sh_ota
-	cli_displaytype
-	sysrw
-}
-
-main_functions(){
-	#call main functions
-	if [ -e $usagetypecfg ]; then
-	#run conditional statements
-	#userdebug mode
-	 	if [ $userdebug == 1 ]; then
-		debug_info
-	 	fi
-		body
-	else
-		usagetype_first_start	
-	fi	
-}
-
-main_session_behaviour(){
-	session_behaviour
-	main_functions
-}
-
-shfix_session_behaviour(){
-	session_behaviour
-
-	if [ -e shfixcfg ]; then
-	 	if [ "`grep 0 shfixcfg`" ]; then
-	 	 	hybrid; safe_exit
-	 	fi
-	fi
-
-	#run with default Android Shell
-	shfixtmp="/data/local/tmp/shfix.tmp"
-	if [ -e $shfixtmp ]; then
-		if [ "`grep 1 $shfixtmp`" ]; then
-			echo "0" > $shfixtmp
-			main_functions
-		fi
-	fi
-
-	touch $shfixtmp
-	chmod 755 $shfixtmp
-	echo "0" > $shfixtmp
-	
-	if [ "`grep 0 $shfixtmp`" ]; then
-		echo "1" > $shfixtmp
-		sysro
-		$SHELL -c hybrid; safe_exit
-	fi
-}
-
-#call
-var
-if [ $shfix == 1 ]; then
-	shfix_session_behaviour
-else
-	main_session_behaviour
+#sh-ota
+if [[ $EUID -ne 0 ]]; then
+	echo "This script must be run as root" 1>&2
+	exit 1
+elif [ "$perm" = "" ]; then
+	options
+elif [ "$catalyst_time" = "" ]; then
+	setprop hybrid.catalyst_time 60
 fi
+while true; do
+	clear
+	body
+done
