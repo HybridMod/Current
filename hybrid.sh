@@ -21,25 +21,25 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 body(){
-	# echo "${cyan}[-=The Hybrid Project=-]${nc}"
-	# echo
-	# echo "${yellow}Menu:${nc}"
-	# echo " 1|Instant Boost"
-	# echo " 2|Clean up my crap"
-	# echo " 3|Optimize my SQLite DB's"
-	# echo " 4|Tune my VM"
-	# echo " 5|Tune my LMK"
-	# echo " 6|Tune my Networks"
-	# echo " 7|Kernel Kontrol"
-	# echo " 8|zRAM Settings"
-	# echo " 9|Game Booster"
-	# echo
-	# echo " O|Options"
-	# echo " A|About"
-	# echo " R|Reboot"
-	# echo " E|Exit"
-	# echo
-	echo -n " ~ "
+	echo "${cyan}[-=The Hybrid Project=-]${nc}"
+	echo
+	echo "${yellow}Menu:${nc}"
+	echo " 1|Instant Boost"
+	echo " 2|Clean up my crap"
+	echo " 3|Optimize my SQLite DB's"
+	echo " 4|Tune my VM"
+	echo " 5|Tune my LMK"
+	echo " 6|Tune my Networks"
+	echo " 7|Kernel Kontrol"
+	echo " 8|zRAM Settings"
+	echo " 9|Game Booster"
+	echo
+	echo " O|Options"
+	echo " A|About"
+	echo " R|Reboot"
+	echo " E|Exit"
+	echo
+	echo -n "> "
 	read selection_opt
 	case $selection_opt in
 		1 ) drop_caches;;
