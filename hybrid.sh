@@ -6,6 +6,7 @@ ver_revision="2.0"
 #options
 initd=`if [ -d /system/etc/init.d ]; then echo "1"; else echo "0" ; fi`
 perm=`getprop hybrid.perm`
+first_run=`if [ "$perm" = "" ]; then echo " You can change it in Options later"; fi`
 catalyst_time=`getprop hybrid.catalyst_time`
 
 #color control
@@ -53,18 +54,24 @@ body(){
 		9 ) catalyst_control;;
 		o|O ) options;;
 		a|A ) about_info;;
-		r|R ) creboot;;
-		e|E ) exit 0;;
-		* ) echo "Unknown Option" && sleep 2;;
+		r|R ) custom_reboot;;
+		e|E ) safe_exit;;
+		* ) unknown_option;;
 	esac
 }
 
-creboot(){
+unknown_option(){
 	clear
-	echo "Rebooting in 3..."
+	echo "Unknown Option"
+	sleep 1
+}
+
+custom_reboot(){
+	clear
+	echo "Rebooting in 3."
 	sleep 1
 	clear
-	echo "Rebooting in 2..."
+	echo "Rebooting in 2.."
 	sleep 1
 	clear
 	echo "Rebooting in 1..."
@@ -75,12 +82,18 @@ creboot(){
 	sync && reboot
 }
 
+safe_exit(){
+mount -o remount ro /system >/dev/null 2>&1
+clear
+exit
+}
+
 init_sleep () {
 	if [ ! -f system/etc/init.d/50sleep ]; then
 		touch /system/etc/init.d/50sleep
 		chmod 755 /system/etc/init.d/50sleep
 		echo -ne "" > /system/etc/init.d/50sleep
-cat >> /system/etc/init.d/50slepp <<EOF
+cat >> /system/etc/init.d/50sleep <<EOF
 #!/system/bin/sh
 sleep 10
 EOF
@@ -208,7 +221,6 @@ sql_optimize(){
 	done
 
 	clear
-	echo
 	echo "${yellow}SQLite database optimizations complete!${nc}"
 	sleep 1
 }
@@ -429,8 +441,8 @@ kernel_kontrol(){
 		2) setgov;;
 		3) setiosched;;
 		4) kcal;;
-		b|B) backdrop;;
-		* ) echo "Unknown Option" && sleep 2 && kernel_kontrol;;
+		b|B) body;;
+		* ) unknown_option && kernel_kontrol;;
 	 esac
 }
 
@@ -547,7 +559,7 @@ catalyst_control(){
 		1 ) catalyst_inject;;
 		2 ) catalyst_time_cfg;;
 		b|B ) clear && body;;
-		* ) echo "Unknown Option" && catalyst_control;;
+		* ) unknown_option && catalyst_control;;
 	esac
 }
 
@@ -595,7 +607,7 @@ zram_settings(){
 		1 ) zram_disable;;
 		2 ) zram_enable;;
 		b|B ) clear && body;;
-		* ) echo "Unknown Option" && zram_settings;;
+		* ) unknown_option && zram_settings;;
 	esac
 }
 
@@ -644,10 +656,7 @@ about_info(){
 	echo "${yellow}CREDITS${nc}"
 	echo "DiamondBond : Script creator & maintainer"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code ${yellow}:)${nc}"
-	echo
 	sleep 5
-	
-	backdrop
 }
 
 options(){
@@ -656,19 +665,18 @@ options(){
 	echo
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	echo
-	echo " You can change it in Options later"
-	echo
+	$first_run
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1 && backdrop;;
-		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1 && backdrop;;
-		* ) echo "Unknown Option" && options;;
+		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1
+		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1;;
+		* ) unknown_option && options;;
 	esac
 }
 
-#sh-ota
+mount -o remount rw /system >/dev/null 2>&1
+
 if [[ $EUID -ne 0 ]]; then
 	echo "This script must be run as root"
 	exit 1
