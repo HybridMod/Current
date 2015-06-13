@@ -669,7 +669,7 @@ options(){
 	echo -ne "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
-		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1
+		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1;;
 		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1;;
 		* ) unknown_option && options;;
 	esac
