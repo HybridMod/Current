@@ -471,7 +471,7 @@ setgov(){
 	curgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
 	listgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`
 
-	echo "${yellow}Gov Control${nc}"
+	echo "${yellow}Governor Control${nc}"
 	echo
 	echo "${bld}Current Governor:${nc} $curgov"
 	echo
@@ -497,7 +497,7 @@ setiosched(){
 	curiosched=`cat /sys/block/mmcblk0/queue/scheduler | sed 's/.*\[\([a-zA-Z0-9_]*\)\].*/\1/'`
 	listiosched=`cat /sys/block/mmcblk0/queue/scheduler | tr -s "[[:blank:]]" "\n" | sed 's/\[\([a-zA-Z0-9_]*\)\]/\1/'`
 
-	echo "${yellow}I/O Sched Control${nc}"
+	echo "${yellow}I/O Schedulder Control${nc}"
 	echo
 	echo "${bld}Current I/O Scheduler:${nc} $curiosched"
 	echo
