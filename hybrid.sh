@@ -1,12 +1,14 @@
 #!/system/bin/sh
 # hybrid.sh by DiamondBond & Deic
 
+#get su status method does nothing
+#see below
+
 ver_revision="2.0"
 
 #options
 initd=`if [ -d /system/etc/init.d ]; then echo "1"; else echo "0" ; fi`
 perm=`getprop hybrid.perm`
-first_run=`if [ "$perm" = "" ]; then echo " You can change it in Options later"; fi`
 catalyst_time=`getprop hybrid.catalyst_time`
 
 #color control
@@ -22,6 +24,7 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 body(){
+	clear
 	echo "${cyan}[-=The Hybrid Project=-]${nc}"
 	echo
 	echo "${yellow}Menu:${nc}"
@@ -66,29 +69,7 @@ unknown_option(){
 	sleep 1
 }
 
-custom_reboot(){
-	clear
-	echo "Rebooting in 3."
-	sleep 1
-	clear
-	echo "Rebooting in 2.."
-	sleep 1
-	clear
-	echo "Rebooting in 1..."
-	sleep 1
-	clear
-	echo "Bam!"
-	sleep 1
-	sync && reboot
-}
-
-safe_exit(){
-mount -o remount ro /system >/dev/null 2>&1
-clear
-exit
-}
-
-init_sleep () {
+init_sleep(){
 	if [ ! -f system/etc/init.d/50sleep ]; then
 		touch /system/etc/init.d/50sleep
 		chmod 755 /system/etc/init.d/50sleep
@@ -547,53 +528,6 @@ kcal(){
 	kernel_kontrol
 }
 
-catalyst_control(){
-	clear
-	echo "${yellow}Game Booster${nc}"
-	echo "[1] Boost"
-	echo "[2] Options"
-	echo "[B] Back"
-	echo -n "> "
-	read game_booster_opt
-	case $game_booster_opt in
-		1 ) catalyst_inject;;
-		2 ) catalyst_time_cfg;;
-		b|B ) clear && body;;
-		* ) unknown_option && catalyst_control;;
-	esac
-}
-
-catalyst_inject(){
-	clear
-	echo "Please leave the terminal emulator running"
-	echo "This will continue to run untill close the terminal"
-	echo
-
-	while true; do
-		sync
-  		echo "3" > /proc/sys/vm/drop_caches
-		sleep $catalyst_time
-	done
-}
-
-catalyst_time_cfg(){
-	clear
-	echo "Current rate: $catalystsec"
-	echo "60 - Every minute - Default"
-	echo "3600 - Every hour"
-	echo
-	echo "Please enter a rate in seconds:"
-	echo -n "> "
-	read catalyst_time_val
-	setprop hybrid.catalyst_time $catalyst_time_val;
-	clear
-	echo "Time updated!"
-	sleep 1
-	clear
-
-	catalyst_control
-}
-
 zram_settings(){
 	clear
 	echo "${yellow}zRAM Options:${nc}"
@@ -606,7 +540,7 @@ zram_settings(){
 	case $options_opt in
 		1 ) zram_disable;;
 		2 ) zram_enable;;
-		b|B ) clear && body;;
+		b|B ) body;;
 		* ) unknown_option && zram_settings;;
 	esac
 }
@@ -643,6 +577,69 @@ zram_disable(){
 	zram_settings
 }
 
+catalyst_control(){
+	clear
+	echo "${yellow}Game Booster${nc}"
+	echo "[1] Boost"
+	echo "[2] Options"
+	echo "[B] Back"
+	echo -n "> "
+	read game_booster_opt
+	case $game_booster_opt in
+		1 ) catalyst_inject;;
+		2 ) catalyst_time_cfg;;
+		b|B ) body;;
+		* ) unknown_option && catalyst_control;;
+	esac
+}
+
+catalyst_inject(){
+	clear
+	echo "Please leave the terminal emulator running"
+	echo "This will continue to run untill close the terminal"
+	echo
+
+	while true; do
+		sync
+  		echo "3" > /proc/sys/vm/drop_caches
+		sleep $catalyst_time
+	done
+}
+
+catalyst_time_cfg(){
+	clear
+	echo "Current rate: $catalystsec"
+	echo "60 - Every minute - Default"
+	echo "3600 - Every hour"
+	echo
+	echo "Please enter a rate in seconds:"
+	echo -n "> "
+	read catalyst_time_val
+	setprop hybrid.catalyst_time $catalyst_time_val;
+	clear
+	echo "Time updated!"
+	sleep 1
+	clear
+
+	catalyst_control
+}
+
+options(){
+	clear
+	echo "${yellow}How to install tweaks?${nc}"
+	echo
+	echo " T|Temporary installs"
+	echo " P|Permanent installs"
+	first_run
+	echo -ne "> "
+	read usagetype_first_start_opt
+	case $usagetype_first_start_opt in
+		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1;;
+		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1;;
+		* ) unknown_option && options;;
+	esac
+}
+
 about_info(){
 	clear
 	echo "${green}About:${nc}"
@@ -659,25 +656,38 @@ about_info(){
 	sleep 5
 }
 
-options(){
+custom_reboot(){
 	clear
-	echo "${yellow}How to install tweaks?${nc}"
-	echo
-	echo " T|Temporary installs"
-	echo " P|Permanent installs"
-	$first_run
-	echo -ne "> "
-	read usagetype_first_start_opt
-	case $usagetype_first_start_opt in
-		t|T ) setprop hybrid.perm 0 && echo "Ok!" && sleep 1;;
-		p|P ) setprop hybrid.perm 1 && echo "Ok!" && sleep 1;;
-		* ) unknown_option && options;;
-	esac
+	echo "Rebooting in 3."
+	sleep 1
+	clear
+	echo "Rebooting in 2.."
+	sleep 1
+	clear
+	echo "Rebooting in 1..."
+	sleep 1
+	clear
+	echo "Bam!"
+	sleep 1
+	sync && reboot
 }
 
-mount -o remount rw /system >/dev/null 2>&1
+safe_exit(){
+	mount -o remount ro /system >/dev/null 2>&1
+	clear
+	exit
+}
 
-if [[ $EUID -ne 0 ]]; then
+first_run(){
+	if [ "$perm" = "" ]
+	then
+ 	 	echo
+	 	echo " You can change it in Options later"
+	fi
+}
+
+clear
+if [ $EUID -ne 0 ]; then #to be revised
 	echo "This script must be run as root"
 	exit 1
 elif [ "$perm" = "" ]; then
@@ -686,6 +696,6 @@ elif [ "$catalyst_time" = "" ]; then
 	setprop hybrid.catalyst_time 60
 fi
 while true; do
-	clear
+	mount -o remount rw /system >/dev/null 2>&1
 	body
 done
