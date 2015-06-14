@@ -706,35 +706,32 @@ options(){
 	then
 	 	echo
 	 	echo " B|Back"
+	 	echo
+	 	echo -n "> "
+	 	read options_opt
+	 	case $options_opt in
+	 	 	t|T ) setprop hybrid.perm 0; sed -i 's/hybrid.perm=1/hybrid.perm=0/' /system/build.prop; clear; echo "Done"; sleep 1;;
+		 	p|P ) setprop hybrid.perm 1; sed -i 's/hybrid.perm=0/hybrid.perm=1/' /system/build.prop; clear; echo "Done"; sleep 1;;
+	 	 	b|B ) body;;
+		 	* ) unknown_option; options;;
+	 	esac
+	else
+	options_first
 	fi
-	options_tip
+}
+
+options_first(){
+	echo
+	echo "${cyan}You can change it in Options later$nc"
 	echo
 	echo -n "> "
-	read usagetype_first_start_opt
-	case $usagetype_first_start_opt in
-		t|T ) setprop hybrid.perm 0; clear; echo "Done"; sleep 1;;
-		p|P ) setprop hybrid.perm 1; clear; echo "Done"; sleep 1;;
+	read options_opt
+	case $options_opt in
+		t|T ) setprop hybrid.perm 0; echo "hybrid.perm=0" >> /system/build.prop; clear; echo "Done"; sleep 1;;
+		p|P ) setprop hybrid.perm 1; echo "hybrid.perm=1" >> /system/build.prop; clear; echo "Done"; sleep 1;;
 	 	b|B ) options_back;;
 		* ) unknown_option; options;;
 	esac
-}
-
-options_tip(){
-	if [ "$perm" = "" ]
-	then
- 	 	echo
-	 	echo "${cyan}You can change it in Options later$nc"
-	fi
-}
-
-options_back(){
-	if [ "$perm" = "" ]
-	then
-	 	unknown_option
-	 	options
-	else
-	 	body
-	fi
 }
 
 about_info(){
@@ -792,21 +789,22 @@ safe_exit(){
 	exit
 }
 
-sh_ota
+#sh_ota
 clear
-if [ $EUID -ne 0 ] #to be revised
-then
-	echo "This script must be run as root"
-	exit 1
-elif [ "$perm" = "" ]
+mount -o rw,remount /system 2>/dev/null
+#if [ $EUID -ne 0 ] #to be revised
+#then
+#	echo "This script must be run as root"
+#	exit 1
+if [ "$perm" = "" ]
 then
 	options
 elif [ "$catalyst_time" = "" ]
 then
 	setprop hybrid.catalyst_time 60
+	echo "hybrid.catalyst_time=60" >> /system/build.prop
 fi
 while true
 do
-	mount -o rw,remount /system 2>/dev/null
 	body
 done
