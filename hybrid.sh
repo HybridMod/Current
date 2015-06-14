@@ -792,6 +792,7 @@ safe_exit(){
 	exit
 }
 
+sh_ota
 clear
 if [ $EUID -ne 0 ] #to be revised
 then
