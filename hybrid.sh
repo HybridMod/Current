@@ -1,7 +1,9 @@
 #!/system/bin/sh
 # hybrid.sh by DiamondBond & Deic
 
+#NOTES:
 #get su status method does nothing
+#game booster config perm doesn't work
 #see below
 
 ver_revision="2.0"
@@ -123,8 +125,13 @@ drop_caches(){
 	clear
 	echo "${yellow}Dropping caches...$nc"
 	sleep 1
-	sync
-	echo "3" > /proc/sys/vm/drop_caches
+
+	drop_caches="
+sync
+echo 3 > /proc/sys/vm/drop_caches
+"
+	$drop_caches
+
 	clear
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
@@ -133,14 +140,11 @@ drop_caches(){
 		init_sleep
 		touch /system/etc/init.d/97cache_drop
 		chmod 755 /system/etc/init.d/97cache_drop
-		echo "" > /system/etc/init.d/97cache_drop
 cat > /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
-
-sync
-echo "3" > /proc/sys/vm/drop_caches
-
+$drop_caches
 EOF
+	clear
 	echo "${yellow}Installed!$nc"
 	sleep 1
 	fi
@@ -151,41 +155,7 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	#cleaner
-	rm -f /cache/*.apk
-	rm -f /cache/*.tmp
-	rm -f /cache/recovery/*
-	rm -f /data/*.log
-	rm -f /data/*.txt
-	rm -f /data/anr/*.*
-	rm -f /data/backup/pending/*.tmp
-	rm -f /data/cache/*.*
-	rm -f /data/dalvik-cache/*.apk
-	rm -f /data/dalvik-cache/*.tmp
-	rm -f /data/log/*.*
-	rm -f /data/local/*.apk
-	rm -f /data/local/*.log
-	rm -f /data/local/tmp/*.*
-	rm -f /data/last_alog/*
-	rm -f /data/last_kmsg/*
-	rm -f /data/mlog/*
-	rm -f /data/tombstones/*
-	rm -f /data/system/dropbox/*
-	rm -f /data/system/usagestats/*
-	rm -f $EXTERNAL_STORAGE/LOST.DIR/*
-
-	clear
-	echo "${yellow}Clean up complete!$nc"
-	sleep 1
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
-		init_sleep
-		touch /system/etc/init.d/99clean_up
-		chmod 755 /system/etc/init.d/99clean_up
-		echo "" > /system/etc/init.d/99clean_up
-cat > /system/etc/init.d/99clean_up <<EOF
-#!/system/bin/sh
-
+	clean_up="
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
 rm -f /cache/recovery/*
@@ -207,8 +177,22 @@ rm -f /data/tombstones/*
 rm -f /data/system/dropbox/*
 rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
+"
+	$clean_up
 
+	clear
+	echo "${yellow}Clean up complete!$nc"
+	sleep 1
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+		init_sleep
+		touch /system/etc/init.d/99clean_up
+		chmod 755 /system/etc/init.d/99clean_up
+cat > /system/etc/init.d/99clean_up <<EOF
+#!/system/bin/sh
+$clean_up
 EOF
+	clear
 	echo "${yellow}Installed!$nc"
 	sleep 1
 	fi
@@ -257,18 +241,21 @@ vm_tune(){
 	clear
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
-		
-	echo "80" > /proc/sys/vm/swappiness
-	echo "10" > /proc/sys/vm/vfs_cache_pressure
-	echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-	echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-	echo "90" > /proc/sys/vm/dirty_ratio
-	echo "70" > /proc/sys/vm/dirty_background_ratio
-	echo "1" > /proc/sys/vm/overcommit_memory
-	echo "150" > /proc/sys/vm/overcommit_ratio
-	echo "4096" > /proc/sys/vm/min_free_kbytes
-	echo "1" > /proc/sys/vm/oom_kill_allocating_task
-		
+
+	vm_tune="
+echo 80 > /proc/sys/vm/swappiness
+echo 10 > /proc/sys/vm/vfs_cache_pressure
+echo 3000 > /proc/sys/vm/dirty_expire_centisecs
+echo 500 > /proc/sys/vm/dirty_writeback_centisecs
+echo 90 > /proc/sys/vm/dirty_ratio
+echo 70 > /proc/sys/vm/dirty_background_ratio
+echo 1 > /proc/sys/vm/overcommit_memory
+echo 150 > /proc/sys/vm/overcommit_ratio
+echo 4096 > /proc/sys/vm/min_free_kbytes
+echo 1 > /proc/sys/vm/oom_kill_allocating_task
+"
+	$vm_tune
+
 	clear
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
@@ -277,23 +264,13 @@ vm_tune(){
 		init_sleep
 		touch /system/etc/init.d/75vm
 		chmod 755 /system/etc/init.d/75vm
-		echo "" > /system/etc/init.d/75vm
 cat > /system/etc/init.d/75vm <<EOF
 #!/system/bin/sh
-
-echo "80" > /proc/sys/vm/swappiness
-echo "10" > /proc/sys/vm/vfs_cache_pressure
-echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-echo "90" > /proc/sys/vm/dirty_ratio
-echo "70" > /proc/sys/vm/dirty_background_ratio
-echo "1" > /proc/sys/vm/overcommit_memory
-echo "150" > /proc/sys/vm/overcommit_ratio
-echo "4096" > /proc/sys/vm/min_free_kbytes
-echo "1" > /proc/sys/vm/oom_kill_allocating_task
+$vm_tune
 EOF
+	 	clear
 		echo "${yellow}Installed!$nc"
-		sleep 1
+	 	sleep 1
 	fi
 }
 
@@ -336,9 +313,9 @@ lmk_apply(){
 
 	echo "${yellow}Optimizing LMK...$nc"
 	sleep 1
-		
-	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
-		
+
+	echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
+
 	clear
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
@@ -348,13 +325,13 @@ lmk_apply(){
 		init_sleep
 		touch /system/etc/init.d/95lmk
 		chmod 755 /system/etc/init.d/95lmk
-		echo "" > /system/etc/init.d/95lmk
 cat > /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
 
-echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
 
 EOF
+	 	clear
 		echo "${yellow}Installed!$nc"
 		sleep 1
 	fi
@@ -365,46 +342,49 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	#TCP
-	echo "2097152" > /proc/sys/net/core/wmem_max
-	echo "2097152" > /proc/sys/net/core/rmem_max
-	echo "20480" > /proc/sys/net/core/optmem_max
-	echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-	echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
-	echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
-	echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
-	echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
-	echo "0" > /proc/sys/net/ipv4/tcp_timestamps
-	echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
-	echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
-	echo "1" > /proc/sys/net/ipv4/tcp_sack
-	echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
-	echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
-	echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
-	echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
-	echo "0" > /proc/sys/net/ipv4/tcp_ecn
-	echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
-	echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
-	echo "1" > /proc/sys/net/ipv4/route/flush
-	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
-	echo "524288" > /proc/sys/net/core/wmem_max
-	echo "524288" > /proc/sys/net/core/rmem_max
-	echo "110592" > /proc/sys/net/core/rmem_default
-	echo "110592" > /proc/sys/net/core/wmem_default
+	network_tune="
+#TCP
+echo 2097152 > /proc/sys/net/core/wmem_max
+echo 2097152 > /proc/sys/net/core/rmem_max
+echo 20480 > /proc/sys/net/core/optmem_max
+echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
+echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
+echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
+echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
+echo 0 > /proc/sys/net/ipv4/tcp_timestamps
+echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
+echo 1 > /proc/sys/net/ipv4/tcp_sack
+echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
+echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
+echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 0 > /proc/sys/net/ipv4/tcp_ecn
+echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
+echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+echo 1 > /proc/sys/net/ipv4/route/flush
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
+echo 524288 > /proc/sys/net/core/wmem_max
+echo 524288 > /proc/sys/net/core/rmem_max
+echo 110592 > /proc/sys/net/core/rmem_default
+echo 110592 > /proc/sys/net/core/wmem_default
 
-	#IPv4
-	echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
-	echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-	echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
-	echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-	echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
-	echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-	echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-	echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-	echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
-	echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-	echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
-	echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
+#IPv4
+echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter
+echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
+echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects
+echo 0 > /proc/sys/net/ipv4/conf/default/accept_redirects
+echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
+echo 0 > /proc/sys/net/ipv4/conf/default/send_redirects
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route
+echo 0 > /proc/sys/net/ipv4/conf/default/accept_source_route
+echo 1 > /proc/sys/net/ipv4/conf/all/log_martians
+echo 1 > /proc/sys/net/ipv4/conf/default/log_martians
+"
+	$network_tune
 
 	clear
 	echo "${yellow}Networks Optimized!$nc"
@@ -415,52 +395,11 @@ network_tune(){
 		init_sleep
 		touch /system/etc/init.d/56net
 		chmod 755 /system/etc/init.d/56net
-		echo "" > /system/etc/init.d/56net
 cat > /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
-
-#TCP
-echo "2097152" > /proc/sys/net/core/wmem_max
-echo "2097152" > /proc/sys/net/core/rmem_max
-echo "20480" > /proc/sys/net/core/optmem_max
-echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
-echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
-echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
-echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
-echo "0" > /proc/sys/net/ipv4/tcp_timestamps
-echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
-echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
-echo "1" > /proc/sys/net/ipv4/tcp_sack
-echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
-echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
-echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
-echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
-echo "0" > /proc/sys/net/ipv4/tcp_ecn
-echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
-echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
-echo "1" > /proc/sys/net/ipv4/route/flush
-echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
-echo "524288" > /proc/sys/net/core/wmem_max
-echo "524288" > /proc/sys/net/core/rmem_max
-echo "110592" > /proc/sys/net/core/rmem_default
-echo "110592" > /proc/sys/net/core/wmem_default
-
-#IPv4
-echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
-echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
-echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
-echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
-echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
-echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
-
+$network_tune
 EOF
+	 	clear
 		echo "${yellow}Installed!$nc"
 		sleep 1
 	fi
@@ -689,8 +628,8 @@ catalyst_time_cfg(){
 	echo "Please enter a rate in seconds:"
 	echo -n "> "
 	read catalyst_time_val
+	sed -i 's/hybrid.catalyst_time=`$catalyst_time`/hybrid.catalyst_time=`$catalyst_time_val`/' /system/build.prop #to be revised
 	setprop hybrid.catalyst_time $catalyst_time_val
-	sed -i 's/hybrid.catalyst_time=$catalyst_time/hybrid.catalyst_time=$catalyst_time_val/' /system/build.prop
 	clear
 	echo "Time updated!"
 	sleep 1
