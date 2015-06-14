@@ -77,8 +77,8 @@ init_sleep(){
 	then
 		touch /system/etc/init.d/50sleep
 		chmod 755 /system/etc/init.d/50sleep
-		echo -ne "" > /system/etc/init.d/50sleep
-cat >> /system/etc/init.d/50sleep <<EOF
+		echo "" > /system/etc/init.d/50sleep
+cat > /system/etc/init.d/50sleep <<EOF
 #!/system/bin/sh
 
 sleep 10
@@ -101,8 +101,8 @@ drop_caches(){
 		init_sleep
 		touch /system/etc/init.d/97cache_drop
 		chmod 755 /system/etc/init.d/97cache_drop
-		echo -ne "" > /system/etc/init.d/97cache_drop
-cat >> /system/etc/init.d/97cache_drop <<EOF
+		echo "" > /system/etc/init.d/97cache_drop
+cat > /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
 
 sync
@@ -150,8 +150,8 @@ clean_up(){
 		init_sleep
 		touch /system/etc/init.d/99clean_up
 		chmod 755 /system/etc/init.d/99clean_up
-		echo -ne "" > /system/etc/init.d/99clean_up
-cat >> /system/etc/init.d/99clean_up <<EOF
+		echo "" > /system/etc/init.d/99clean_up
+cat > /system/etc/init.d/99clean_up <<EOF
 #!/system/bin/sh
 
 rm -f /cache/*.apk
@@ -186,7 +186,6 @@ sql_optimize(){
 	clear
 	echo "${yellow}Optimizing SQLite databases...$nc"
 	sleep 1
-	clear
 
 	if [ -e /system/xbin/sqlite3 ]
 	then
@@ -210,9 +209,9 @@ sql_optimize(){
 	fi
 	for i in `find / -iname "*.db" 2>/dev/null`
 	do
+	 	clear
 		$SQLLOC $i 'VACUUM'
 		echo "${yellow}Vacuumed:$nc $i"
-	 	clear
 		$SQLLOC $i 'REINDEX'
 		echo "${yellow}Reindexed:$nc $i"
 	done
@@ -246,8 +245,8 @@ vm_tune(){
 		init_sleep
 		touch /system/etc/init.d/75vm
 		chmod 755 /system/etc/init.d/75vm
-		echo -ne "" > /system/etc/init.d/75vm
-cat >> /system/etc/init.d/75vm <<EOF
+		echo "" > /system/etc/init.d/75vm
+cat > /system/etc/init.d/75vm <<EOF
 #!/system/bin/sh
 
 echo "80" > /proc/sys/vm/swappiness
@@ -274,10 +273,14 @@ lmk_tune_opt(){
 	echo " B|Balanced"
 	echo " M|Multitasking|"
 	echo " G|Gaming"
+	echo
+	echo " R|Return"
+	echo
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B|m|M|g|G ) clear; lmk_profile=$lmk_opt; lmk_apply; echo "Done"; sleep 1;;
+		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
+		r|R ) body;;
 		* ) unknown_option; lmk_tune_opt;;
 	esac
 }
@@ -313,11 +316,12 @@ lmk_apply(){
 		init_sleep
 		touch /system/etc/init.d/95lmk
 		chmod 755 /system/etc/init.d/95lmk
-		echo -ne "" > /system/etc/init.d/95lmk
-cat >> /system/etc/init.d/95lmk <<EOF
+		echo "" > /system/etc/init.d/95lmk
+cat > /system/etc/init.d/95lmk <<EOF
 #!/system/bin/sh
 
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+
 EOF
 		echo "${yellow}Installed!$nc"
 		sleep 1
@@ -379,9 +383,10 @@ network_tune(){
 		init_sleep
 		touch /system/etc/init.d/56net
 		chmod 755 /system/etc/init.d/56net
-		echo -ne "" > /system/etc/init.d/56net
-cat >> /system/etc/init.d/56net <<EOF
+		echo "" > /system/etc/init.d/56net
+cat > /system/etc/init.d/56net <<EOF
 #!/system/bin/sh
+
 #TCP
 echo "2097152" > /proc/sys/net/core/wmem_max
 echo "2097152" > /proc/sys/net/core/rmem_max
@@ -422,6 +427,7 @@ echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
 echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
 echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
+
 EOF
 		echo "${yellow}Installed!$nc"
 		sleep 1
@@ -439,6 +445,7 @@ kernel_kontrol(){
 	 	echo " 4|View KCal Values"
 	fi
 	echo " B|Back"
+	echo
 	echo -n "> "
 	read kk_opt
 	case $kk_opt in
@@ -562,7 +569,6 @@ zram_settings(){
 	 	unknown_option
 	else
 	 	echo "${yellow}zRAM Options:$nc"
-	 	echo
 	 	echo " 1|Disable zRAM"
 	 	echo " 2|Enable zRAM"
 	 	echo " B|Back"
@@ -615,10 +621,9 @@ zram_disable(){
 catalyst_control(){
 	clear
 	echo "${yellow}Game Booster$nc"
-	echo
-	echo "[1] Boost"
-	echo "[2] Options"
-	echo "[B] Back"
+	echo " [1] Boost"
+	echo " [2] Options"
+	echo " [B] Back"
 	echo
 	echo -n "> "
 	read game_booster_opt
@@ -664,18 +669,41 @@ catalyst_time_cfg(){
 options(){
 	clear
 	echo "${yellow}How to install tweaks?$nc"
-	echo
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	first_run_tip
+	if [ "$perm" = "0" ] || [ "$perm" = "1" ]
+	then
+	 	echo
+	 	echo " B|Back"
+	fi
+	options_tip
 	echo
 	echo -n "> "
 	read usagetype_first_start_opt
 	case $usagetype_first_start_opt in
 		t|T ) setprop hybrid.perm 0; clear; echo "Done"; sleep 1;;
 		p|P ) setprop hybrid.perm 1; clear; echo "Done"; sleep 1;;
+	 	b|B ) options_back;;
 		* ) unknown_option; options;;
 	esac
+}
+
+options_tip(){
+	if [ "$perm" = "" ]
+	then
+ 	 	echo
+	 	echo "${cyan}You can change it in Options later$nc"
+	fi
+}
+
+options_back(){
+	if [ "$perm" = "" ]
+	then
+	 	unknown_option
+	 	options
+	else
+	 	body
+	fi
 }
 
 about_info(){
@@ -690,8 +718,24 @@ about_info(){
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
+	echo "Deic : Maintainer"
 	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code $yellow:)$nc"
-	sleep 5
+
+	echo
+	echo "${yellow}Links:$nc"
+	echo " F|Forum"
+	echo " S|Source"
+	echo
+	echo " B|Back"
+	echo
+	echo -n "> "
+	read about_info_opt
+	case $about_info_opt in
+	 	f|F ) am start "http://forum.xda-developers.com/moto-g-2014/development/mod-disable-zram-t3071658" 1>/dev/null; about_info;;
+	 	s|S ) am start "https://github.com/HybridMod/Current" 1>/dev/null; about_info;;
+	 	b|B ) body;;
+	 	* ) unknown_option; about_info;;
+	esac
 }
 
 custom_reboot(){
@@ -712,17 +756,9 @@ custom_reboot(){
 }
 
 safe_exit(){
-	mount -o remount ro /system >/dev/null 2>&1
+	mount -o ro,remount /system 2>/dev/null
 	clear
 	exit
-}
-
-first_run_tip(){
-	if [ "$perm" = "" ]
-	then
- 	 	echo
-	 	echo " You can change it in Options later*"
-	fi
 }
 
 clear
@@ -739,6 +775,6 @@ then
 fi
 while true
 do
-	mount -o remount rw /system >/dev/null 2>&1
+	mount -o rw,remount /system 2>/dev/null
 	body
 done
