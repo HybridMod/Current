@@ -690,12 +690,12 @@ catalyst_time_cfg(){
 	echo -n "> "
 	read catalyst_time_val
 	setprop hybrid.catalyst_time $catalyst_time_val
+	sed -i 's/hybrid.catalyst_time=$catalyst_time/hybrid.catalyst_time=$catalyst_time_val/' /system/build.prop
 	clear
 	echo "Time updated!"
 	sleep 1
-	clear
-
-	catalyst_control
+	$hybrid
+	safe_exit
 }
 
 options(){
