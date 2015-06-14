@@ -27,7 +27,7 @@ nc='\033[0m'
 sh_ota(){
 #variables
 name="SH-OTA.sh"
-cloud="https://github.com/HybridMod/Release/releases/SH-OTA.sh
+cloud="https://github.com/HybridMod/Release/releases/latest/SH-OTA.sh"
 file="$EXTERNAL_STORAGE/Download/$name"
 
 download(){
