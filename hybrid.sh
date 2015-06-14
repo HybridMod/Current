@@ -23,6 +23,37 @@ bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
+#SH-OTA By Deic & DiamondBond
+sh_ota(){
+#variables
+name="SH-OTA.sh"
+cloud="https://github.com/HybridMod/Release/releases/SH-OTA.sh
+file="$EXTERNAL_STORAGE/Download/$name"
+
+download(){
+	am start android.intent.action.VIEW com.android.browser $cloud 1>/dev/null
+	am start jackpal.androidterm 1>/dev/null
+	wait_download
+}
+
+wait_download(){
+	run_sh_ota
+}
+
+run_sh_ota(){
+	if [ -f $file ]; then
+		am force-stop com.android.browser
+		$SHELL -c $file
+	else
+		wait_download
+	fi
+}
+
+#Script start
+clear
+download
+}
+
 body(){
 	clear
 	echo "$cyan[-=The Hybrid Project=-]$nc"
