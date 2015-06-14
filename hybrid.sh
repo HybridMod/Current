@@ -7,6 +7,7 @@
 ver_revision="2.0"
 
 #options
+hybrid="/system/xbin/hybrid"
 initd=`if [ -d /system/etc/init.d ]; then echo "1"; else echo "0" ; fi`
 perm=`getprop hybrid.perm`
 catalyst_time=`getprop hybrid.catalyst_time`
@@ -710,8 +711,8 @@ options(){
 	 	echo -n "> "
 	 	read options_opt
 	 	case $options_opt in
-	 	 	t|T ) setprop hybrid.perm 0; sed -i 's/hybrid.perm=1/hybrid.perm=0/' /system/build.prop; clear; echo "Done"; sleep 1;;
-		 	p|P ) setprop hybrid.perm 1; sed -i 's/hybrid.perm=0/hybrid.perm=1/' /system/build.prop; clear; echo "Done"; sleep 1;;
+	 	 	t|T ) setprop hybrid.perm 0; sed -i 's/hybrid.perm=1/hybrid.perm=0/' /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
+		 	p|P ) setprop hybrid.perm 1; sed -i 's/hybrid.perm=0/hybrid.perm=1/' /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
 	 	 	b|B ) body;;
 		 	* ) unknown_option; options;;
 	 	esac
@@ -725,11 +726,10 @@ options_first(){
 	echo "${cyan}You can change it in Options later$nc"
 	echo
 	echo -n "> "
-	read options_opt
-	case $options_opt in
-		t|T ) setprop hybrid.perm 0; echo "hybrid.perm=0" >> /system/build.prop; clear; echo "Done"; sleep 1;;
-		p|P ) setprop hybrid.perm 1; echo "hybrid.perm=1" >> /system/build.prop; clear; echo "Done"; sleep 1;;
-	 	b|B ) options_back;;
+	read options_first_opt
+	case $options_first_opt in
+		t|T ) setprop hybrid.perm 0; echo "hybrid.perm=0" >> /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
+		p|P ) setprop hybrid.perm 1; echo "hybrid.perm=1" >> /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
 		* ) unknown_option; options;;
 	esac
 }
@@ -803,6 +803,8 @@ elif [ "$catalyst_time" = "" ]
 then
 	setprop hybrid.catalyst_time 60
 	echo "hybrid.catalyst_time=60" >> /system/build.prop
+	$hybrid
+	safe_exit
 fi
 while true
 do
