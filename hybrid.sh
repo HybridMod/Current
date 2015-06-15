@@ -32,15 +32,20 @@ bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
+#SH-OTA v1.2_alpha By Deic & DiamondBond
+
 sh-ota(){
+	#Edit from here
 	name="ota.sh"
 	cloud="https://ota.sh"
+
+	#Don't edit from here
 	ota_ext="$EXTERNAL_STORAGE/Download/$name"
 	ota_tmp="/data/local/tmp/$name"
 
 	clear
 	if [ -f /system/bin/curl ] || [ -f /system/xbin/curl ]; then
-		curl -k -L $ota_tmp $cloud
+		curl -k -L $ota_tmp $cloud 1>/dev/null
 	else
 		am start android.intent.action.VIEW com.android.browser $cloud 1>/dev/null
 	fi
@@ -55,7 +60,7 @@ sh-ota(){
 	else
 		run
 	fi
-}
+	}
 
 exit
 }
