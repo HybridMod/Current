@@ -1,11 +1,13 @@
 #!/system/bin/sh
 # hybrid.sh by DiamondBond & Deic
 
-#NOTES:
+#NOTES (Sign off please):
 #get su status method does nothing (~Deic)
 #game booster config perm doesn't work (~Deic)
-#sensor_fix() needs to be added to the options menu / somewhere else~(Diamond)
+#sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
+#why have wait_download() with run_sh_ota() inside, lol, just call run_sh_ota() directly (~Diamond)
 
+#Master version
 ver_revision="2.0"
 
 #options
