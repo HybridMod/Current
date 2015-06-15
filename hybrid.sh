@@ -2,9 +2,9 @@
 # hybrid.sh by DiamondBond & Deic
 
 #NOTES:
-#get su status method does nothing
-#game booster config perm doesn't work
-#see below
+#get su status method does nothing (~Deic)
+#game booster config perm doesn't work (~Deic)
+#sensor_fix() needs to be added to the options menu / somewhere else~(Diamond)
 
 ver_revision="2.0"
 
@@ -746,6 +746,19 @@ catalyst_time_cfg(){
 	safe_exit
 }
 
+sensor_fix(){
+	clear
+	#this is a fix for dirty flashers with bad sensors.
+	echo "Wipe sensor data? [Y/N]"
+	echo -n "> "
+	read sensorfix_opt
+	case $sensorfix_opt in
+		y|Y ) rm -rf /data/misc/sensor && echo "done!" && body;;
+		n|N ) body;;
+		* ) unknown_option; options;;
+	esac
+}
+
 options(){
 	clear
 	echo "${yellow}How to install tweaks?$nc"
@@ -807,8 +820,8 @@ about_info(){
 	echo -n "> "
 	read about_info_opt
 	case $about_info_opt in
-	 	f|F ) am start "http://forum.xda-developers.com/moto-g-2014/development/mod-disable-zram-t3071658" 1>/dev/null; about_info;;
-	 	s|S ) am start "https://github.com/HybridMod/Current" 1>/dev/null; about_info;;
+	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" 1>/dev/null; about_info;;
+	 	s|S ) am start "https://github.com/HybridMod" 1>/dev/null; about_info;;
 	 	b|B ) body;;
 	 	* ) unknown_option; about_info;;
 	esac
