@@ -79,8 +79,8 @@ body(){
 	fi
 	if [ $wehazram -eq 0 ]; then
 		echo " 8|Game Booster"
-	else
-		echo " 9|Game Booster"
+	fi
+	echo " 9|Game Booster"
 	echo
 	echo " O|Options"
 	echo " A|About"
