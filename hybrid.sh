@@ -302,8 +302,7 @@ EOF
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ]
-	then
+	if [ $perm == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -336,18 +335,15 @@ lmk_tune_opt(){
 
 lmk_apply(){
 	clear
-	if [ $lmk_profile == b ] || [ $lmk_profile = B ]
-	then
+	if [ $lmk_profile == b ] || [ $lmk_profile = B ]; then
 		minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
-	if [ $lmk_profile == m ] || [ $lmk_profile = M ]
-	then
+	if [ $lmk_profile == m ] || [ $lmk_profile = M ]; then
 	 minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
-	if [ $lmk_profile == g ] || [ $lmk_profile = G ]
-	then
+	if [ $lmk_profile == g ] || [ $lmk_profile = G ]; then
 	 minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
@@ -360,8 +356,7 @@ lmk_apply(){
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
 		touch /system/etc/init.d/95lmk
 		chmod 755 /system/etc/init.d/95lmk
@@ -384,8 +379,7 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 		init_sleep
 	else
@@ -446,8 +440,7 @@ EOF
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ]
-	then
+	if [ $perm == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -464,8 +457,7 @@ kernel_kontrol(){
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
-	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]
-	then
+	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
 	 	echo " 4|View KCal Values"
 	fi
 	echo " B|Back"
@@ -509,8 +501,7 @@ setcpufreq(){
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
 		touch /system/etc/init.d/69cpu_freq
 		chmod 755 /system/etc/init.d/69cpu_freq
@@ -551,8 +542,7 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
 		touch /system/etc/init.d/70cpu_gov
 		chmod 755 /system/etc/init.d/70cpu_gov
@@ -622,8 +612,7 @@ EOF
 
 kcal(){
 	clear
-	if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]
-	then
+	if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]; then
 	 	unknown_option
 	 	kernel_kontrol
 	else
@@ -642,8 +631,7 @@ kcal(){
 
 zram_settings(){
 	clear
-	if [ $wehavezram == 0 ]
-	then
+	if [ $wehavezram == 0 ]; then
 	 	catalyst_control
 	else
 	 	echo "${yellow}zRAM Options:$nc"
@@ -698,8 +686,7 @@ zram_disable(){
 
 catalyst_control(){
 	clear
-	if [ $wehavezram == 0 ]
-	then
+	if [ $wehavezram == 0 ]; then
 		unknown_option
 	fi
 	echo "${yellow}Game Booster$nc"
@@ -766,8 +753,7 @@ options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ "$perm" = "0" ] || [ "$perm" = "1" ]
-	then
+	if [ "$perm" = "0" ] || [ "$perm" = "1" ]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
@@ -859,11 +845,9 @@ mount -o rw,remount /system 2>/dev/null
 #then
 #	echo "This script must be run as root"
 #	exit 1
-if [ "$perm" = "" ]
-then
+if [ "$perm" = "" ]; then
 	options
-elif [ "$catalyst_time" = "" ]
-then
+elif [ "$catalyst_time" = "" ]; then
 	setprop hybrid.catalyst_time 60
 	echo "hybrid.catalyst_time=60" >> /system/build.prop
 	$hybrid
