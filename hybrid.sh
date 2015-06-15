@@ -35,7 +35,7 @@ nc='\033[0m'
 sh-ota(){
 	name="ota.sh"
 	cloud="https://ota.sh"
-	ota_ext="$EXTERNAL_STORAGE/Download/$name
+	ota_ext="$EXTERNAL_STORAGE/Download/$name"
 	ota_tmp="/data/local/tmp/$name"
 
 	clear
@@ -59,6 +59,8 @@ sh-ota(){
 
 exit
 }
+
+sh-ota
 
 body(){
 	clear
@@ -835,13 +837,8 @@ safe_exit(){
 	exit
 }
 
-#sh_ota
 clear
-mount -o rw,remount /system 2>/dev/null
-#if [ $EUID -ne 0 ] #to be revised
-#then
-#	echo "This script must be run as root"
-#	exit 1
+
 if [ "$perm" = "" ]; then
 	options
 elif [ "$catalyst_time" = "" ]; then
