@@ -73,11 +73,14 @@ body(){
 	echo " 5|Tune my LMK"
 	echo " 6|Tune my Networks"
 	echo " 7|Kernel Kontrol"
-	if [ -f /dev/block/zram* ]
-	then
-	 echo " 8|zRAM Settings"
+	if [ -f /dev/block/zram* ]; then
+		wehazram=0
+		echo " 8|zRAM Settings"
 	fi
-	echo " 9|Game Booster"
+	if [ $wehazram -eq 0 ]; then
+		echo " 8|Game Booster"
+	else
+		echo " 9|Game Booster"
 	echo
 	echo " O|Options"
 	echo " A|About"
