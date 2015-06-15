@@ -74,13 +74,15 @@ body(){
 	echo " 6|Tune my Networks"
 	echo " 7|Kernel Kontrol"
 	if [ -f /dev/block/zram* ]; then
-		wehazram=0
+		wehavezram=0
 		echo " 8|zRAM Settings"
 	fi
-	if [ $wehazram -eq 0 ]; then
+	if [ $wehavezram == 0 ]; then
 		echo " 8|Game Booster"
+	else
+
+		echo " 9|Game Booster"
 	fi
-	echo " 9|Game Booster"
 	echo
 	echo " O|Options"
 	echo " A|About"
@@ -638,9 +640,9 @@ kcal(){
 
 zram_settings(){
 	clear
-	if [ ! -f /dev/block/zram* ]
+	if [ $wehavezram == 0 ]
 	then
-	 	unknown_option
+	 	catalyst_control
 	else
 	 	echo "${yellow}zRAM Options:$nc"
 	 	echo " 1|Disable zRAM"
@@ -694,6 +696,10 @@ zram_disable(){
 
 catalyst_control(){
 	clear
+	if [ $wehavezram == 0 ]
+	then
+		unknown_option
+	fi
 	echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
 	echo " [2] Options"
