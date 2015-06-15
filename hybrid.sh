@@ -2,23 +2,19 @@
 # hybrid.sh by DiamondBond & Deic
 
 #NOTES (Sign off please):
-#get su status method does nothing (~Deic)
 #game booster config perm doesn't work (~Deic)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
-#why have wait_download() with run_sh_ota() inside, lol, just call run_sh_ota() directly (~Diamond)
 
 #Master version
 ver_revision="2.0"
 
 #options
-hybrid="/system/xbin/hybrid"
-data_rw="mount -o remount,rw /data"
-data_ro="mount -o remount,ro /data"
-tmp_dir="/data/local/tmp/"
-initd_dir="/system/etc/init.d/"
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 perm=`getprop hybrid.perm`
 catalyst_time=`getprop hybrid.catalyst_time`
+hybrid="/system/xbin/hybrid"
+tmp_dir="/data/local/tmp/"
+initd_dir="/system/etc/init.d/"
 
 #color control
 red='\033[0;31m'
@@ -179,7 +175,6 @@ clean_up(){
 		init_sleep
 	else
 	 	script_dir=$tmp_dir
-	 	$data_rw
 	fi
 
 	touch $script_dir/99clean_up
@@ -221,8 +216,6 @@ EOF
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
-	else
-	 	$data_ro
 	fi
 
 	body
@@ -280,7 +273,6 @@ vm_tune(){
 		init_sleep
 	else
 	 	script_dir=$tmp_dir
-	 	$data_rw
 	fi
 
 	touch $script_dir/75vm
@@ -310,8 +302,6 @@ EOF
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
-	else
-	 	$data_ro
 	fi
 
 	body
@@ -388,7 +378,6 @@ network_tune(){
 		init_sleep
 	else
 	 	script_dir=$tmp_dir
-	 	$data_rw
 	fi
 
 	touch $script_dir/56net
@@ -448,8 +437,6 @@ EOF
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
-	else
-	 	$data_ro
 	fi
 
 	body
@@ -730,7 +717,9 @@ catalyst_time_cfg(){
 	echo "Please enter a rate in seconds:"
 	echo -n "> "
 	read catalyst_time_val
-	sed -i 's/hybrid.catalyst_time=`$catalyst_time`/hybrid.catalyst_time=`$catalyst_time_val`/' /system/build.prop #to be revised
+########TO BE REVISED
+	sed -i 's/hybrid.catalyst_time=`$catalyst_time`/hybrid.catalyst_time=`$catalyst_time_val`/' /system/build.prop
+########
 	setprop hybrid.catalyst_time $catalyst_time_val
 	clear
 	echo "Time updated!"
@@ -837,7 +826,6 @@ custom_reboot(){
 }
 
 safe_exit(){
-	mount -o ro,remount /system 2>/dev/null
 	clear
 	exit
 }
