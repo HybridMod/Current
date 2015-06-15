@@ -10,7 +10,11 @@ ver_revision="2.0"
 
 #options
 hybrid="/system/xbin/hybrid"
-initd=`if [ -d /system/etc/init.d ]; then echo "1"; else echo "0" ; fi`
+data_rw="mount -o remount,rw /data"
+data_ro="mount -o remount,ro /data"
+tmp_dir="/data/local/tmp/"
+initd_dir="/system/etc/init.d/"
+initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 perm=`getprop hybrid.perm`
 catalyst_time=`getprop hybrid.catalyst_time`
 
@@ -126,15 +130,13 @@ drop_caches(){
 	echo "${yellow}Dropping caches...$nc"
 	sleep 1
 
-	drop_caches="
-sync
-echo 3 > /proc/sys/vm/drop_caches
-"
-	$drop_caches
+	sync
+	echo 3 > /proc/sys/vm/drop_caches
 
 	clear
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
+
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
 		init_sleep
@@ -142,12 +144,17 @@ echo 3 > /proc/sys/vm/drop_caches
 		chmod 755 /system/etc/init.d/97cache_drop
 cat > /system/etc/init.d/97cache_drop <<EOF
 #!/system/bin/sh
-$drop_caches
+
+sync
+echo 3 > /proc/sys/vm/drop_caches
+
 EOF
 	clear
 	echo "${yellow}Installed!$nc"
 	sleep 1
 	fi
+
+	body
 }
 
 clean_up(){
@@ -155,7 +162,20 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	clean_up="
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+	 	script_dir=$initd_dir
+		init_sleep
+	else
+	 	script_dir=$tmp_dir
+	 	$data_rw
+	fi
+
+	touch $script_dir/99clean_up
+	chmod 755 $script_dir/99clean_up
+cat > $script_dir/99clean_up <<EOF
+#!/system/bin/sh
+
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
 rm -f /cache/recovery/*
@@ -177,25 +197,24 @@ rm -f /data/tombstones/*
 rm -f /data/system/dropbox/*
 rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
-"
-	$clean_up
+
+EOF
+	$script_dir/99clean_up
 
 	clear
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
-	if [ $perm == 1 ] && [ $initd == 1 ]
+
+	if [ $perm == 1 ]
 	then
-		init_sleep
-		touch /system/etc/init.d/99clean_up
-		chmod 755 /system/etc/init.d/99clean_up
-cat > /system/etc/init.d/99clean_up <<EOF
-#!/system/bin/sh
-$clean_up
-EOF
-	clear
-	echo "${yellow}Installed!$nc"
-	sleep 1
+	 	clear
+	 	echo "${yellow}Installed!$nc"
+	 	sleep 1
+	else
+	 	$data_ro
 	fi
+
+	body
 }
 
 sql_optimize(){
@@ -235,6 +254,8 @@ sql_optimize(){
 	clear
 	echo "${yellow}SQLite database optimizations complete!$nc"
 	sleep 1
+
+	body
 }
 
 vm_tune(){
@@ -242,7 +263,20 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	vm_tune="
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+	 	script_dir=$initd_dir
+		init_sleep
+	else
+	 	script_dir=$tmp_dir
+	 	$data_rw
+	fi
+
+	touch $script_dir/75vm
+	chmod 755 $script_dir/75vm
+cat > $script_dir/75vm <<EOF
+#!/system/bin/sh
+
 echo 80 > /proc/sys/vm/swappiness
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo 3000 > /proc/sys/vm/dirty_expire_centisecs
@@ -253,25 +287,24 @@ echo 1 > /proc/sys/vm/overcommit_memory
 echo 150 > /proc/sys/vm/overcommit_ratio
 echo 4096 > /proc/sys/vm/min_free_kbytes
 echo 1 > /proc/sys/vm/oom_kill_allocating_task
-"
-	$vm_tune
+
+EOF
+	$script_dir/75vm
 
 	clear
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
-	if [ $perm == 1 ] && [ $initd == 1 ]
+
+	if [ $perm == 1 ]
 	then
-		init_sleep
-		touch /system/etc/init.d/75vm
-		chmod 755 /system/etc/init.d/75vm
-cat > /system/etc/init.d/75vm <<EOF
-#!/system/bin/sh
-$vm_tune
-EOF
 	 	clear
-		echo "${yellow}Installed!$nc"
+	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
+	else
+	 	$data_ro
 	fi
+
+	body
 }
 
 lmk_tune_opt(){
@@ -335,6 +368,8 @@ EOF
 		echo "${yellow}Installed!$nc"
 		sleep 1
 	fi
+
+	body
 }
 
 network_tune(){
@@ -342,7 +377,20 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	network_tune="
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+	 	script_dir=$initd_dir
+		init_sleep
+	else
+	 	script_dir=$tmp_dir
+	 	$data_rw
+	fi
+
+	touch $script_dir/56net
+	chmod 755 $script_dir/56net
+cat > $script_dir/56net <<EOF
+#!/system/bin/sh
+
 #TCP
 echo 2097152 > /proc/sys/net/core/wmem_max
 echo 2097152 > /proc/sys/net/core/rmem_max
@@ -383,26 +431,24 @@ echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route
 echo 0 > /proc/sys/net/ipv4/conf/default/accept_source_route
 echo 1 > /proc/sys/net/ipv4/conf/all/log_martians
 echo 1 > /proc/sys/net/ipv4/conf/default/log_martians
-"
-	$network_tune
+
+EOF
+	$script_dir/56net
 
 	clear
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
+	if [ $perm == 1 ]
 	then
-		init_sleep
-		touch /system/etc/init.d/56net
-		chmod 755 /system/etc/init.d/56net
-cat > /system/etc/init.d/56net <<EOF
-#!/system/bin/sh
-$network_tune
-EOF
 	 	clear
-		echo "${yellow}Installed!$nc"
-		sleep 1
+	 	echo "${yellow}Installed!$nc"
+	 	sleep 1
+	else
+	 	$data_ro
 	fi
+
+	body
 }
 
 kernel_kontrol(){
@@ -449,12 +495,29 @@ setcpufreq(){
 	echo -n "New Max Freq: "; read newmaxfreq
 	echo -n "New Min Freq: "; read newminfreq
 
-	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	echo $newminfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 	clear
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
+
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+		init_sleep
+		touch /system/etc/init.d/69cpu_freq
+		chmod 755 /system/etc/init.d/69cpu_freq
+cat > /system/etc/init.d/69cpu_freq <<EOF
+#!/system/bin/sh
+
+echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo $newminfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+
+EOF
+	 	clear
+		echo "${yellow}Installed!$nc"
+	 	sleep 1
+	fi
 
 	kernel_kontrol
 }
@@ -481,6 +544,22 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+		init_sleep
+		touch /system/etc/init.d/70cpu_gov
+		chmod 755 /system/etc/init.d/70cpu_gov
+cat > /system/etc/init.d/70cpu_gov <<EOF
+#!/system/bin/sh
+
+echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+EOF
+	 	clear
+		echo "${yellow}Installed!$nc"
+	 	sleep 1
+	fi
+
 	kernel_kontrol
 }
 
@@ -503,12 +582,33 @@ setiosched(){
 
 	for j in /sys/block/*/queue/scheduler
 	do
-		echo "$newiosched" > $j
+	 	echo "$newiosched" > $j
 	done
 
 	clear
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
+
+	if [ $perm == 1 ] && [ $initd == 1 ]
+	then
+		init_sleep
+		touch /system/etc/init.d/71io_sched
+		chmod 755 /system/etc/init.d/71io_sched
+cat > /system/etc/init.d/71io_sched <<EOF
+#!/system/bin/sh
+
+for j in /sys/block/*/queue/scheduler
+do
+	echo "$newiosched" > location
+done
+
+EOF
+		sed -i 's/location/$j/' /system/etc/init.d/71io_sched
+
+	 	clear
+		echo "${yellow}Installed!$nc"
+	 	sleep 1
+	fi
 
 	kernel_kontrol
 }
