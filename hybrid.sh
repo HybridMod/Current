@@ -32,35 +32,32 @@ bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
-#SH-OTA By Deic & DiamondBond
-sh_ota(){
-#variables
-name="SH-OTA.sh"
-cloud="https://github.com/HybridMod/Release/releases/latest/SH-OTA.sh"
-file="$EXTERNAL_STORAGE/Download/$name"
+sh-ota(){
+	name="ota.sh"
+	cloud="https://ota.sh"
+	ota_ext="$EXTERNAL_STORAGE/Download/$name
+	ota_tmp="/data/local/tmp/$name"
 
-download(){
-	am start android.intent.action.VIEW com.android.browser $cloud 1>/dev/null
-	am start jackpal.androidterm 1>/dev/null
-	wait_download
-}
-
-wait_download(){
-	run_sh_ota
-}
-
-run_sh_ota(){
-	if [ -f $file ]; then
-		am force-stop com.android.browser
-		$SHELL -c $file
+	clear
+	if [ -f /system/bin/curl ] || [ -f /system/xbin/curl ]; then
+		curl -k -L $ota_tmp $cloud
 	else
-		wait_download
+		am start android.intent.action.VIEW com.android.browser $cloud 1>/dev/null
+	fi
+
+	run(){
+	if [ -f $ota_ext ]; then
+		am force-stop com.android.browser
+		cp -rf $ota_ext $ota_tmp
+		sleep 2
+		chmod 755 $ota_tmp
+		$SHELL -c $ota_tmp
+	else
+		run
 	fi
 }
 
-#Script start
-clear
-download
+exit
 }
 
 body(){
