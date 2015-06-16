@@ -1,18 +1,19 @@
 #!/system/bin/sh
 # hybrid.sh by DiamondBond & Deic
 
-#NOTES (Sign off please):
-#game booster config perm doesn't work (~Deic)
+#NOTES (Sign off please)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
+#init_sleep() I don't think that do anything, because sleep only that script and not others ( ~Deic
 
 #Master version
 ver_revision="2.0"
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
-perm=`getprop hybrid.perm`
-catalyst_time=`getprop hybrid.catalyst_time`
-hybrid="/system/xbin/hybrid"
+perm=`getprop persist.hybrid.permanent`
+catalyst_time=`getprop persist.hybrid.catalyst.time`
+
+#links
 tmp_dir="/data/local/tmp/"
 initd_dir="/system/etc/init.d/"
 
@@ -32,8 +33,8 @@ nc='\033[0m'
 
 sh-ota(){
 	#Edit from here
-	name="ota.sh"
-	cloud="https://ota.sh"
+	name="main.sh"
+	cloud="https://main.sh"
 
 	#Don't edit from here
 	ota_ext="$EXTERNAL_STORAGE/Download/$name"
@@ -61,7 +62,7 @@ sh-ota(){
 exit
 }
 
-sh-ota
+#sh-ota
 
 body(){
 	clear
@@ -76,10 +77,10 @@ body(){
 	echo " 6|Tune my Networks"
 	echo " 7|Kernel Kontrol"
 	if [ -f /dev/block/zram* ]; then
-		wehavezram=0
+		zram=0
 		echo " 8|zRAM Settings"
 	fi
-	if [ $wehavezram == 0 ]; then
+	if [ $zram == 0 ]; then
 		echo " 8|Game Booster"
 	else
 
@@ -117,13 +118,13 @@ unknown_option(){
 	sleep 1
 }
 
+#########TO BE REVISED
 init_sleep(){
-	if [ ! -f system/etc/init.d/50sleep ]
+	if [ ! -f $initd_dir/50sleep ]
 	then
-		touch /system/etc/init.d/50sleep
-		chmod 755 /system/etc/init.d/50sleep
-		echo "" > /system/etc/init.d/50sleep
-cat > /system/etc/init.d/50sleep <<EOF
+		touch $initd_dir/50sleep
+		chmod 755 $initd_dir/50sleep
+cat > $initd_dir/50sleep <<EOF
 #!/system/bin/sh
 
 sleep 10
@@ -131,6 +132,7 @@ sleep 10
 EOF
 	fi
 }
+################
 
 drop_caches(){
 	clear
@@ -147,9 +149,9 @@ drop_caches(){
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
 		init_sleep
-		touch /system/etc/init.d/97cache_drop
-		chmod 755 /system/etc/init.d/97cache_drop
-cat > /system/etc/init.d/97cache_drop <<EOF
+		touch $initd_dir/97cache_drop
+		chmod 755 $initd_dir/97cache_drop
+cat > $initd_dir/97cache_drop <<EOF
 #!/system/bin/sh
 
 sync
@@ -352,9 +354,9 @@ lmk_apply(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
-		touch /system/etc/init.d/95lmk
-		chmod 755 /system/etc/init.d/95lmk
-cat > /system/etc/init.d/95lmk <<EOF
+		touch $initd_dir/95lmk
+		chmod 755 $initd_dir/95lmk
+cat > $initd_dir/95lmk <<EOF
 #!/system/bin/sh
 
 echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
@@ -494,9 +496,9 @@ setcpufreq(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
-		touch /system/etc/init.d/69cpu_freq
-		chmod 755 /system/etc/init.d/69cpu_freq
-cat > /system/etc/init.d/69cpu_freq <<EOF
+		touch $initd_dir/69cpu_freq
+		chmod 755 $initd_dir/69cpu_freq
+cat > $initd_dir/69cpu_freq <<EOF
 #!/system/bin/sh
 
 echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
@@ -535,9 +537,9 @@ setgov(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		init_sleep
-		touch /system/etc/init.d/70cpu_gov
-		chmod 755 /system/etc/init.d/70cpu_gov
-cat > /system/etc/init.d/70cpu_gov <<EOF
+		touch $initd_dir/70cpu_gov
+		chmod 755 $initd_dir/70cpu_gov
+cat > $initd_dir/70cpu_gov <<EOF
 #!/system/bin/sh
 
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
@@ -580,18 +582,18 @@ setiosched(){
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
 		init_sleep
-		touch /system/etc/init.d/71io_sched
-		chmod 755 /system/etc/init.d/71io_sched
-cat > /system/etc/init.d/71io_sched <<EOF
+		touch $initd_dir/71io_sched
+		chmod 755 $initd_dir/71io_sched
+cat > $initd_dir/71io_sched <<EOF
 #!/system/bin/sh
 
 for j in /sys/block/*/queue/scheduler
 do
-	echo "$newiosched" > location
+	echo "$newiosched" > dir
 done
 
 EOF
-		sed -i 's/location/$j/' /system/etc/init.d/71io_sched
+		sed -i 's/dir/$j/' $initd_dir/71io_sched
 
 	 	clear
 		echo "${yellow}Installed!$nc"
@@ -622,7 +624,7 @@ kcal(){
 
 zram_settings(){
 	clear
-	if [ $wehavezram == 0 ]; then
+	if [ $zram == 0 ]; then
 	 	catalyst_control
 	else
 	 	echo "${yellow}zRAM Options:$nc"
@@ -677,7 +679,7 @@ zram_disable(){
 
 catalyst_control(){
 	clear
-	if [ $wehavezram == 0 ]; then
+	if [ $zram == 0 ]; then
 		unknown_option
 	fi
 	echo "${yellow}Game Booster$nc"
@@ -703,7 +705,7 @@ catalyst_inject(){
 	while true
 	do
 		sync
-  		echo "3" > /proc/sys/vm/drop_caches
+  		echo 3 > /proc/sys/vm/drop_caches
 		sleep $catalyst_time
 	done
 }
@@ -717,15 +719,12 @@ catalyst_time_cfg(){
 	echo "Please enter a rate in seconds:"
 	echo -n "> "
 	read catalyst_time_val
-########TO BE REVISED
-	sed -i 's/hybrid.catalyst_time=`$catalyst_time`/hybrid.catalyst_time=`$catalyst_time_val`/' /system/build.prop
-########
-	setprop hybrid.catalyst_time $catalyst_time_val
+	setprop persist.hybrid.catalyst.time $catalyst_time_val
 	clear
 	echo "Time updated!"
 	sleep 1
-	$hybrid
-	safe_exit
+	
+	catalyst_control
 }
 
 sensor_fix(){
@@ -753,8 +752,8 @@ options(){
 	 	echo -n "> "
 	 	read options_opt
 	 	case $options_opt in
-	 	 	t|T ) setprop hybrid.perm 0; sed -i 's/hybrid.perm=1/hybrid.perm=0/' /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
-		 	p|P ) setprop hybrid.perm 1; sed -i 's/hybrid.perm=0/hybrid.perm=1/' /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
+	 	 	t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
+		 	p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
 	 	 	b|B ) body;;
 		 	* ) unknown_option; options;;
 	 	esac
@@ -770,8 +769,8 @@ options_first(){
 	echo -n "> "
 	read options_first_opt
 	case $options_first_opt in
-		t|T ) setprop hybrid.perm 0; echo "hybrid.perm=0" >> /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
-		p|P ) setprop hybrid.perm 1; echo "hybrid.perm=1" >> /system/build.prop; clear; echo "Done"; sleep 1; $hybrid; safe_exit;;
+		t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
+		p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
 		* ) unknown_option; options;;
 	esac
 }
@@ -835,10 +834,7 @@ clear
 if [ "$perm" = "" ]; then
 	options
 elif [ "$catalyst_time" = "" ]; then
-	setprop hybrid.catalyst_time 60
-	echo "hybrid.catalyst_time=60" >> /system/build.prop
-	$hybrid
-	safe_exit
+	setprop persist.hybrid.catalyst.time 60
 fi
 while true
 do
