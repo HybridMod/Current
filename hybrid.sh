@@ -1,13 +1,12 @@
 #!/system/bin/sh
-# hybrid.sh by DiamondBond & Deic
+# hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
 #init_sleep() I don't think that do anything, because sleep only that script and not others (~Deic)
-#http://www.tutorialspoint.com/unix/unix-special-variables.htm
 
 #Master version
-ver_revision="2.1"
+ver_revision="2.2"
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
