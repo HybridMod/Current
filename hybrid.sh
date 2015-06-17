@@ -79,9 +79,9 @@ print_RANDOM_BYTE(){
 # Checkers 1.0
 # You can type in any strings you would want it to print when called.
 # It will start by checking from chk1, and its limit is up to chk20.
-chk1=what?
+chk1="what?"
 chk2="i dont understand!"
-chk3=pardon?
+chk3="pardon?"
 chk4="are you retarded?"
 checkers(){
 	for i in $(seq 1 20); do
