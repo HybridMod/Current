@@ -29,6 +29,74 @@ bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
+#code snippets from standard.sh by hoholee12
+error(){
+	message=$@
+	if [[ "$(echo $message | grep \")" ]]; then
+		echo -n $message | sed 's/".*//'
+		errmsg=$(echo $message | cut -d'"' -f2)
+		echo -e "\e[1;31m\"$errmsg\"\e[0m"
+	else
+		echo $message
+	fi
+	CUSTOM_DIR=$(echo $CUSTOM_DIR | sed 's/\/$//')
+	cd /
+	for i in $(echo $CUSTOM_DIR | sed 's/\//\n/g'); do
+		if [[ ! -d $i ]]; then
+			mkdir $i
+			chmod 755 $i
+		fi
+		cd $i
+	done
+	if [[ "$CUSTOM_DIR" ]]; then
+		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $CUSTOM_DIR/$NO_EXTENSION.log
+	else
+		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
+	fi
+}
+print_RANDOM_BYTE(){
+	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
+		echo $RANDOM
+	else
+		bb_apg_2 -f od
+		if [[ "$?" == 1 ]]; then
+			error critical command missing. \"error code 2\"
+			exit 2
+		fi
+		if [[ "$use_urand" != 1 ]]; then
+			rand=$(($(od -An -N2 -i /dev/random)%32767))
+		else
+			rand=$(($(od -An -N2 -i /dev/urandom)%32767))
+		fi
+		if [[ "$invert_rand" == 1 ]]; then
+			if [[ "$rand" -lt 0 ]]; then
+				rand=$(($((rand*-1))-1))
+			fi
+		fi
+		echo $rand #output
+	fi
+}
+# Checkers 1.0
+# You can type in any strings you would want it to print when called.
+# It will start by checking from chk1, and its limit is up to chk20.
+chk1=what?
+chk2="i dont understand!"
+chk3=pardon?
+chk4="are you retarded?"
+checkers(){
+	for i in $(seq 1 20); do
+		if [[ ! "$(eval echo \$chk$i)" ]]; then
+			i=$((i-1))
+			break
+		fi
+	done
+	random=$(print_RANDOM_BYTE)
+	random=$((random%i+1))
+	echo -n -e "\r$(eval echo \$chk$random) "
+}
+
+
+
 #SH-OTA v1.2_alpha By Deic & DiamondBond
 
 sh-ota(){
@@ -108,14 +176,8 @@ body(){
 		a|A ) about_info;;
 		r|R ) custom_reboot;;
 		e|E ) safe_exit;;
-		* ) unknown_option;;
+		* ) checkers;;
 	esac
-}
-
-unknown_option(){
-	clear
-	echo "Unknown Option"
-	sleep 1
 }
 
 #########TO BE REVISED
@@ -325,7 +387,7 @@ lmk_tune_opt(){
 	case $lmk_opt in
 		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
 		r|R ) body;;
-		* ) unknown_option; lmk_tune_opt;;
+		* ) checkers; lmk_tune_opt;;
 	esac
 }
 
@@ -463,7 +525,7 @@ kernel_kontrol(){
 		3) setiosched;;
 		4) kcal;;
 		b|B) body;;
-		* ) unknown_option; kernel_kontrol;;
+		* ) checkers; kernel_kontrol;;
 	 esac
 }
 
@@ -606,7 +668,7 @@ EOF
 kcal(){
 	clear
 	if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]; then
-	 	unknown_option
+	 	checkers
 	 	kernel_kontrol
 	else
 	 	echo "${yellow}Current KCal Values:${nc}"
@@ -638,7 +700,7 @@ zram_settings(){
 	 		1 ) zram_disable;;
 	 		2 ) zram_enable;;
 	 		b|B ) body;;
-	 		* ) unknown_option; zram_settings;;
+	 		* ) checkers; zram_settings;;
 	 	esac
 	fi
 }
@@ -680,7 +742,7 @@ zram_disable(){
 catalyst_control(){
 	clear
 	if [ $zram == 0 ]; then
-		unknown_option
+		checkers
 	fi
 	echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
@@ -693,7 +755,7 @@ catalyst_control(){
 		1 ) catalyst_inject;;
 		2 ) catalyst_time_cfg;;
 		b|B ) body;;
-		* ) unknown_option; catalyst_control;;
+		* ) checkers; catalyst_control;;
 	esac
 }
 
@@ -736,7 +798,7 @@ sensor_fix(){
 	case $sensorfix_opt in
 		y|Y ) rm -rf /data/misc/sensor && echo "done!" && body;;
 		n|N ) body;;
-		* ) unknown_option; options;;
+		* ) checkers; options;;
 	esac
 }
 
@@ -755,7 +817,7 @@ options(){
 	 	 	t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
 		 	p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
 	 	 	b|B ) body;;
-		 	* ) unknown_option; options;;
+		 	* ) checkers; options;;
 	 	esac
 	else
 	options_first
@@ -771,7 +833,7 @@ options_first(){
 	case $options_first_opt in
 		t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
 		p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
-		* ) unknown_option; options;;
+		* ) checkers; options;;
 	esac
 }
 
@@ -803,7 +865,7 @@ about_info(){
 	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" 1>/dev/null; about_info;;
 	 	s|S ) am start "https://github.com/HybridMod" 1>/dev/null; about_info;;
 	 	b|B ) body;;
-	 	* ) unknown_option; about_info;;
+	 	* ) checkers; about_info;;
 	esac
 }
 
