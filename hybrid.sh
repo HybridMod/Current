@@ -31,6 +31,7 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 #code snippets from standard.sh by hoholee12
+readonly version=test
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -122,7 +123,92 @@ checkers(){
 	random=$((random%i+1))
 	echo -n -e "\r$(eval echo \$chk$random) "
 }
+debug_shell(){
+	echo "welcome to the debug_shell program! type in: 'help' for more information."
+	echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
+	if [[ "$su_check" == 0 ]]; then
+		echo -n '# '
+	else
+		echo -n '$ '
+	fi
+	while eval read i; do
+		case $i in
+			randtest | test9) #test9 version.
+				trap "echo -e \"\e[2JI LOVE YOU\"; exit" 2
+				while true; do
+					random=$(print_RANDOM_BYTE)
+					x_axis=$((random%$(($(stty size | awk '{print $2}' 2>/dev/null)-1))))
+					random=$(print_RANDOM_BYTE)
+					y_axis=$((random%$(stty size | awk '{print $1}' 2>/dev/null)))
+					random=$(print_RANDOM_BYTE)
+					color=$((random%7+31))
+					echo -e -n "\e[${y_axis};${x_axis}H\e[${color}m0\e[0m"
+				done
+			;;
+			help)
+				echo -e "this debug shell is \e[1;31mONLY\e[0m used for testing conditions inside this program!
+you can now use '>' and '>>' for output redirection. use along with 'set -x' for debugging purposes.
+use 'export' if you want to declare a variable.
+such includes:
+	-functions
+	-variables
+	-built-in sh or bash commands
 
+instead, you can use these commands built-in to this program:
+	-print_PARTIAL_DIR_NAME
+	-print_RANDOM_BYTE
+	-bb_apg_2
+	-as_root
+	-any other functions built-in to this program...
+you can use set command to view all the functions and variables built-in to this program.
+
+you can also use these built-in commands in debug_shell:
+	-randtest (tests if print_RANDOM_BYTE is functioning properly)
+	-help (brings out this message)
+
+debug_shell \e[1;33mv$version\e[0m
+Copyright (C) 2013-2015 hoholee12@naver.com"
+			;;
+			return*)
+				exit
+			;;
+			*)
+				if [[ "$(echo $i | grep '>')" ]]; then
+					if [[ "$(echo $i | grep '>>')" ]]; then
+						i=$(echo $i | sed 's/>>/>/')
+						if [[ "$(echo $i | cut -d'>' -f1)" ]]; then
+							first_comm=$(echo $i | cut -d'>' -f1)
+							second_comm=$(echo $i | sed 's/2>&1//' | cut -d'>' -f2)
+							if [[ "$(echo $i | grep '2>&1')" ]]; then
+								eval $first_comm >> $second_comm 2>&1
+							else
+								eval $first_comm >> $second_comm
+							fi
+						fi
+					else
+						if [[ "$(echo $i | cut -d'>' -f1)" ]]; then
+							first_comm=$(echo $i | cut -d'>' -f1)
+							second_comm=$(echo $i | sed 's/2>&1//' | cut -d'>' -f2)
+							if [[ "$(echo $i | grep '2>&1')" ]]; then
+								eval $first_comm > $second_comm 2>&1
+							else
+								eval $first_comm > $second_comm
+							fi
+						fi
+					fi
+				else
+					$i
+				fi
+			;;
+		esac
+		echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
+		if [[ "$su_check" == 0 ]]; then
+			echo -n '# '
+		else
+			echo -n '$ '
+		fi
+	done
+}
 
 
 #SH-OTA v1.2_alpha By Deic & DiamondBond
@@ -161,51 +247,53 @@ exit
 #sh-ota
 
 body(){
-	clear
-	echo "$cyan[-=The Hybrid Project=-]$nc"
-	echo
-	echo "${yellow}Menu:$nc"
-	echo " 1|Instant Boost"
-	echo " 2|Clean up my crap"
-	echo " 3|Optimize my SQLite DB's"
-	echo " 4|Tune my VM"
-	echo " 5|Tune my LMK"
-	echo " 6|Tune my Networks"
-	echo " 7|Kernel Kontrol"
-	if [ -f /dev/block/zram* ]; then
-		zram=0
-		echo " 8|zRAM Settings"
-	fi
-	if [ $zram == 0 ]; then
-		echo " 8|Game Booster"
-	else
+	while true; do
+		clear
+		echo "$cyan[-=The Hybrid Project=-]$nc"
+		echo
+		echo "${yellow}Menu:$nc"
+		echo " 1|Instant Boost"
+		echo " 2|Clean up my crap"
+		echo " 3|Optimize my SQLite DB's"
+		echo " 4|Tune my VM"
+		echo " 5|Tune my LMK"
+		echo " 6|Tune my Networks"
+		echo " 7|Kernel Kontrol"
+		if [ -f /dev/block/zram* ]; then
+			zram=0
+			echo " 8|zRAM Settings"
+		fi
+		if [ $zram == 0 ]; then
+			echo " 8|Game Booster"
+		else
 
-		echo " 9|Game Booster"
-	fi
-	echo
-	echo " O|Options"
-	echo " A|About"
-	echo " R|Reboot"
-	echo " E|Exit"
-	echo
-	echo -n "> "
-	read selection_opt
-	case $selection_opt in
-		1 ) drop_caches;;
-		2 ) clean_up;;
-		3 ) sql_optimize;;
-		4 ) vm_tune;;
-		5 ) lmk_tune_opt;;
-		6 ) network_tune;;
-		7 ) kernel_kontrol;;
-		8 ) zram_settings;;
-		9 ) catalyst_control;;
-		o|O ) options;;
-		a|A ) about_info;;
-		r|R ) custom_reboot;;
-		e|E ) safe_exit;;
-		* ) checkers;;
-	esac
+			echo " 9|Game Booster"
+		fi
+		echo
+		echo " O|Options"
+		echo " A|About"
+		echo " R|Reboot"
+		echo " E|Exit"
+		echo
+		echo -n "> "
+		read selection_opt
+		case $selection_opt in
+			1 ) drop_caches;;
+			2 ) clean_up;;
+			3 ) sql_optimize;;
+			4 ) vm_tune;;
+			5 ) lmk_tune_opt;;
+			6 ) network_tune;;
+			7 ) kernel_kontrol;;
+			8 ) zram_settings;;
+			9 ) catalyst_control;;
+			o|O ) options;;
+			a|A ) about_info;;
+			r|R ) custom_reboot;;
+			e|E ) safe_exit;;
+			* ) checkers;;
+		esac
+	done
 }
 
 #########TO BE REVISED
@@ -926,7 +1014,11 @@ if [ "$perm" = "" ]; then
 elif [ "$catalyst_time" = "" ]; then
 	setprop persist.hybrid.catalyst.time 60
 fi
-while true
-do
-	body
-done
+
+
+if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
+	shift
+	debug_shell
+fi
+
+body
