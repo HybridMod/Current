@@ -31,6 +31,33 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 #code snippets from standard.sh by hoholee12
+readonly BASE_NAME=$(basename $0)
+readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
+readonly backup_PATH=$PATH
+readonly set_PATH=$(dirname $0 | sed 's/^\.//')
+readonly set_PATH2=$(pwd)
+if [[ "$set_PATH" ]]; then
+	if [[ "$(ls / | grep $(echo $set_PATH | sed 's/\//\n/g' | head -n2 | sed ':a;N;s/\n//g;ba'))" ]] ; then
+		export PATH=$set_PATH:$PATH
+	else
+		export PATH=$set_PATH2:$PATH
+	fi
+else
+	export PATH=$set_PATH2:$PATH
+fi
+reg_name=$(which $BASE_NAME 2>/dev/null) # somewhat seems to be incompatible with 1.22.1-stericson.
+if [[ ! "$reg_name" ]]; then
+	echo "you are not running this program in proper location. this may cause trouble for codes that use this function: DIR_NAME"
+	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
+else
+	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
+fi
+export PATH=$backup_PATH # revert back to default
+readonly FULL_NAME=$(echo $DIR_NAME/$BASE_NAME)
+print_PARTIAL_DIR_NAME(){
+	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
+}
+readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 error(){
 	message=$@
 	if [[ "$(echo $message | grep \")" ]]; then
@@ -55,7 +82,6 @@ error(){
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
 	fi
 }
-
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
@@ -78,7 +104,6 @@ print_RANDOM_BYTE(){
 		echo $rand #output
 	fi
 }
-
 # Checkers 1.0
 # You can type in any strings you would want it to print when called.
 # It will start by checking from chk1, and its limit is up to chk20.
