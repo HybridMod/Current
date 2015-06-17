@@ -3,7 +3,6 @@
 
 #NOTES (Sign off please)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
-#init_sleep() I don't think that do anything, because sleep only that script and not others (~Deic)
 
 #Master version
 ver_revision="2.2"
@@ -295,22 +294,6 @@ body(){
 	done
 }
 
-#########TO BE REVISED
-init_sleep(){
-	if [ ! -f $initd_dir/50sleep ]
-	then
-		touch $initd_dir/50sleep
-		chmod 755 $initd_dir/50sleep
-cat > $initd_dir/50sleep <<EOF
-#!/system/bin/sh
-
-sleep 10
-
-EOF
-	fi
-}
-################
-
 drop_caches(){
 	clear
 	echo "${yellow}Dropping caches...$nc"
@@ -325,14 +308,14 @@ drop_caches(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
-		init_sleep
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<EOF
 #!/system/bin/sh
 
-sync
-echo 3 > /proc/sys/vm/drop_caches
+sleep 15
+
+sync; echo 3 > /proc/sys/vm/drop_caches
 
 EOF
 	clear
@@ -351,7 +334,6 @@ clean_up(){
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
 	 	script_dir=$initd_dir
-		init_sleep
 	else
 	 	script_dir=$tmp_dir
 	fi
@@ -360,6 +342,8 @@ clean_up(){
 	chmod 755 $script_dir/99clean_up
 cat > $script_dir/99clean_up <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
@@ -449,7 +433,6 @@ vm_tune(){
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
 	 	script_dir=$initd_dir
-		init_sleep
 	else
 	 	script_dir=$tmp_dir
 	fi
@@ -458,6 +441,8 @@ vm_tune(){
 	chmod 755 $script_dir/75vm
 cat > $script_dir/75vm <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 echo 80 > /proc/sys/vm/swappiness
 echo 10 > /proc/sys/vm/vfs_cache_pressure
@@ -530,11 +515,12 @@ lmk_apply(){
 	sleep 1
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
-		init_sleep
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
 cat > $initd_dir/95lmk <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
 
@@ -554,7 +540,6 @@ network_tune(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
-		init_sleep
 	else
 	 	script_dir=$tmp_dir
 	fi
@@ -563,6 +548,8 @@ network_tune(){
 	chmod 755 $script_dir/56net
 cat > $script_dir/56net <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 #TCP
 echo 2097152 > /proc/sys/net/core/wmem_max
@@ -672,11 +659,12 @@ setcpufreq(){
 	sleep 1
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
-		init_sleep
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
 cat > $initd_dir/69cpu_freq <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $newminfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
@@ -713,11 +701,12 @@ setgov(){
 	sleep 1
 
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
-		init_sleep
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
 cat > $initd_dir/70cpu_gov <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
@@ -758,11 +747,12 @@ setiosched(){
 
 	if [ $perm == 1 ] && [ $initd == 1 ]
 	then
-		init_sleep
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
 cat > $initd_dir/71io_sched <<EOF
 #!/system/bin/sh
+
+sleep 15
 
 for j in /sys/block/*/queue/scheduler
 do
@@ -881,8 +871,7 @@ catalyst_inject(){
 
 	while true
 	do
-		sync
-  		echo 3 > /proc/sys/vm/drop_caches
+		sync; echo 3 > /proc/sys/vm/drop_caches
 		sleep $catalyst_time
 	done
 }
@@ -911,7 +900,7 @@ sensor_fix(){
 	echo -n "> "
 	read sensorfix_opt
 	case $sensorfix_opt in
-		y|Y ) rm -rf /data/misc/sensor && echo "done!" && body;;
+		y|Y ) rm -rf /data/misc/sensor; echo "done!"; body;;
 		n|N ) body;;
 		* ) checkers; options;;
 	esac
