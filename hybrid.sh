@@ -13,7 +13,7 @@ initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 perm=`getprop persist.hybrid.permanent`
 catalyst_time=`getprop persist.hybrid.catalyst.time`
 
-#links
+#symlinks
 tmp_dir="/data/local/tmp/"
 initd_dir="/system/etc/init.d/"
 
