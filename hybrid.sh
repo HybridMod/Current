@@ -3,10 +3,11 @@
 
 #NOTES (Sign off please)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
-#init_sleep() I don't think that do anything, because sleep only that script and not others ( ~Deic
+#init_sleep() I don't think that do anything, because sleep only that script and not others (~Deic)
+#$CUSTOM_DIR needs reviewing. (~Diamond)
 
 #Master version
-ver_revision="2.0"
+ver_revision="2.1"
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
@@ -54,6 +55,7 @@ error(){
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
 	fi
 }
+
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
@@ -76,6 +78,7 @@ print_RANDOM_BYTE(){
 		echo $rand #output
 	fi
 }
+
 # Checkers 1.0
 # You can type in any strings you would want it to print when called.
 # It will start by checking from chk1, and its limit is up to chk20.
