@@ -4,7 +4,6 @@
 #NOTES (Sign off please)
 #sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
 #init_sleep() I don't think that do anything, because sleep only that script and not others (~Deic)
-#$CUSTOM_DIR needs reviewing. (~Diamond)
 
 #Master version
 ver_revision="2.1"
