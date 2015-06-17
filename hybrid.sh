@@ -2,7 +2,7 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#sensor_fix() needs to be added to the options menu / somewhere else (~Diamond)
+#-Nothing
 
 #Master version
 ver_revision="2.2"
@@ -893,20 +893,24 @@ catalyst_time_cfg(){
 	catalyst_control
 }
 
-sensor_fix(){
+options(){
 	clear
-	#this is a fix for dirty flashers with bad sensors.
-	echo "Wipe sensor data? [Y/N]"
+	echo "${yellow}Options$nc"
+	echo " I|Install options"
+	echo " S|Sensor fix"
+	echo " B|Back"
+	echo
 	echo -n "> "
-	read sensorfix_opt
-	case $sensorfix_opt in
-		y|Y ) rm -rf /data/misc/sensor; echo "done!"; body;;
-		n|N ) body;;
+	read options_opt
+	case $options_opt in
+	 	i|I ) install_options;;
+		s|S ) sensor_fix;;
+	 	b|B ) body;;
 		* ) checkers; options;;
 	esac
 }
 
-options(){
+install_options(){
 	clear
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
@@ -916,27 +920,40 @@ options(){
 	 	echo " B|Back"
 	 	echo
 	 	echo -n "> "
-	 	read options_opt
-	 	case $options_opt in
+	 	read install_options_opt
+	 	case $install_options_opt in
 	 	 	t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
 		 	p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
 	 	 	b|B ) body;;
-		 	* ) checkers; options;;
+		 	* ) checkers; install_options;;
 	 	esac
 	else
-	options_first
+	first_install
 	fi
 }
 
-options_first(){
+first_install(){
 	echo
 	echo "${cyan}You can change it in Options later$nc"
 	echo
 	echo -n "> "
-	read options_first_opt
-	case $options_first_opt in
+	read first_install_opt
+	case $first_install_opt in
 		t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
 		p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
+		* ) checkers; install_options;;
+	esac
+}
+
+sensor_fix(){
+	clear
+	#this is a fix for dirty flashers with bad sensors.
+	echo "Wipe sensor data? [Y/N]"
+	echo -n "> "
+	read sensorfix_opt
+	case $sensorfix_opt in
+		y|Y ) rm -rf /data/misc/sensor; echo "done!"; body;;
+		n|N ) body;;
 		* ) checkers; options;;
 	esac
 }
@@ -998,7 +1015,7 @@ safe_exit(){
 clear
 
 if [ "$perm" = "" ]; then
-	options
+	install_options
 elif [ "$catalyst_time" = "" ]; then
 	setprop persist.hybrid.catalyst.time 60
 fi
