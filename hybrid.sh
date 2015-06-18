@@ -82,6 +82,10 @@ error(){
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
 	fi
 }
+# Use /dev/urandom for print_RANDOM_BYTE.
+use_urand=1
+# invert print_RANDOM_BYTE.
+invert_rand=1
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
