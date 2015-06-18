@@ -4,7 +4,7 @@
 #-Nothing
 
 #Master version
-ver_revision="2.2_test"
+ver_revision="2.2"
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
