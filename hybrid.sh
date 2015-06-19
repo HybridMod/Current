@@ -4,7 +4,7 @@
 #Syntax error in some place, surely is a forgotten " or similar ( ~Deic)
 
 #Master version
-ver_revision="2.2_test"
+ver_revision="2.2"
 
 #SizeOf
 FILENAME=/sdcard1/hybrid.sh #officially suggested location
