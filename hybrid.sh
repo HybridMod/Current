@@ -306,11 +306,13 @@ drop_caches(){
 
 	sync
 
-	function to_drop_caches(){
-		echo $1 > /proc/sys/vm/drop_caches
-	}
+	# function to_drop_caches(){
+	# 	echo $1 > /proc/sys/vm/drop_caches
+	# }
 
-	echo_drop_caches 3
+	# echo_drop_caches 3
+
+	echo 3 > /proc/sys/vm/drop_caches
 
 	clear
 	echo "${yellow}Caches dropped!$nc"
