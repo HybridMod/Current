@@ -305,14 +305,13 @@ drop_caches(){
 	sleep 1
 
 	sync
+	echo 3 > /proc/sys/vm/drop_caches
 
 	# function to_drop_caches(){
 	# 	echo $1 > /proc/sys/vm/drop_caches
 	# }
 
 	# to_drop_caches 3
-
-	echo 3 > /proc/sys/vm/drop_caches
 
 	clear
 	echo "${yellow}Caches dropped!$nc"
