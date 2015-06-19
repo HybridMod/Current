@@ -5,7 +5,7 @@
 #Master version
 ver_revision="2.2"
 
-#sizeof
+#SizeOf
 FILENAME=/sdcard1/hybrid.sh #officially suggested location
 FILESIZE=$(stat -c%s "$FILENAME") #stat probably dosnt exist as a binary in android
 
