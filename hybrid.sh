@@ -1,7 +1,6 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#-Nothing
 
 #Master version
 ver_revision="2.2"
@@ -84,6 +83,7 @@ error(){
 use_urand=1
 # invert print_RANDOM_BYTE.
 invert_rand=1
+
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
@@ -106,6 +106,7 @@ print_RANDOM_BYTE(){
 		echo $rand #output
 	fi
 }
+
 # Checkers 1.0
 # You can type in any strings you would want it to print when called.
 # It will start by checking from chk1, and its limit is up to chk20.
