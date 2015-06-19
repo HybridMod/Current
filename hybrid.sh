@@ -1,8 +1,6 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#bb_apg_2 not found, checkers is fucked...( ~Deic)
-#fixed! (~hoholee12)
 
 #code snippets from standard.sh by hoholee12
 readonly version="test"
