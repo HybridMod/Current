@@ -1085,7 +1085,8 @@ about_info(){
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
 	echo "Deic : Maintainer"
-	echo "Hoholee12/Wedgess/Imbawind/Luca020400 : Code $yellow:)$nc"
+	echo "Hoholee12 : Maintainer"
+	echo "Wedgess/Imbawind/Luca020400 : Code $yellow:)$nc"
 
 	echo
 	echo "${yellow}Links:$nc"
