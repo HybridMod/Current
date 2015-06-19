@@ -1,6 +1,7 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
+#dont use $game_time as a variable, change to something else (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3-staging"
