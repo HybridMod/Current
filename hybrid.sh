@@ -877,12 +877,15 @@ catalyst_control(){
 
 catalyst_inject(){
 	clear
+	echo
 	echo "Please leave the terminal emulator running"
 	echo "This will continue to run untill close the terminal"
+	echo
 
 	while true
 	do
-		sync; echo 3 > /proc/sys/vm/drop_caches
+		sync
+		echo 3 > /proc/sys/vm/drop_caches
 		sleep $catalyst_time
 	done
 }
@@ -1016,6 +1019,7 @@ custom_reboot(){
 	sleep 1
 	sync
 	reboot
+	echo "annndd its gone :P"
 }
 
 safe_exit(){
