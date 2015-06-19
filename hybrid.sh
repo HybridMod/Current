@@ -125,6 +125,8 @@ checkers(){
 	random=$((random%i+1))
 	echo -n -e "\r$(eval echo \$chk$random) "
 }
+
+#Debug Shell
 debug_shell(){
 	echo "welcome to the debug_shell program! type in: 'help' for more information."
 	echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
@@ -214,13 +216,12 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 
 
 #SH-OTA v1.2_alpha By Deic & DiamondBond
-
 sh-ota(){
-	#Edit from here
+	#Dynamic - Edit this
 	name="main.sh"
 	cloud="https://main.sh"
 
-	#Don't edit from here
+	#Static - Dont touch this.
 	ota_ext="$EXTERNAL_STORAGE/Download/$name"
 	ota_tmp="/data/local/tmp/$name"
 
@@ -304,7 +305,12 @@ drop_caches(){
 	sleep 1
 
 	sync
-	echo 3 > /proc/sys/vm/drop_caches
+
+	function to_drop_caches(){
+		echo $1 > /proc/sys/vm/drop_caches
+	}
+
+	echo_drop_caches 3
 
 	clear
 	echo "${yellow}Caches dropped!$nc"
