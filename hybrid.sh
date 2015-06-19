@@ -367,22 +367,19 @@ sql_optimize(){
 	echo "${yellow}Optimizing SQLite databases...$nc"
 	sleep 1
 
-	if [ -f /system/xbin/sqlite3 ]
-	then
+	if [ -f /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC=/system/xbin/sqlite3
 	fi
 
-	if [ -f /system/bin/sqlite3 ]
-	then
+	if [ -f /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC=/system/bin/sqlite3
 	fi
 
-	if [ -f /system/sbin/sqlite3 ]
-	then
+	if [ -f /system/sbin/sqlite3 ]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
