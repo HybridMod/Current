@@ -5,6 +5,10 @@
 #Master version
 ver_revision="2.2"
 
+#sizeof
+FILENAME=/sdcard1/hybrid.sh #officially suggested location
+FILESIZE=$(stat -c%s "$FILENAME") #stat probably dosnt exist as a binary in android
+
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 perm=`getprop persist.hybrid.permanent`
@@ -980,7 +984,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!$nc because its < ${bld}50KB!$nc" #outdated
+	echo "But this script is ${cyan}AWESOME!$nc because its only ${bld}$FILESIZE$nc bytes" #outdated
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
