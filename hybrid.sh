@@ -310,7 +310,7 @@ drop_caches(){
 	# 	echo $1 > /proc/sys/vm/drop_caches
 	# }
 
-	# echo_drop_caches 3
+	# to_drop_caches 3
 
 	echo 3 > /proc/sys/vm/drop_caches
 
