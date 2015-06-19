@@ -1,4 +1,3 @@
-#!/system/bin/sh
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
@@ -81,6 +80,10 @@ error(){
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
 	fi
 }
+# Use /dev/urandom for print_RANDOM_BYTE.
+use_urand=1
+# invert print_RANDOM_BYTE.
+invert_rand=1
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
@@ -310,7 +313,7 @@ drop_caches(){
 	then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
-cat > $initd_dir/97cache_drop <<EOF
+cat > $initd_dir/97cache_drop <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -340,7 +343,7 @@ clean_up(){
 
 	touch $script_dir/99clean_up
 	chmod 755 $script_dir/99clean_up
-cat > $script_dir/99clean_up <<EOF
+cat > $script_dir/99clean_up <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -439,7 +442,7 @@ vm_tune(){
 
 	touch $script_dir/75vm
 	chmod 755 $script_dir/75vm
-cat > $script_dir/75vm <<EOF
+cat > $script_dir/75vm <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -517,7 +520,7 @@ lmk_apply(){
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
-cat > $initd_dir/95lmk <<EOF
+cat > $initd_dir/95lmk <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -546,7 +549,7 @@ network_tune(){
 
 	touch $script_dir/56net
 	chmod 755 $script_dir/56net
-cat > $script_dir/56net <<EOF
+cat > $script_dir/56net <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -661,7 +664,7 @@ setcpufreq(){
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
-cat > $initd_dir/69cpu_freq <<EOF
+cat > $initd_dir/69cpu_freq <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -703,7 +706,7 @@ setgov(){
 	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
-cat > $initd_dir/70cpu_gov <<EOF
+cat > $initd_dir/70cpu_gov <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -749,7 +752,7 @@ setiosched(){
 	then
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
-cat > $initd_dir/71io_sched <<EOF
+cat > $initd_dir/71io_sched <<-EOF
 #!/system/bin/sh
 
 sleep 15
@@ -1012,18 +1015,17 @@ safe_exit(){
 	exit
 }
 
+if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
+	shift
+	debug_shell
+fi
+
 clear
 
 if [ "$perm" = "" ]; then
 	install_options
 elif [ "$catalyst_time" = "" ]; then
 	setprop persist.hybrid.catalyst.time 60
-fi
-
-
-if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
-	shift
-	debug_shell
 fi
 
 body
