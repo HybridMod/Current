@@ -285,7 +285,7 @@ drop_caches(){
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<-EOF
@@ -309,8 +309,7 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -352,8 +351,7 @@ EOF
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
 
-	if [ $perm == 1 ]
-	then
+	if [ $permanent == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -384,7 +382,7 @@ sql_optimize(){
 		chmod 755 /sbin/sqlite3
 		SQLLOC=/sbin/sqlite3
 	fi
-	for i in `find / -iname "*.db" 2>/dev/null`
+	for i in `find / -iname "*.db" >/dev/null 2>&1`
 	do
 	 	clear
 		$SQLLOC $i 'VACUUM'
@@ -405,8 +403,7 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -437,7 +434,7 @@ EOF
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ]; then
+	if [ $permanent == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -489,7 +486,7 @@ lmk_apply(){
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
 cat > $initd_dir/95lmk <<-EOF
@@ -513,7 +510,7 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -574,7 +571,7 @@ EOF
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	if [ $perm == 1 ]; then
+	if [ $permanent == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -633,7 +630,7 @@ setcpufreq(){
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
 cat > $initd_dir/69cpu_freq <<-EOF
@@ -675,7 +672,7 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
 cat > $initd_dir/70cpu_gov <<-EOF
@@ -719,8 +716,7 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
 cat > $initd_dir/71io_sched <<-EOF
