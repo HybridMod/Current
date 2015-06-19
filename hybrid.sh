@@ -1,19 +1,20 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#Syntax error in some place, surely is a forgotten " or similar ( ~Deic)
+#Syntax error with bb_2_pass_something, checkers is fucked...( ~Deic)
 
 #Master version
 ver_revision="2.2"
 
 #SizeOf
-FILENAME=/sdcard1/hybrid.sh #officially suggested location
-FILESIZE=$(stat -c%s "$FILENAME") #stat probably dosnt exist as a binary in android
+FILENAME="$EXTERNAL_STORAGE/hybrid.sh" #officially suggested location
+FILESIZE="$(stat -c%s "$FILENAME")" #stat doesn't exist as a binary in android, is a busybox applet.
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 permanent=`getprop persist.hybrid.permanent`
 catalyst_time=`getprop persist.hybrid.catalyst.time`
+zram="0"
 
 #symlinks
 tmp_dir="/data/local/tmp/"
@@ -221,7 +222,7 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 
 body(){
 	while true; do
-		clear
+		#clear
 		echo "$cyan[-=The Hybrid Project=-]$nc"
 		echo
 		echo "${yellow}Menu:$nc"
@@ -233,7 +234,7 @@ body(){
 		echo " 6|Tune my Networks"
 		echo " 7|Kernel Kontrol"
 		if [ -f /dev/block/zram* ]; then
-			zram=1
+			zram="1"
 			echo " 8|zRAM Settings"
 		fi
 		if [ $zram == 0 ]; then
@@ -273,7 +274,7 @@ drop_caches(){
 	echo "${yellow}Dropping caches...$nc"
 	sleep 1
 
-	sync; echo 3 > /proc/sys/vm/drop_caches
+	sync; echo "3" > /proc/sys/vm/drop_caches
 
 	# function to_drop_caches(){
 	# 	echo $1 > /proc/sys/vm/drop_caches
@@ -293,7 +294,7 @@ cat > $initd_dir/97cache_drop <<-EOF
 
 sleep 15
 
-sync; echo 3 > /proc/sys/vm/drop_caches
+sync; echo "3" > /proc/sys/vm/drop_caches
 
 EOF
 	clear
@@ -310,9 +311,9 @@ clean_up(){
 	sleep 1
 
 	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
+	 	script_dir="$initd_dir"
 	else
-	 	script_dir=$tmp_dir
+	 	script_dir="$tmp_dir"
 	fi
 
 	touch $script_dir/99clean_up
@@ -322,27 +323,27 @@ cat > $script_dir/99clean_up <<-EOF
 
 sleep 15
 
-rm -f /cache/*.apk
-rm -f /cache/*.tmp
-rm -f /cache/recovery/*
-rm -f /data/*.log
-rm -f /data/*.txt
-rm -f /data/anr/*.*
-rm -f /data/backup/pending/*.tmp
-rm -f /data/cache/*.*
-rm -f /data/dalvik-cache/*.apk
-rm -f /data/dalvik-cache/*.tmp
-rm -f /data/log/*.*
-rm -f /data/local/*.apk
-rm -f /data/local/*.log
-rm -f /data/local/tmp/*.*
-rm -f /data/last_alog/*
-rm -f /data/last_kmsg/*
-rm -f /data/mlog/*
-rm -f /data/tombstones/*
-rm -f /data/system/dropbox/*
-rm -f /data/system/usagestats/*
-rm -f $EXTERNAL_STORAGE/LOST.DIR/*
+rm -rf /cache/*.apk
+rm -rf /cache/*.tmp
+rm -rf /cache/recovery/*
+rm -rf /data/*.log
+rm -rf /data/*.txt
+rm -rf /data/anr/*.*
+rm -rf /data/backup/pending/*.tmp
+rm -rf /data/cache/*.*
+rm -rf /data/dalvik-cache/*.apk
+rm -rf /data/dalvik-cache/*.tmp
+rm -rf /data/log/*.*
+rm -rf /data/local/*.apk
+rm -rf /data/local/*.log
+rm -rf /data/local/tmp/*.*
+rm -rf /data/last_alog/*
+rm -rf /data/last_kmsg/*
+rm -rf /data/mlog/*
+rm -rf /data/tombstones/*
+rm -rf /data/system/dropbox/*
+rm -rf /data/system/usagestats/*
+rm -rf $EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
 	$script_dir/99clean_up
@@ -368,19 +369,19 @@ sql_optimize(){
 	if [ -f /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
-		SQLLOC=/system/xbin/sqlite3
+		SQLLOC="/system/xbin/sqlite3"
 	fi
 
 	if [ -f /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
-		SQLLOC=/system/bin/sqlite3
+		SQLLOC="/system/bin/sqlite3"
 	fi
 
 	if [ -f /system/sbin/sqlite3 ]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
-		SQLLOC=/sbin/sqlite3
+		SQLLOC="/sbin/sqlite3"
 	fi
 	for i in `find / -iname "*.db" >/dev/null 2>&1`
 	do
@@ -404,9 +405,9 @@ vm_tune(){
 	sleep 1
 
 	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
+	 	script_dir="$initd_dir"
 	else
-	 	script_dir=$tmp_dir
+	 	script_dir="$tmp_dir"
 	fi
 
 	touch $script_dir/75vm
@@ -416,16 +417,16 @@ cat > $script_dir/75vm <<-EOF
 
 sleep 15
 
-echo 80 > /proc/sys/vm/swappiness
-echo 10 > /proc/sys/vm/vfs_cache_pressure
-echo 3000 > /proc/sys/vm/dirty_expire_centisecs
-echo 500 > /proc/sys/vm/dirty_writeback_centisecs
-echo 90 > /proc/sys/vm/dirty_ratio
-echo 70 > /proc/sys/vm/dirty_background_ratio
-echo 1 > /proc/sys/vm/overcommit_memory
-echo 150 > /proc/sys/vm/overcommit_ratio
-echo 4096 > /proc/sys/vm/min_free_kbytes
-echo 1 > /proc/sys/vm/oom_kill_allocating_task
+echo "80" > /proc/sys/vm/swappiness
+echo "10" > /proc/sys/vm/vfs_cache_pressure
+echo "3000" > /proc/sys/vm/dirty_expire_centisecs
+echo "500" > /proc/sys/vm/dirty_writeback_centisecs
+echo "90" > /proc/sys/vm/dirty_ratio
+echo "70" > /proc/sys/vm/dirty_background_ratio
+echo "1" > /proc/sys/vm/overcommit_memory
+echo "150" > /proc/sys/vm/overcommit_ratio
+echo "4096" > /proc/sys/vm/min_free_kbytes
+echo "1" > /proc/sys/vm/oom_kill_allocating_task
 
 EOF
 	$script_dir/75vm
@@ -457,7 +458,7 @@ lmk_tune_opt(){
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
+		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile="$lmk_opt"; lmk_apply;;
 		r|R ) body;;
 		* ) checkers; lmk_tune_opt;;
 	esac
@@ -466,21 +467,21 @@ lmk_tune_opt(){
 lmk_apply(){
 	clear
 	if [ $lmk_profile == b ] || [ $lmk_profile = B ]; then
- minfree_array='1024,2048,4096,8192,12288,16384'
+    minfree_array="1024,2048,4096,8192,12288,16384"
 	fi
 
 	if [ $lmk_profile == m ] || [ $lmk_profile = M ]; then
-	minfree_array='1536,2048,4096,5120,5632,6144'
+    minfree_array="1536,2048,4096,5120,5632,6144"
 	fi
 
 	if [ $lmk_profile == g ] || [ $lmk_profile = G ]; then
-	 minfree_array='10393,14105,18188,27468,31552,37120'
+    minfree_array="10393,14105,18188,27468,31552,37120"
 	fi
 
 	echo "${yellow}Optimizing LMK...$nc"
 	sleep 1
 
-	echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
+	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 
 	clear
 	echo "${yellow}LMK Optimized!$nc"
@@ -494,7 +495,7 @@ cat > $initd_dir/95lmk <<-EOF
 
 sleep 15
 
-echo $minfree_array > /sys/module/lowmemorykiller/parameters/minfree
+echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 
 EOF
 	 	clear
@@ -511,9 +512,9 @@ network_tune(){
 	sleep 1
 
 	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
+	 	script_dir="$initd_dir"
 	else
-	 	script_dir=$tmp_dir
+	 	script_dir="$tmp_dir"
 	fi
 
 	touch $script_dir/56net
@@ -524,45 +525,45 @@ cat > $script_dir/56net <<-EOF
 sleep 15
 
 #TCP
-echo 2097152 > /proc/sys/net/core/wmem_max
-echo 2097152 > /proc/sys/net/core/rmem_max
-echo 20480 > /proc/sys/net/core/optmem_max
-echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-echo 6144 > /proc/sys/net/ipv4/udp_rmem_min
-echo 6144 > /proc/sys/net/ipv4/udp_wmem_min
-echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_rmem
-echo 6144 87380 2097152 > /proc/sys/net/ipv4/tcp_wmem
-echo 0 > /proc/sys/net/ipv4/tcp_timestamps
-echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
-echo 1 > /proc/sys/net/ipv4/tcp_sack
-echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
-echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
-echo 156 > /proc/sys/net/ipv4/tcp_keepalive_intvl
-echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-echo 0 > /proc/sys/net/ipv4/tcp_ecn
-echo 360000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
-echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
-echo 1 > /proc/sys/net/ipv4/route/flush
-echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
-echo 524288 > /proc/sys/net/core/wmem_max
-echo 524288 > /proc/sys/net/core/rmem_max
-echo 110592 > /proc/sys/net/core/rmem_default
-echo 110592 > /proc/sys/net/core/wmem_default
+echo "2097152" > /proc/sys/net/core/wmem_max
+echo "2097152" > /proc/sys/net/core/rmem_max
+echo "20480" > /proc/sys/net/core/optmem_max
+echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
+echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
+echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+echo "1" > /proc/sys/net/ipv4/tcp_sack
+echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
+echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
+echo "0" > /proc/sys/net/ipv4/tcp_ecn
+echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
+echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
+echo "1" > /proc/sys/net/ipv4/route/flush
+echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+echo "524288" > /proc/sys/net/core/wmem_max
+echo "524288" > /proc/sys/net/core/rmem_max
+echo "110592" > /proc/sys/net/core/rmem_default
+echo "110592" > /proc/sys/net/core/wmem_default
 
 #IPv4
-echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter
-echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
-echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects
-echo 0 > /proc/sys/net/ipv4/conf/default/accept_redirects
-echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
-echo 0 > /proc/sys/net/ipv4/conf/default/send_redirects
-echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route
-echo 0 > /proc/sys/net/ipv4/conf/default/accept_source_route
-echo 1 > /proc/sys/net/ipv4/conf/all/log_martians
-echo 1 > /proc/sys/net/ipv4/conf/default/log_martians
+echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
+echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
+echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
+echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
+echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
+echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
+echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
 EOF
 	$script_dir/56net
@@ -623,8 +624,8 @@ setcpufreq(){
 	echo -n "New Max Freq: "; read newmaxfreq
 	echo -n "New Min Freq: "; read newminfreq
 
-	echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo $newminfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 	clear
 	echo "${yellow}New Freq's applied!$nc"
@@ -638,8 +639,8 @@ cat > $initd_dir/69cpu_freq <<-EOF
 
 sleep 15
 
-echo $newmaxfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-echo $newminfreq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 EOF
 	 	clear
@@ -841,7 +842,7 @@ catalyst_inject(){
 	echo
 
 	while true; do
-	 	sync; echo 3 > /proc/sys/vm/drop_caches
+	 	sync; echo "3" > /proc/sys/vm/drop_caches
 		sleep $catalyst_time
 	done
 }
@@ -922,8 +923,8 @@ sensor_fix(){
 	echo -n "> "
 	read sensor_fix_opt
 	case $sensor_fix_opt in
-		y|Y ) rm -rf /data/misc/sensor; echo "done!"; body;;
-		n|N ) body;;
+		y|Y ) rm -rf /data/misc/sensor; echo "done!"; options;;
+		n|N ) options;;
 		* ) checkers; options;;
 	esac
 }
@@ -936,7 +937,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
-	#echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes" #outdated
+	echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes" #outdated
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
@@ -980,19 +981,18 @@ custom_reboot(){
 
 safe_exit(){
 	clear
-	mount -o remount,ro /system
-	mount -o remount,ro /data
+	mount -o remount,ro /system >/dev/null 2>&1
+	mount -o remount,ro /data >/dev/null 2>&1
 	exit
 }
 
-if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
+if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-clear
 mount -o remount,rw /system
-mount -o remount,rw /data >/dev/null 2>&1
+mount -o remount,rw /data
 
 if [ $permanent == "" ]; then
 	install_options
