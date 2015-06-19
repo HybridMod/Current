@@ -980,7 +980,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!$nc because its < ${bld}1MB!$nc"
+	echo "But this script is ${cyan}AWESOME!$nc because its < ${bld}50KB!$nc" #outdated
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
