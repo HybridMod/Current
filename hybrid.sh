@@ -3,7 +3,7 @@
 #NOTES (Sign off please)
 
 #code snippets from standard.sh by hoholee12
-readonly version="test"
+readonly version="2.3-staging"
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
