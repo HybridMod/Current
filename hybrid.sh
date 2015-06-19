@@ -1,6 +1,7 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
+#Syntax error in some place, surely is a forgotten " or similar ( ~Deic)
 
 #Master version
 ver_revision="2.2"
@@ -11,7 +12,7 @@ FILESIZE=$(stat -c%s "$FILENAME") #stat probably dosnt exist as a binary in andr
 
 #options
 initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
-perm=`getprop persist.hybrid.permanent`
+permanent=`getprop persist.hybrid.permanent`
 catalyst_time=`getprop persist.hybrid.catalyst.time`
 
 #symlinks
@@ -218,41 +219,6 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 	done
 }
 
-
-#SH-OTA v1.2_alpha By Deic & DiamondBond
-sh-ota(){
-	#Dynamic - Edit this
-	name="main.sh"
-	cloud="https://main.sh"
-
-	#Static - Dont touch this.
-	ota_ext="$EXTERNAL_STORAGE/Download/$name"
-	ota_tmp="/data/local/tmp/$name"
-
-	clear
-	if [ -f /system/bin/curl ] || [ -f /system/xbin/curl ]; then
-		curl -k -L $ota_tmp $cloud 1>/dev/null
-	else
-		am start android.intent.action.VIEW com.android.browser $cloud 1>/dev/null
-	fi
-
-	run(){
-	if [ -f $ota_ext ]; then
-		am force-stop com.android.browser
-		cp -rf $ota_ext $ota_tmp
-		sleep 2
-		chmod 755 $ota_tmp
-		$SHELL -c $ota_tmp
-	else
-		run
-	fi
-	}
-
-exit
-}
-
-#sh-ota
-
 body(){
 	while true; do
 		clear
@@ -267,13 +233,12 @@ body(){
 		echo " 6|Tune my Networks"
 		echo " 7|Kernel Kontrol"
 		if [ -f /dev/block/zram* ]; then
-			zram=0
+			zram=1
 			echo " 8|zRAM Settings"
 		fi
 		if [ $zram == 0 ]; then
 			echo " 8|Game Booster"
 		else
-
 			echo " 9|Game Booster"
 		fi
 		echo
@@ -308,8 +273,7 @@ drop_caches(){
 	echo "${yellow}Dropping caches...$nc"
 	sleep 1
 
-	sync
-	echo 3 > /proc/sys/vm/drop_caches
+	sync; echo 3 > /proc/sys/vm/drop_caches
 
 	# function to_drop_caches(){
 	# 	echo $1 > /proc/sys/vm/drop_caches
@@ -321,8 +285,7 @@ drop_caches(){
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [ $perm == 1 ] && [ $initd == 1 ]
-	then
+	if [ $perm == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<-EOF
@@ -404,21 +367,21 @@ sql_optimize(){
 	echo "${yellow}Optimizing SQLite databases...$nc"
 	sleep 1
 
-	if [ -e /system/xbin/sqlite3 ]
+	if [ -f /system/xbin/sqlite3 ]
 	then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC=/system/xbin/sqlite3
 	fi
 
-	if [ -e /system/bin/sqlite3 ]
+	if [ -f /system/bin/sqlite3 ]
 	then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC=/system/bin/sqlite3
 	fi
 
-	if [ -e /system/sbin/sqlite3 ]
+	if [ -f /system/sbin/sqlite3 ]
 	then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
@@ -509,11 +472,11 @@ lmk_tune_opt(){
 lmk_apply(){
 	clear
 	if [ $lmk_profile == b ] || [ $lmk_profile = B ]; then
-		minfree_array='1024,2048,4096,8192,12288,16384'
+ minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
 	if [ $lmk_profile == m ] || [ $lmk_profile = M ]; then
-	 minfree_array='1536,2048,4096,5120,5632,6144'
+	minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
 	if [ $lmk_profile == g ] || [ $lmk_profile = G ]; then
@@ -751,8 +714,7 @@ setiosched(){
 	echo
 	echo -n "New Scheduler: "; read newiosched
 
-	for j in /sys/block/*/queue/scheduler
-	do
+	for j in /sys/block/*/queue/scheduler; do
 	 	echo "$newiosched" > $j
 	done
 
@@ -769,8 +731,7 @@ cat > $initd_dir/71io_sched <<-EOF
 
 sleep 15
 
-for j in /sys/block/*/queue/scheduler
-do
+for j in /sys/block/*/queue/scheduler; do
 	echo "$newiosched" > dir
 done
 
@@ -886,10 +847,8 @@ catalyst_inject(){
 	echo "This will continue to run untill close the terminal"
 	echo
 
-	while true
-	do
-		sync
-		echo 3 > /proc/sys/vm/drop_caches
+	while true; do
+	 	sync; echo 3 > /proc/sys/vm/drop_caches
 		sleep $catalyst_time
 	done
 }
@@ -933,15 +892,15 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ "$perm" = "0" ] || [ "$perm" = "1" ]; then
+	if [ $permanent == 0 ] || [ $permanent == 1 ]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
 	 	echo -n "> "
 	 	read install_options_opt
 	 	case $install_options_opt in
-	 	 	t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
-		 	p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
+	 	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; options;;
+		 	p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; options;;
 	 	 	b|B ) body;;
 		 	* ) checkers; install_options;;
 	 	esac
@@ -957,8 +916,8 @@ first_install(){
 	echo -n "> "
 	read first_install_opt
 	case $first_install_opt in
-		t|T ) setprop persist.hybrid.perm 0; clear; echo "Done"; sleep 1; body;;
-		p|P ) setprop persist.hybrid.perm 1; clear; echo "Done"; sleep 1; body;;
+		t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; body;;
+		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; body;;
 		* ) checkers; install_options;;
 	esac
 }
@@ -968,8 +927,8 @@ sensor_fix(){
 	#this is a fix for dirty flashers with bad sensors.
 	echo "Wipe sensor data? [Y/N]"
 	echo -n "> "
-	read sensorfix_opt
-	case $sensorfix_opt in
+	read sensor_fix_opt
+	case $sensor_fix_opt in
 		y|Y ) rm -rf /data/misc/sensor; echo "done!"; body;;
 		n|N ) body;;
 		* ) checkers; options;;
@@ -984,7 +943,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!$nc because its only ${bld}$FILESIZE$nc bytes" #outdated
+	#echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes" #outdated
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
@@ -1001,8 +960,8 @@ about_info(){
 	echo -n "> "
 	read about_info_opt
 	case $about_info_opt in
-	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" 1>/dev/null; about_info;;
-	 	s|S ) am start "https://github.com/HybridMod" 1>/dev/null; about_info;;
+	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1; about_info;;
+	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1; about_info;;
 	 	b|B ) body;;
 	 	* ) checkers; about_info;;
 	esac
@@ -1028,6 +987,8 @@ custom_reboot(){
 
 safe_exit(){
 	clear
+	mount -o remount,ro /system
+	mount -o remount,ro /data
 	exit
 }
 
@@ -1037,10 +998,12 @@ if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
 fi
 
 clear
+mount -o remount,rw /system
+mount -o remount,rw /data >/dev/null 2>&1
 
-if [ "$perm" = "" ]; then
+if [ $permanent == "" ]; then
 	install_options
-elif [ "$catalyst_time" = "" ]; then
+elif [ $catalyst_time == "" ]; then
 	setprop persist.hybrid.catalyst.time 60
 fi
 
