@@ -45,7 +45,7 @@ FILESIZE=$(stat -c%s "$FILENAME") #stat doesn't exist as a binary in android, is
 initd=`if [[ -d "$initd_dir" ]]; then echo "1"; else echo "0"; fi`
 install_msg=`if [[ "$permanent" == 1 ]] && [[ "initd" == 1 ]]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi`
 permanent=`getprop persist.hybrid.permanent`
-game_time=`getprop persist.hybrid.game_time`
+interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
 tmp_dir="/data/local/tmp/"
@@ -62,9 +62,6 @@ white='\033[0;97m'
 bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
-
-
-
 
 error(){
 	message=$@
@@ -378,11 +375,20 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 	done
 }
 
+title(){
+	clear
+	echo "$cyan[-=The Hybrid Project=-]$nc"
+	echo
+	if [[ "$permanent" == "" ]]; then
+		sleep 3
+		install_options
+	else
+		body
+	fi
+}
+
 body(){
 	while true; do
-		clear
-		echo "$cyan[-=The Hybrid Project=-]$nc"
-		echo
 		echo "${yellow}Menu:$nc"
 		echo " 1|Instant Boost"
 		echo " 2|Clean up my crap"
@@ -987,20 +993,20 @@ game_inject(){
 
 	while true; do
 	 	sync; echo "3" > /proc/sys/vm/drop_caches
-		sleep $game_time
+		sleep $interval_time
 	done
 }
 
 game_time_cfg(){
 	clear
-	echo "Current rate: $game_time"
+	echo "Current rate: $interval_time"
 	echo "60 - Every minute - Default"
 	echo "3600 - Every hour"
 	echo
 	echo "Please enter a rate in seconds:"
 	echo -n "> "
 	read game_time_val
-	setprop persist.hybrid.game_time $game_time_val
+	setprop persist.hybrid.interval_time $game_time_val
 	clear
 	echo "Time updated!"
 	sleep 1
@@ -1141,8 +1147,8 @@ mount -o remount,rw /data
 
 if [[ "$permanent" == "" ]]; then
 	install_options
-elif [[ "$game_time" == "" ]]; then
-	setprop persist.hybrid.game_time 60
+elif [[ "$interval_time" == "" ]]; then
+	setprop persist.hybrid.interval_time 60
 fi
 
 body
