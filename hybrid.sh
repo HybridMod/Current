@@ -52,8 +52,8 @@ readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 ver_revision="2.3-staging"
 
 #SizeOf
-FILENAME="$FULL_NAME" #use my api
-FILESIZE=$(stat -c%s "$FILENAME") #stat doesn't exist as a binary in android, is a busybox applet.
+FILENAME="$FULL_NAME"
+FILESIZE=$(stat -c%s "$FILENAME")
 
 #options
 initd=`if [[ -d "$initd_dir" ]]; then echo "1"; else echo "0"; fi`
