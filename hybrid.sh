@@ -1,20 +1,20 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#Syntax error with bb_2_pass_something, checkers is fucked...( ~Deic)
+#bb_apg_2 not found, checkers is fucked...( ~Deic)
 
 #Master version
 ver_revision="2.2"
 
 #SizeOf
 FILENAME="$EXTERNAL_STORAGE/hybrid.sh" #officially suggested location
-FILESIZE="$(stat -c%s "$FILENAME")" #stat doesn't exist as a binary in android, is a busybox applet.
+FILESIZE=$(stat -c%s "$FILENAME") #stat doesn't exist as a binary in android, is a busybox applet.
 
 #options
-initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
+initd=`if [[ -d "$initd_dir" ]]; then echo "1"; else echo "0"; fi`
+install_msg=`if [[ "$permanent" == 1 ]] && [[ "initd" == 1 ]]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi`
 permanent=`getprop persist.hybrid.permanent`
-catalyst_time=`getprop persist.hybrid.catalyst.time`
-zram="0"
+game_time=`getprop persist.hybrid.game_time`
 
 #symlinks
 tmp_dir="/data/local/tmp/"
@@ -33,7 +33,7 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 #code snippets from standard.sh by hoholee12
-readonly version=test
+readonly version="test"
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -120,6 +120,7 @@ chk1="what?"
 chk2="i dont understand!"
 chk3="pardon?"
 chk4="are you retarded?"
+chk5="I no understand enchiladas" #xD
 checkers(){
 	for i in $(seq 1 20); do
 		if [[ ! "$(eval echo \$chk$i)" ]]; then
@@ -129,13 +130,13 @@ checkers(){
 	done
 	random=$(print_RANDOM_BYTE)
 	random=$((random%i+1))
-	echo -n -e "\r$(eval echo \$chk$random) "
+	echo -ne "\r$(eval echo \$chk$random) "
 }
 
 #Debug Shell
 debug_shell(){
 	echo "welcome to the debug_shell program! type in: 'help' for more information."
-	echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
+	echo  -ne "\e[1;32mdebug-\e[1;33m$version\e[0m"
 	if [[ "$su_check" == 0 ]]; then
 		echo -n '# '
 	else
@@ -152,7 +153,7 @@ debug_shell(){
 					y_axis=$((random%$(stty size | awk '{print $1}' 2>/dev/null)))
 					random=$(print_RANDOM_BYTE)
 					color=$((random%7+31))
-					echo -e -n "\e[${y_axis};${x_axis}H\e[${color}m0\e[0m"
+					echo -ne "\e[${y_axis};${x_axis}H\e[${color}m0\e[0m"
 				done
 			;;
 			help)
@@ -222,7 +223,7 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 
 body(){
 	while true; do
-		#clear
+		clear
 		echo "$cyan[-=The Hybrid Project=-]$nc"
 		echo
 		echo "${yellow}Menu:$nc"
@@ -233,14 +234,13 @@ body(){
 		echo " 5|Tune my LMK"
 		echo " 6|Tune my Networks"
 		echo " 7|Kernel Kontrol"
-		if [ -f /dev/block/zram* ]; then
+		if [[ -f /dev/block/zram* ]]; then
 			zram="1"
 			echo " 8|zRAM Settings"
-		fi
-		if [ $zram == 0 ]; then
-			echo " 8|Game Booster"
-		else
 			echo " 9|Game Booster"
+		else
+			zram="0"
+			echo " 8|Game Booster"
 		fi
 		echo
 		echo " O|Options"
@@ -259,7 +259,7 @@ body(){
 			6 ) network_tune;;
 			7 ) kernel_kontrol;;
 			8 ) zram_settings;;
-			9 ) catalyst_control;;
+			9 ) game_booster;;
 			o|O ) options;;
 			a|A ) about_info;;
 			r|R ) custom_reboot;;
@@ -286,7 +286,7 @@ drop_caches(){
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<-EOF
@@ -297,9 +297,7 @@ sleep 15
 sync; echo "3" > /proc/sys/vm/drop_caches
 
 EOF
-	clear
-	echo "${yellow}Installed!$nc"
-	sleep 1
+		$install_msg
 	fi
 
 	body
@@ -310,10 +308,10 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir="$initd_dir"
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	 	script_dir=$initd_dir
 	else
-	 	script_dir="$tmp_dir"
+	 	script_dir=$tmp_dir
 	fi
 
 	touch $script_dir/99clean_up
@@ -352,11 +350,7 @@ EOF
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
-	 	clear
-	 	echo "${yellow}Installed!$nc"
-	 	sleep 1
-	fi
+	$install_msg
 
 	body
 }
@@ -366,19 +360,19 @@ sql_optimize(){
 	echo "${yellow}Optimizing SQLite databases...$nc"
 	sleep 1
 
-	if [ -f /system/xbin/sqlite3 ]; then
+	if [[ -f /system/xbin/sqlite3 ]]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC="/system/xbin/sqlite3"
 	fi
 
-	if [ -f /system/bin/sqlite3 ]; then
+	if [[ -f /system/bin/sqlite3 ]]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC="/system/bin/sqlite3"
 	fi
 
-	if [ -f /system/sbin/sqlite3 ]; then
+	if [[ -f /system/sbin/sqlite3 ]]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC="/sbin/sqlite3"
@@ -386,9 +380,9 @@ sql_optimize(){
 	for i in `find / -iname "*.db" >/dev/null 2>&1`
 	do
 	 	clear
-		$SQLLOC $i 'VACUUM'
+		$SQLLOC $i 'VACUUM;'
 		echo "${yellow}Vacuumed:$nc $i"
-		$SQLLOC $i 'REINDEX'
+		$SQLLOC $i 'REINDEX;'
 		echo "${yellow}Reindexed:$nc $i"
 	done
 
@@ -404,10 +398,10 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir="$initd_dir"
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	 	script_dir=$initd_dir
 	else
-	 	script_dir="$tmp_dir"
+	 	script_dir=$tmp_dir
 	fi
 
 	touch $script_dir/75vm
@@ -435,11 +429,7 @@ EOF
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
-	 	clear
-	 	echo "${yellow}Installed!$nc"
-	 	sleep 1
-	fi
+	$install_msg
 
 	body
 }
@@ -458,7 +448,7 @@ lmk_tune_opt(){
 	echo -n "> "
 	read lmk_opt
 	case $lmk_opt in
-		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile="$lmk_opt"; lmk_apply;;
+		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
 		r|R ) body;;
 		* ) checkers; lmk_tune_opt;;
 	esac
@@ -466,15 +456,15 @@ lmk_tune_opt(){
 
 lmk_apply(){
 	clear
-	if [ $lmk_profile == b ] || [ $lmk_profile = B ]; then
+	if [[ "$lmk_profile" == b ]] || [[ "$lmk_profile" = B ]]; then
     minfree_array="1024,2048,4096,8192,12288,16384"
 	fi
 
-	if [ $lmk_profile == m ] || [ $lmk_profile = M ]; then
+	if [[ "$lmk_profile" == m ]] || [[ "$lmk_profile" = M ]]; then
     minfree_array="1536,2048,4096,5120,5632,6144"
 	fi
 
-	if [ $lmk_profile == g ] || [ $lmk_profile = G ]; then
+	if [[ "$lmk_profile" == g ]] || [[ "$lmk_profile" = G ]]; then
     minfree_array="10393,14105,18188,27468,31552,37120"
 	fi
 
@@ -487,7 +477,7 @@ lmk_apply(){
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
 cat > $initd_dir/95lmk <<-EOF
@@ -498,9 +488,7 @@ sleep 15
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 
 EOF
-	 	clear
-		echo "${yellow}Installed!$nc"
-		sleep 1
+		$install_msg
 	fi
 
 	body
@@ -511,10 +499,10 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir="$initd_dir"
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	 	script_dir=$initd_dir
 	else
-	 	script_dir="$tmp_dir"
+	 	script_dir=$tmp_dir
 	fi
 
 	touch $script_dir/56net
@@ -572,11 +560,7 @@ EOF
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
-	 	clear
-	 	echo "${yellow}Installed!$nc"
-	 	sleep 1
-	fi
+	$install_msg
 
 	body
 }
@@ -587,14 +571,15 @@ kernel_kontrol(){
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
-	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
+	if [[ -d /sys/devices/platform/kcal_ctrl.0/ ]]; then
+		kcal="1"
 	 	echo " 4|View KCal Values"
 	fi
 	echo " B|Back"
 	echo
 	echo -n "> "
-	read kk_opt
-	case $kk_opt in
+	read kernel_kontrol_opt
+	case $kernel_kontrol_opt in
 		1) setcpufreq;;
 		2) setgov;;
 		3) setiosched;;
@@ -631,7 +616,7 @@ setcpufreq(){
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
 cat > $initd_dir/69cpu_freq <<-EOF
@@ -643,9 +628,7 @@ echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 EOF
-	 	clear
-		echo "${yellow}Installed!$nc"
-	 	sleep 1
+	 	$install_msg
 	fi
 
 	kernel_kontrol
@@ -673,7 +656,7 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
 cat > $initd_dir/70cpu_gov <<-EOF
@@ -684,9 +667,7 @@ sleep 15
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 EOF
-	 	clear
-		echo "${yellow}Installed!$nc"
-	 	sleep 1
+	 	$install_msg
 	fi
 
 	kernel_kontrol
@@ -717,7 +698,7 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
 cat > $initd_dir/71io_sched <<-EOF
@@ -732,9 +713,7 @@ done
 EOF
 		sed -i 's/dir/$j/' $initd_dir/71io_sched
 
-	 	clear
-		echo "${yellow}Installed!$nc"
-	 	sleep 1
+	 	$install_msg
 	fi
 
 	kernel_kontrol
@@ -742,7 +721,7 @@ EOF
 
 kcal(){
 	clear
-	if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]; then
+	if [[ "$kcal" == "" ]]; then
 	 	checkers
 	 	kernel_kontrol
 	else
@@ -761,8 +740,8 @@ kcal(){
 
 zram_settings(){
 	clear
-	if [ $zram == 0 ]; then
-	 	catalyst_control
+	if [[ "$zram" == 0 ]]; then
+	 	game_booster
 	else
 	 	echo "${yellow}zRAM Options:$nc"
 	 	echo " 1|Disable zRAM"
@@ -770,31 +749,14 @@ zram_settings(){
 	 	echo " B|Back"
 	 	echo
 	 	echo -n "> "
-	 	read options_opt
-	 	case $options_opt in
+	 	read zram_settings_opt
+	 	case $zram_settings_opt in
 	 		1 ) zram_disable;;
 	 		2 ) zram_enable;;
 	 		b|B ) body;;
 	 		* ) checkers; zram_settings;;
 	 	esac
 	fi
-}
-
-zram_enable(){
-	clear
-	echo "${yellow}Enabling zRAM...$nc"
-	sleep 1
-
-	for l in `ls /dev/block/zram*`
-	do
-		swapon $l
-	done
-
-	clear
-	echo "${yellow}zRAM enabled!$nc"
-	sleep 1
-	
-	zram_settings
 }
 
 zram_disable(){
@@ -814,9 +776,26 @@ zram_disable(){
 	zram_settings
 }
 
-catalyst_control(){
+zram_enable(){
 	clear
-	if [ $zram == 0 ]; then
+	echo "${yellow}Enabling zRAM...$nc"
+	sleep 1
+
+	for l in `ls /dev/block/zram*`
+	do
+		swapon $l
+	done
+
+	clear
+	echo "${yellow}zRAM enabled!$nc"
+	sleep 1
+	
+	zram_settings
+}
+
+game_booster(){
+	clear
+	if [[ "$zram" == 0 ]]; then
 		checkers
 	fi
 	echo "${yellow}Game Booster$nc"
@@ -827,14 +806,14 @@ catalyst_control(){
 	echo -n "> "
 	read game_booster_opt
 	case $game_booster_opt in
-		1 ) catalyst_inject;;
-		2 ) catalyst_time_cfg;;
+		1 ) game_inject;;
+		2 ) game_time_cfg;;
 		b|B ) body;;
-		* ) checkers; catalyst_control;;
+		* ) checkers; game_booster;;
 	esac
 }
 
-catalyst_inject(){
+game_inject(){
 	clear
 	echo
 	echo "Please leave the terminal emulator running"
@@ -843,25 +822,25 @@ catalyst_inject(){
 
 	while true; do
 	 	sync; echo "3" > /proc/sys/vm/drop_caches
-		sleep $catalyst_time
+		sleep $game_time
 	done
 }
 
-catalyst_time_cfg(){
+game_time_cfg(){
 	clear
-	echo "Current rate: $catalyst_time"
+	echo "Current rate: $game_time"
 	echo "60 - Every minute - Default"
 	echo "3600 - Every hour"
 	echo
 	echo "Please enter a rate in seconds:"
 	echo -n "> "
-	read catalyst_time_val
-	setprop persist.hybrid.catalyst.time $catalyst_time_val
+	read game_time_val
+	setprop persist.hybrid.game_time $game_time_val
 	clear
 	echo "Time updated!"
 	sleep 1
 	
-	catalyst_control
+	game_booster
 }
 
 options(){
@@ -886,7 +865,7 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ $permanent == 0 ] || [ $permanent == 1 ]; then
+	if [[ "$permanent" == 0 ]] || [[ "$permanent" == 1 ]]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
@@ -954,8 +933,8 @@ about_info(){
 	echo -n "> "
 	read about_info_opt
 	case $about_info_opt in
-	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1; about_info;;
-	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1; about_info;;
+	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" >/dev/null 2>&1; about_info;;
+	 	s|S ) am start "https://github.com/HybridMod" >/dev/null 2>&1; about_info;;
 	 	b|B ) body;;
 	 	* ) checkers; about_info;;
 	esac
@@ -986,7 +965,7 @@ safe_exit(){
 	exit
 }
 
-if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
+if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
@@ -994,10 +973,10 @@ fi
 mount -o remount,rw /system
 mount -o remount,rw /data
 
-if [ $permanent == "" ]; then
+if [[ "$permanent" == "" ]]; then
 	install_options
-elif [ $catalyst_time == "" ]; then
-	setprop persist.hybrid.catalyst.time 60
+elif [[ "$game_time" == "" ]]; then
+	setprop persist.hybrid.game_time 60
 fi
 
 body
