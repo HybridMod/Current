@@ -3,6 +3,7 @@
 #NOTES (Sign off please)
 #Issues (presentation):
 #	~ Script starts off with Temp / Perm selection - good, but looks ugly, we should put the hybrid title above (~Diamond)
+#Test note (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3-staging"
