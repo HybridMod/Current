@@ -286,7 +286,8 @@ checkers(){
 	done
 	random=$(print_RANDOM_BYTE)
 	random=$((random%i+1))
-	echo -ne "\r$(eval echo \$chk$random) "
+	echo -ne "\r$(eval echo \$chk$random)"
+	sleep 1
 }
 
 #Debug Shell
