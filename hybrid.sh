@@ -239,7 +239,7 @@ body(){
 			zram="1"
 			echo " 8|zRAM Settings"
 		fi
-		if [ $zram == 0 ]; then
+		if [ "$zram" == 0 ]; then
 			echo " 8|Game Booster"
 		else
 			echo " 9|Game Booster"
@@ -288,7 +288,7 @@ drop_caches(){
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<-EOF
@@ -312,7 +312,7 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 	 	script_dir="$initd_dir"
 	else
 	 	script_dir="$tmp_dir"
@@ -354,7 +354,7 @@ EOF
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
+	if [ "$permanent" == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -406,7 +406,7 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 	 	script_dir="$initd_dir"
 	else
 	 	script_dir="$tmp_dir"
@@ -437,7 +437,7 @@ EOF
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
+	if [ "$permanent" == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -489,7 +489,7 @@ lmk_apply(){
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
 cat > $initd_dir/95lmk <<-EOF
@@ -513,7 +513,7 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 	 	script_dir="$initd_dir"
 	else
 	 	script_dir="$tmp_dir"
@@ -574,7 +574,7 @@ EOF
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ]; then
+	if [ "$permanent" == 1 ]; then
 	 	clear
 	 	echo "${yellow}Installed!$nc"
 	 	sleep 1
@@ -633,7 +633,7 @@ setcpufreq(){
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
 cat > $initd_dir/69cpu_freq <<-EOF
@@ -675,7 +675,7 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
 cat > $initd_dir/70cpu_gov <<-EOF
@@ -719,7 +719,7 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
+	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
 cat > $initd_dir/71io_sched <<-EOF
@@ -763,7 +763,7 @@ kcal(){
 
 zram_settings(){
 	clear
-	if [ $zram == 0 ]; then
+	if [ "$zram" == 0 ]; then
 	 	catalyst_control
 	else
 	 	echo "${yellow}zRAM Options:$nc"
@@ -818,7 +818,7 @@ zram_disable(){
 
 catalyst_control(){
 	clear
-	if [ $zram == 0 ]; then
+	if [ "$zram" == 0 ]; then
 		checkers
 	fi
 	echo "${yellow}Game Booster$nc"
@@ -888,7 +888,7 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ $permanent == 0 ] || [ $permanent == 1 ]; then
+	if [ "$permanent" == 0 ] || [ "$permanent" == 1 ]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
@@ -996,9 +996,9 @@ fi
 mount -o remount,rw /system
 mount -o remount,rw /data
 
-if [ $permanent == "" ]; then
+if [ "$permanent" == "" ]; then
 	install_options
-elif [ $catalyst_time == "" ]; then
+elif [ "$catalyst_time" == "" ]; then
 	setprop persist.hybrid.catalyst.time 60
 fi
 
