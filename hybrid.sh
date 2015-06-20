@@ -1,10 +1,9 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#dont use $game_time as a variable, change to something else (~Diamond)
 
 #code snippets from standard.sh by hoholee12
-readonly version="2.3-staging"
+readonly version="test"
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -413,8 +412,8 @@ body(){
 			5 ) lmk_tune_opt;;
 			6 ) network_tune;;
 			7 ) kernel_kontrol;;
-			8 ) zram_settings;;
-			9 ) game_booster;;
+			8 ) game_booster;;
+			9 ) game_booster_redirect;;
 			o|O ) options;;
 			a|A ) about_info;;
 			r|R ) custom_reboot;;
@@ -948,11 +947,19 @@ zram_enable(){
 	zram_settings
 }
 
-game_booster(){
-	clear
+game_booster_redirect(){
 	if [[ "$zram" == 0 ]]; then
 		checkers
+	elif [[ "$zram" == 1 ]]; then
+		game_booster
 	fi
+}
+
+game_booster(){
+	if [[ $zram == 1 ]]; then
+		zram_settings
+	fi
+	clear
 	echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
 	echo " [2] Options"
