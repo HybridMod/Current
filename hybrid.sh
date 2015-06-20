@@ -5,7 +5,7 @@
 #generate ascii title art (~Diamond)
 
 #code snippets from standard.sh by hoholee12
-readonly version="2.3-staging"
+readonly version="2.3"
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -32,10 +32,11 @@ readonly FULL_NAME=$(echo $DIR_NAME/$BASE_NAME)
 print_PARTIAL_DIR_NAME(){
 	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
 }
+
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 
 #Master version
-ver_revision="2.2"
+ver_revision="2.3-staging"
 
 #SizeOf
 FILENAME="$FULL_NAME" #use my api
