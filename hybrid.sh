@@ -92,6 +92,159 @@ use_urand=1
 # invert print_RANDOM_BYTE.
 invert_rand=1
 
+# Busybox Applet Generator 2.4
+# You can type in any commands you would want it to check.
+# It will start by checking from cmd1, and its limit is up to cmd224.
+cmd1=dirname
+cmd2=basename
+cmd3=ls
+cmd4=grep
+cmd5=head
+cmd6=awk
+cmd7=cat
+cmd8=pgrep
+cmd9=ps
+cmd10=cp
+cmd11=cut
+cmd= # It notifies the generator how many cmds are available for check. Leave it as blank.
+
+silent_mode= # enabling this will hide errors.
+# This feature might not be compatible with some other multi-call binaries.
+# if similar applets are found and Busybox do not have them, it will still continue but leave out some error messages regarding compatibility issues.
+bb_check= # BB availability.
+bb_apg_2(){
+	if [[ "$1" == -f ]]; then
+		shift
+		used_fopt=1
+	elif [[ "$1" == -g ]]; then
+		shift
+		used_gopt=1
+	fi
+	if [[ "$used_fopt" == 1 ]]||[[ "$used_gopt" == 1 ]]; then
+		silent_mode=1
+		if [[ "$cmd" ]]; then
+			if [[ "$cmd" -lt 0 ]]; then
+				cmd=0
+			fi
+		else
+			cmd=224
+		fi
+		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $i)
+			x=$(echo $i | sed 's/^\$//')
+			export $x=$v #export everything.
+			if [[ "$v" ]]; then
+				unset $x
+			else
+				break #reduce cycle
+			fi
+		done
+		for j in $(seq 1 $cmd); do
+			if [[ ! "$1" ]]; then
+				break
+			fi
+			export cmd$j=$1
+			shift
+		done
+		export cmd=$j #this will reduce more cycles.
+	fi
+	bb_check=0
+	local n i busyboxloc busyboxenv fail
+	if [[ ! "$(busybox)" ]]; then #allow non-Busybox users to continue.
+		bb_check=1
+		if [[ "$silent_mode" != 1 ]]; then
+			echo "Busybox does not exist! Busybox is required for best compatibility!"
+		fi
+		if [[ "$cmd" ]]; then
+			if [[ "$cmd" -lt 0 ]]; then
+				cmd=0
+			fi
+		else
+			cmd=224
+		fi
+		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $i)
+			x=$(echo $i | sed 's/^\$//')
+			export $x=$v #export everything.
+			if [[ "$v" ]]; then
+				if [[ ! "$(which $v)" ]]; then
+					if [[ "$silent_mode" != 1 ]]; then
+						echo "required applet: '$v' does not exist!"
+					fi
+					fail=1 #fail later
+				fi
+			else
+				break #reduce cycle
+			fi
+		done
+	else
+		busyboxloc=$(dirname $(which busybox))
+		n=0
+		for i in $(echo $PATH | sed 's/:/ /g'); do
+			n=$(($n+1))
+			export slot$n=$i
+			if [[ "$i" == "$busyboxloc" ]]; then
+				busyboxenv=slot$n
+			fi
+		done
+		if [[ "$busyboxenv" != slot1 ]]; then
+			export PATH=$(echo -n $busyboxloc
+			for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+				v=$(eval echo $i)
+				if [[ "$v" != "$busyboxloc" ]]; then
+					echo -n ":$v"
+				fi
+			done)
+		fi
+		if [[ "$cmd" ]]; then
+			if [[ "$cmd" -lt 0 ]]; then
+				cmd=0
+			fi
+		else
+			cmd=224
+		fi
+		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $i)
+			x=$(echo $i | sed 's/^\$//')
+			export $x=$v #export everything.
+			if [[ "$v" ]]; then
+				if [[ ! "$(busybox | grep "\<$v\>")" ]]; then
+					if [[ "$silent_mode" != 1 ]]; then
+						echo -n "required applet: '$v' not embedded in Busybox!"
+					fi
+					if [[ ! "$(which $v)" ]]; then
+						if [[ "$silent_mode" != 1 ]]; then
+							echo "...and also does not exist!"
+						fi
+						fail=1 #fail later
+					else
+						if [[ "$silent_mode" != 1 ]]; then
+							echo
+						fi
+					fi
+				fi
+				if [[ ! -e "$busyboxloc"/"$v" ]]; then
+					alias $i="busybox $i"
+				fi
+			else
+				break #reduce cycle
+			fi
+		done
+	fi 2>/dev/null
+	if [[ "$used_gopt" == 1 ]]&&[[ "$bb_check" == 1 ]]; then
+		fail=1 #used_gopt is NOT recommended, unless needed for specific use.
+	fi
+	if [[ "$fail" == 1 ]]; then #the fail manager!
+		if [[ "$used_fopt" == 1 ]]||[[ "$used_gopt" == 1 ]]; then
+			unset used_fopt
+			unset used_gopt
+			return 1
+		fi
+		echo -e "process terminated. \e[1;31m\"error code 1\"\e[0m"
+		return 1
+	fi
+}
+
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
