@@ -2,35 +2,7 @@
 
 #NOTES (Sign off please)
 #Syntax error with bb_2_pass_something, checkers is fucked...( ~Deic)
-
-#Master version
-ver_revision="2.2"
-
-#SizeOf
-FILENAME="$EXTERNAL_STORAGE/hybrid.sh" #officially suggested location
-FILESIZE="$(stat -c%s "$FILENAME")" #stat doesn't exist as a binary in android, is a busybox applet.
-
-#options
-initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
-permanent=`getprop persist.hybrid.permanent`
-catalyst_time=`getprop persist.hybrid.catalyst.time`
-zram="0"
-
-#symlinks
-tmp_dir="/data/local/tmp/"
-initd_dir="/system/etc/init.d/"
-
-#color control
-red='\033[0;31m'
-green='\033[0;32m'
-yellow='\033[0;33m'
-cyan='\033[0;36m'
-white='\033[0;97m'
-
-#formatting control
-bld='\033[0;1m'
-blnk='\033[0;5m'
-nc='\033[0m'
+#can you elaborate what kind of error you are getting in checkerz? (~hoholee12)
 
 #code snippets from standard.sh by hoholee12
 readonly version=test
@@ -61,6 +33,36 @@ print_PARTIAL_DIR_NAME(){
 	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
 }
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
+
+#Master version
+ver_revision="2.2"
+
+#SizeOf
+FILENAME="$FULL_NAME" #use my api. this is why.
+FILESIZE="$(stat -c"%s" "$FILENAME")" #stat doesn't exist as a binary in android, is a busybox applet.
+
+#options
+initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
+permanent=`getprop persist.hybrid.permanent`
+catalyst_time=`getprop persist.hybrid.catalyst.time`
+zram="0"
+
+#symlinks
+tmp_dir="/data/local/tmp/"
+initd_dir="/system/etc/init.d/"
+
+#color control
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+cyan='\033[0;36m'
+white='\033[0;97m'
+
+#formatting control
+bld='\033[0;1m'
+blnk='\033[0;5m'
+nc='\033[0m'
+
 error(){
 	message=$@
 	if [[ "$(echo $message | grep \")" ]]; then
