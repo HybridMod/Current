@@ -2,6 +2,7 @@
 
 #NOTES (Sign off please)
 #props don't update untill re-run the script (~Deic)
+#generate ascii title art (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3-staging"
