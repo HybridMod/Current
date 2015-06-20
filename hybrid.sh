@@ -1,9 +1,7 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#Issues (presentation):
-#	~ Script starts off with Temp / Perm selection - good, but looks ugly, we should put the hybrid title above (~Diamond)
-#Test note (~Diamond)
+#props don't update untill re-run the script (~Deic)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3-staging"
@@ -378,12 +376,20 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 
 title(){
 	clear
-	echo "$cyan[-=The Hybrid Project=-]$nc"
-	echo
 	if [[ "$permanent" == "" ]]; then
-		sleep 3
-		install_options
+	 	sleep 1
+	 	echo "${cyan}The$nc"
+	 	sleep 1
+	 	echo "$cyan          Hybrid$nc"
+	 	sleep 1
+	 	echo "$cyan                      Project$nc"
+	 	sleep 1
+	 	echo "                                                :)"
+	 	sleep 3
+	 	install_options
 	else
+	 	echo "$cyan[-=The Hybrid Project=-]$nc"
+	 	echo
 		body
 	fi
 }
@@ -464,7 +470,7 @@ EOF
 		$install_msg
 	fi
 
-	body
+	title
 }
 
 clean_up(){
@@ -516,7 +522,7 @@ EOF
 
 	$install_msg
 
-	body
+	title
 }
 
 sql_optimize(){
@@ -554,7 +560,7 @@ sql_optimize(){
 	echo "${yellow}SQLite database optimizations complete!$nc"
 	sleep 1
 
-	body
+	title
 }
 
 vm_tune(){
@@ -595,7 +601,7 @@ EOF
 
 	$install_msg
 
-	body
+	title
 }
 
 lmk_tune_opt(){
@@ -613,7 +619,7 @@ lmk_tune_opt(){
 	read lmk_opt
 	case $lmk_opt in
 		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
-		r|R ) body;;
+		r|R ) title;;
 		* ) checkers; lmk_tune_opt;;
 	esac
 }
@@ -655,7 +661,7 @@ EOF
 		$install_msg
 	fi
 
-	body
+	title
 }
 
 network_tune(){
@@ -726,7 +732,7 @@ EOF
 
 	$install_msg
 
-	body
+	title
 }
 
 kernel_kontrol(){
@@ -748,7 +754,7 @@ kernel_kontrol(){
 		2) setgov;;
 		3) setiosched;;
 		4) kcal;;
-		b|B) body;;
+		b|B) title;;
 		* ) checkers; kernel_kontrol;;
 	 esac
 }
@@ -917,7 +923,7 @@ zram_settings(){
 	 	case $zram_settings_opt in
 	 		1 ) zram_disable;;
 	 		2 ) zram_enable;;
-	 		b|B ) body;;
+	 		b|B ) title;;
 	 		* ) checkers; zram_settings;;
 	 	esac
 	fi
@@ -980,7 +986,7 @@ game_booster(){
 	case $game_booster_opt in
 		1 ) game_inject;;
 		2 ) game_time_cfg;;
-		b|B ) body;;
+		b|B ) title;;
 		* ) checkers; game_booster;;
 	esac
 }
@@ -1027,7 +1033,7 @@ options(){
 	case $options_opt in
 	 	i|I ) install_options;;
 		s|S ) sensor_fix;;
-	 	b|B ) body;;
+	 	b|B ) title;;
 		* ) checkers; options;;
 	esac
 }
@@ -1046,7 +1052,7 @@ install_options(){
 	 	case $install_options_opt in
 	 	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; options;;
 		 	p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; options;;
-	 	 	b|B ) body;;
+	 	 	b|B ) title;;
 		 	* ) checkers; install_options;;
 	 	esac
 	else
@@ -1061,8 +1067,8 @@ first_install(){
 	echo -n "> "
 	read first_install_opt
 	case $first_install_opt in
-		t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; body;;
-		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; body;;
+		t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; title;;
+		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; title;;
 		* ) checkers; install_options;;
 	esac
 }
@@ -1108,7 +1114,7 @@ about_info(){
 	case $about_info_opt in
 	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" >/dev/null 2>&1; about_info;;
 	 	s|S ) am start "https://github.com/HybridMod" >/dev/null 2>&1; about_info;;
-	 	b|B ) body;;
+	 	b|B ) title;;
 	 	* ) checkers; about_info;;
 	esac
 }
@@ -1138,18 +1144,16 @@ safe_exit(){
 	exit
 }
 
+mount -o remount,rw /system
+mount -o remount,rw /data
+
 if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-mount -o remount,rw /system
-mount -o remount,rw /data
-
-if [[ "$permanent" == "" ]]; then
-	install_options
-elif [[ "$interval_time" == "" ]]; then
+if [[ "$interval_time" == "" ]]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
-body
+title
