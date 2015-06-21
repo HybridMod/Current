@@ -1,6 +1,7 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
+#props don't update untill re-run the script (~Deic)
 #generate ascii title art (~Diamond)
 #res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
 
@@ -43,13 +44,13 @@ FILENAME=$FULL_NAME
 FILESIZE=$(stat -c%s "$FILENAME")
 
 #options
-initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
+initd=`if [ -d $initd_dir ]; then echo "1"; else echo "0"; fi`
 permanent=`getprop persist.hybrid.permanent`
 interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
-tmp_dir=/data/local/tmp/
-initd_dir=/system/etc/init.d/
+tmp_dir="/data/local/tmp/"
+initd_dir="/system/etc/init.d/"
 
 #color control
 red='\033[0;31m'
@@ -273,7 +274,7 @@ chk1="what?"
 chk2="i dont understand!"
 chk3="pardon?"
 chk4="are you retarded?"
-chk5="I no understand enchiladas" #xD
+chk5="I no understand enchiladas"
 checkers(){
 	for i in $(seq 1 20); do
 		if [[ ! "$(eval echo \$chk$i)" ]]; then
@@ -377,7 +378,7 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 
 title(){
 	#clear
-	if [ $permanent == "" ]; then
+	if [ "$permanent" == "" ]; then
 	 	sleep 1
 	 	echo "${cyan}The$nc"
 	 	sleep 1
@@ -406,11 +407,11 @@ body(){
 		echo " 6|Tune my Networks"
 		echo " 7|Kernel Kontrol"
 		if [ -f /dev/block/zram* ]; then
-			zram=1
+			zram="1"
 			echo " 8|zRAM Settings"
 			echo " 9|Game Booster"
 		else
-			zram=0
+			zram="0"
 			echo " 8|Game Booster"
 		fi
 		echo
@@ -440,32 +441,34 @@ body(){
 	done
 }
 
-install_msg(){ if [ $permanent == 1 ] && [ $initd == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
+script_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then script_dir=$initd_dir; else script_dir=$tmp_dir; fi }
+
+install_msg(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
 
 drop_caches(){
 	clear
 	echo "${yellow}Dropping caches...$nc"
 	sleep 1
 
-	sync; echo "3" > /proc/sys/vm/drop_caches
+	script_dir
+
+	touch $script_dir/97cache_drop
+	chmod 755 $script_dir/97cache_drop
+cat > $script_dir/97cache_drop <<-EOF
+#!/system/bin/sh
+
+sleep 0
+
+sync; echo "3" > /proc/sys/vm/drop_caches
+
+EOF
+	$script_dir/97cache_drop; sed -i 's/sleep 0/sleep 15/' $initd_dir/97cache_drop
 
 	clear
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-		touch $initd_dir/97cache_drop
-		chmod 755 $initd_dir/97cache_drop
-cat > $initd_dir/97cache_drop <<-EOF
-#!/system/bin/sh
-
-sleep 15
-
-sync; echo "3" > /proc/sys/vm/drop_caches
-
-EOF
-		install_msg
-	fi
+	#install_msg
 
 	title
 }
@@ -475,18 +478,14 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
-	else
-	 	script_dir=$tmp_dir
-	fi
+	script_dir
 
 	touch $script_dir/99clean_up
 	chmod 755 $script_dir/99clean_up
 cat > $script_dir/99clean_up <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
@@ -511,7 +510,7 @@ rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
-	$script_dir/99clean_up
+	$script_dir/99clean_up; sed -i 's/sleep 0/sleep 15/' $initd_dir/99clean_up
 
 	clear
 	echo "${yellow}Clean up complete!$nc"
@@ -530,19 +529,19 @@ sql_optimize(){
 	if [ -f /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
-		SQLLOC=/system/xbin/sqlite3
+		SQLLOC="/system/xbin/sqlite3"
 	fi
 
 	if [ -f /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
-		SQLLOC=/system/bin/sqlite3
+		SQLLOC="/system/bin/sqlite3"
 	fi
 
 	if [ -f /system/sbin/sqlite3 ]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
-		SQLLOC=/sbin/sqlite3
+		SQLLOC="/sbin/sqlite3"
 	fi
 	for i in `find / -iname "*.db" 2>/dev/null`
 	do
@@ -565,18 +564,14 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
-	else
-	 	script_dir=$tmp_dir
-	fi
+	script_dir
 
 	touch $script_dir/75vm
 	chmod 755 $script_dir/75vm
 cat > $script_dir/75vm <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 echo "80" > /proc/sys/vm/swappiness
 echo "10" > /proc/sys/vm/vfs_cache_pressure
@@ -590,7 +585,7 @@ echo "4096" > /proc/sys/vm/min_free_kbytes
 echo "1" > /proc/sys/vm/oom_kill_allocating_task
 
 EOF
-	$script_dir/75vm
+	$script_dir/75vm; sed -i 's/sleep 0/sleep 15/' $initd_dir/75vm
 
 	clear
 	echo "${yellow}VM Optimized!$nc"
@@ -623,40 +618,40 @@ lmk_tune(){
 
 lmk_apply(){
 	clear
-	if [ $lmk_profile == b ] || [ $lmk_profile == B ]; then
+	if [ "$lmk_profile" == b ] || [ "$lmk_profile" == B ]; then
     minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
-	if [ $lmk_profile == m ] || [ $lmk_profile == M ]; then
+	if [ "$lmk_profile" == m ] || [ "$lmk_profile" == M ]; then
     minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
-	if [ $lmk_profile == g ] || [ $lmk_profile == G ]; then
+	if [ "$lmk_profile" == g ] || [ "$lmk_profile" == G ]; then
     minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
 	echo "${yellow}Optimizing LMK...$nc"
 	sleep 1
 
-	echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+	script_dir
+
+	touch $script_dir/95lmk
+	chmod 755 $script_dir/95lmk
+cat > $script_dir/95lmk <<-EOF
+#!/system/bin/sh
+
+sleep 0
+
+echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
+
+EOF
+	$script_dir/95lmk; sed -i 's/sleep 0/sleep 15/' $initd_dir/95lmk
 
 	clear
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-		touch $initd_dir/95lmk
-		chmod 755 $initd_dir/95lmk
-cat > $initd_dir/95lmk <<-EOF
-#!/system/bin/sh
-
-sleep 15
-
-echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
-
-EOF
-		install_msg
-	fi
+	install_msg
 
 	title
 }
@@ -666,18 +661,14 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-	 	script_dir=$initd_dir
-	else
-	 	script_dir=$tmp_dir
-	fi
+	script_dir
 
 	touch $script_dir/56net
 	chmod 755 $script_dir/56net
 cat > $script_dir/56net <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 #TCP
 echo "2097152" > /proc/sys/net/core/wmem_max
@@ -721,7 +712,7 @@ echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
 echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
 
 EOF
-	$script_dir/56net
+	$script_dir/56net; sed -i 's/sleep 0/sleep 15/' $initd_dir/56net
 
 	clear
 	echo "${yellow}Networks Optimized!$nc"
@@ -776,27 +767,26 @@ setcpufreq(){
 	echo -n "New Max Freq: "; read newmaxfreq
 	echo -n "New Min Freq: "; read newminfreq
 
-	echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	script_dir
 
-	clear
-	echo "${yellow}New Freq's applied!$nc"
-	sleep 1
-
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-		touch $initd_dir/69cpu_freq
-		chmod 755 $initd_dir/69cpu_freq
-cat > $initd_dir/69cpu_freq <<-EOF
+	touch $script_dir/69cpu_freq
+	chmod 755 $script_dir/69cpu_freq
+cat > $script_dir/69cpu_freq <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 EOF
-	 	install_msg
-	fi
+	$initd_dir/69cpu_freq; sed -i 's/sleep 0/sleep 15/' $initd_dir/69cpu_freq
+
+	clear
+	echo "${yellow}New Freq's applied!$nc"
+	sleep 1
+
+	install_msg
 
 	kernel_kontrol
 }
@@ -819,23 +809,25 @@ setgov(){
 
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-	clear
-	echo "${yellow}New Governor applied!$nc"
-	sleep 1
+	script_dir
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-		touch $initd_dir/70cpu_gov
-		chmod 755 $initd_dir/70cpu_gov
-cat > $initd_dir/70cpu_gov <<-EOF
+	touch $script_dir/70cpu_gov
+	chmod 755 $script_dir/70cpu_gov
+cat > $script_dir/70cpu_gov <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 EOF
-	 	install_msg
-	fi
+	$initd_dir/70cpu_gov; sed -i 's/sleep 0/sleep 15/' $initd_dir/70cpu_gov
+
+	clear
+	echo "${yellow}New Governor applied!$nc"
+	sleep 1
+
+	install_msg
 
 	kernel_kontrol
 }
@@ -857,31 +849,27 @@ setiosched(){
 	echo
 	echo -n "New Scheduler: "; read newiosched
 
-	for j in /sys/block/*/queue/scheduler; do
-	 	echo "$newiosched" > $j
-	done
-
 	clear
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	if [ $permanent == 1 ] && [ $initd == 1 ]; then
-		touch $initd_dir/71io_sched
-		chmod 755 $initd_dir/71io_sched
-cat > $initd_dir/71io_sched <<-EOF
+	script_dir
+
+	touch $script_dir/71io_sched
+	chmod 755 $script_dir/71io_sched
+cat > $script_dir/71io_sched <<-EOF
 #!/system/bin/sh
 
-sleep 15
+sleep 0
 
 for j in /sys/block/*/queue/scheduler; do
 	echo "$newiosched" > dir
 done
 
 EOF
-		sed -i 's/dir/$j/' $initd_dir/71io_sched
+	sed -i 's/dir/$j/' $initd_dir/71io_sched; $initd_dir/71io_sched; sed -i 's/sleep 0/sleep 15/' $initd_dir/71io_sched
 
-	 	install_msg
-	fi
+	install_msg
 
 	kernel_kontrol
 }
@@ -905,9 +893,9 @@ kcal(){
 }
 
 zram_settings_custom(){
-	if [ $zram == 0 ]; then
+	if [ "$zram" == 0 ]; then
 		game_booster
-	elif [ $zram == 1 ]; then
+	elif [ "$zram" == 1 ]; then
 		zram_settings
 	fi
 }
@@ -964,9 +952,9 @@ zram_enable(){
 }
 
 game_booster_custom(){
-	if [ $zram == 0 ]; then
+	if [ "$zram" == 0 ]; then
 		checkers; title
-	elif [ $zram == 1 ]; then
+	elif [ "$zram" == 1 ]; then
 		game_booster
 	fi
 }
@@ -1040,7 +1028,7 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ $permanent == 0 ] || [ $permanent == 1 ]; then
+	if [ "$permanent" == 0 ] || [ "$permanent" == 1 ]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
@@ -1117,16 +1105,16 @@ about_info(){
 
 custom_reboot(){
 	clear
-	echo "Rebooting in 3."
+	echo "Factory reset in 3."
 	sleep 1
 	clear
-	echo "Rebooting in 2.."
+	echo "Factory reset in 2.."
 	sleep 1
 	clear
-	echo "Rebooting in 1..."
+	echo "Factory reset in 1..."
 	sleep 1
 	clear
-	echo "Bam!"
+	echo "Just kidding :] (?)"
 	sleep 1
 	sync; reboot
 }
@@ -1146,7 +1134,7 @@ if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	debug_shell
 fi
 
-if [ $interval_time == "" ]; then
+if [ "$interval_time" == "" ]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
