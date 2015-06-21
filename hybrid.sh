@@ -1,7 +1,6 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
-#props don't update untill re-run the script (~Deic)
 #generate ascii title art (~Diamond)
 #resolution changing :D this is good for gamers.
 #
@@ -53,18 +52,17 @@ readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 ver_revision="2.3-staging"
 
 #SizeOf
-FILENAME="$FULL_NAME"
+FILENAME=$FULL_NAME
 FILESIZE=$(stat -c%s "$FILENAME")
 
 #options
-initd=`if [[ -d "$initd_dir" ]]; then echo "1"; else echo "0"; fi`
-install_msg=`if [[ "$permanent" == 1 ]] && [[ "initd" == 1 ]]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi`
+initd=`if [ -d $initd_dir ]; then echo 1; else echo 0; fi`
 permanent=`getprop persist.hybrid.permanent`
 interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
-tmp_dir="/data/local/tmp/"
-initd_dir="/system/etc/init.d/"
+tmp_dir=/data/local/tmp/
+initd_dir=/system/etc/init.d/
 
 #color control
 red='\033[0;31m'
@@ -391,8 +389,8 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 }
 
 title(){
-	clear
-	if [[ "$permanent" == "" ]]; then
+	#clear
+	if [ $permanent == "" ]; then
 	 	sleep 1
 	 	echo "${cyan}The$nc"
 	 	sleep 1
@@ -420,12 +418,12 @@ body(){
 		echo " 5|Tune my LMK"
 		echo " 6|Tune my Networks"
 		echo " 7|Kernel Kontrol"
-		if [[ -f /dev/block/zram* ]]; then
-			zram="1"
+		if [ -f /dev/block/zram* ]; then
+			zram=1
 			echo " 8|zRAM Settings"
 			echo " 9|Game Booster"
 		else
-			zram="0"
+			zram=0
 			echo " 8|Game Booster"
 		fi
 		echo
@@ -441,19 +439,21 @@ body(){
 			2 ) clean_up;;
 			3 ) sql_optimize;;
 			4 ) vm_tune;;
-			5 ) lmk_tune_opt;;
+			5 ) lmk_tune;;
 			6 ) network_tune;;
 			7 ) kernel_kontrol;;
-			8 ) game_booster;;
-			9 ) game_booster_redirect;;
+			8 ) zram_settings_custom;;
+			9 ) game_booster_custom;;
 			o|O ) options;;
 			a|A ) about_info;;
 			r|R ) custom_reboot;;
 			e|E ) safe_exit;;
-			* ) checkers;;
+			* ) checkers; title;;
 		esac
 	done
 }
+
+install_msg(){ if [ $permanent == 1 ] && [ $initd == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
 
 drop_caches(){
 	clear
@@ -462,17 +462,11 @@ drop_caches(){
 
 	sync; echo "3" > /proc/sys/vm/drop_caches
 
-	# function to_drop_caches(){
-	# 	echo $1 > /proc/sys/vm/drop_caches
-	# }
-
-	# to_drop_caches 3
-
 	clear
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/97cache_drop
 		chmod 755 $initd_dir/97cache_drop
 cat > $initd_dir/97cache_drop <<-EOF
@@ -483,7 +477,7 @@ sleep 15
 sync; echo "3" > /proc/sys/vm/drop_caches
 
 EOF
-		$install_msg
+		install_msg
 	fi
 
 	title
@@ -494,7 +488,7 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -507,27 +501,27 @@ cat > $script_dir/99clean_up <<-EOF
 
 sleep 15
 
-rm -rf /cache/*.apk
-rm -rf /cache/*.tmp
-rm -rf /cache/recovery/*
-rm -rf /data/*.log
-rm -rf /data/*.txt
-rm -rf /data/anr/*.*
-rm -rf /data/backup/pending/*.tmp
-rm -rf /data/cache/*.*
-rm -rf /data/dalvik-cache/*.apk
-rm -rf /data/dalvik-cache/*.tmp
-rm -rf /data/log/*.*
-rm -rf /data/local/*.apk
-rm -rf /data/local/*.log
-rm -rf /data/local/tmp/*.*
-rm -rf /data/last_alog/*
-rm -rf /data/last_kmsg/*
-rm -rf /data/mlog/*
-rm -rf /data/tombstones/*
-rm -rf /data/system/dropbox/*
-rm -rf /data/system/usagestats/*
-rm -rf $EXTERNAL_STORAGE/LOST.DIR/*
+rm -f /cache/*.apk
+rm -f /cache/*.tmp
+rm -f /cache/recovery/*
+rm -f /data/*.log
+rm -f /data/*.txt
+rm -f /data/anr/*.*
+rm -f /data/backup/pending/*.tmp
+rm -f /data/cache/*.*
+rm -f /data/dalvik-cache/*.apk
+rm -f /data/dalvik-cache/*.tmp
+rm -f /data/log/*.*
+rm -f /data/local/*.apk
+rm -f /data/local/*.log
+rm -f /data/local/tmp/*.*
+rm -f /data/last_alog/*
+rm -f /data/last_kmsg/*
+rm -f /data/mlog/*
+rm -f /data/tombstones/*
+rm -f /data/system/dropbox/*
+rm -f /data/system/usagestats/*
+rm -f $EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
 	$script_dir/99clean_up
@@ -536,7 +530,7 @@ EOF
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
 
-	$install_msg
+	install_msg
 
 	title
 }
@@ -546,24 +540,24 @@ sql_optimize(){
 	echo "${yellow}Optimizing SQLite databases...$nc"
 	sleep 1
 
-	if [[ -f /system/xbin/sqlite3 ]]; then
+	if [ -f /system/xbin/sqlite3 ]; then
 		chown root.root  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
-		SQLLOC="/system/xbin/sqlite3"
+		SQLLOC=/system/xbin/sqlite3
 	fi
 
-	if [[ -f /system/bin/sqlite3 ]]; then
+	if [ -f /system/bin/sqlite3 ]; then
 		chown root.root /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
-		SQLLOC="/system/bin/sqlite3"
+		SQLLOC=/system/bin/sqlite3
 	fi
 
-	if [[ -f /system/sbin/sqlite3 ]]; then
+	if [ -f /system/sbin/sqlite3 ]; then
 		chown root.root /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
-		SQLLOC="/sbin/sqlite3"
+		SQLLOC=/sbin/sqlite3
 	fi
-	for i in `find / -iname "*.db" >/dev/null 2>&1`
+	for i in `find / -iname "*.db" 2>/dev/null`
 	do
 	 	clear
 		$SQLLOC $i 'VACUUM;'
@@ -584,7 +578,7 @@ vm_tune(){
 	echo "${yellow}Optimizing VM...$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -615,12 +609,12 @@ EOF
 	echo "${yellow}VM Optimized!$nc"
 	sleep 1
 
-	$install_msg
+	install_msg
 
 	title
 }
 
-lmk_tune_opt(){
+lmk_tune(){
 	clear
 	echo "${yellow}LMK Optimization$nc"
 	echo
@@ -632,26 +626,26 @@ lmk_tune_opt(){
 	echo " R|Return"
 	echo
 	echo -n "> "
-	read lmk_opt
-	case $lmk_opt in
-		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_opt; lmk_apply;;
+	read lmk_tune_opt
+	case $lmk_tune_opt in
+		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_tune_opt; lmk_apply;;
 		r|R ) title;;
-		* ) checkers; lmk_tune_opt;;
+		* ) checkers; lmk_tune;;
 	esac
 }
 
 lmk_apply(){
 	clear
-	if [[ "$lmk_profile" == b ]] || [[ "$lmk_profile" = B ]]; then
-    minfree_array="1024,2048,4096,8192,12288,16384"
+	if [ $lmk_profile == b ] || [ $lmk_profile == B ]; then
+    minfree_array='1024,2048,4096,8192,12288,16384'
 	fi
 
-	if [[ "$lmk_profile" == m ]] || [[ "$lmk_profile" = M ]]; then
-    minfree_array="1536,2048,4096,5120,5632,6144"
+	if [ $lmk_profile == m ] || [ $lmk_profile == M ]; then
+    minfree_array='1536,2048,4096,5120,5632,6144'
 	fi
 
-	if [[ "$lmk_profile" == g ]] || [[ "$lmk_profile" = G ]]; then
-    minfree_array="10393,14105,18188,27468,31552,37120"
+	if [ $lmk_profile == g ] || [ $lmk_profile == G ]; then
+    minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
 	echo "${yellow}Optimizing LMK...$nc"
@@ -663,7 +657,7 @@ lmk_apply(){
 	echo "${yellow}LMK Optimized!$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/95lmk
 		chmod 755 $initd_dir/95lmk
 cat > $initd_dir/95lmk <<-EOF
@@ -674,7 +668,7 @@ sleep 15
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 
 EOF
-		$install_msg
+		install_msg
 	fi
 
 	title
@@ -685,7 +679,7 @@ network_tune(){
 	echo "${yellow}Optimizing Networks...$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 	 	script_dir=$initd_dir
 	else
 	 	script_dir=$tmp_dir
@@ -746,7 +740,7 @@ EOF
 	echo "${yellow}Networks Optimized!$nc"
 	sleep 1
 
-	$install_msg
+	install_msg
 
 	title
 }
@@ -757,8 +751,8 @@ kernel_kontrol(){
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
-	if [[ -d /sys/devices/platform/kcal_ctrl.0/ ]]; then
-		kcal="1"
+	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
+		kcal=1
 	 	echo " 4|View KCal Values"
 	fi
 	echo " B|Back"
@@ -802,7 +796,7 @@ setcpufreq(){
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/69cpu_freq
 		chmod 755 $initd_dir/69cpu_freq
 cat > $initd_dir/69cpu_freq <<-EOF
@@ -814,7 +808,7 @@ echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 EOF
-	 	$install_msg
+	 	install_msg
 	fi
 
 	kernel_kontrol
@@ -842,7 +836,7 @@ setgov(){
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/70cpu_gov
 		chmod 755 $initd_dir/70cpu_gov
 cat > $initd_dir/70cpu_gov <<-EOF
@@ -853,7 +847,7 @@ sleep 15
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 EOF
-	 	$install_msg
+	 	install_msg
 	fi
 
 	kernel_kontrol
@@ -884,7 +878,7 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	if [[ "$permanent" == 1 ]] && [[ "$initd" == 1 ]]; then
+	if [ $permanent == 1 ] && [ $initd == 1 ]; then
 		touch $initd_dir/71io_sched
 		chmod 755 $initd_dir/71io_sched
 cat > $initd_dir/71io_sched <<-EOF
@@ -899,50 +893,53 @@ done
 EOF
 		sed -i 's/dir/$j/' $initd_dir/71io_sched
 
-	 	$install_msg
+	 	install_msg
 	fi
 
 	kernel_kontrol
 }
 
 kcal(){
-	clear
-	if [[ "$kcal" == "" ]]; then
+	if [ "$kcal" == "" ]; then
 	 	checkers
 	 	kernel_kontrol
-	else
-	 	echo "${yellow}Current KCal Values:${nc}"
-	 	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
-	 	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
-	 	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
-	 	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
-	 	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
-	 	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
-	 	sleep 5
+	fi
+ 	clear
+	echo "${yellow}Current KCal Values:${nc}"
+	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
+	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
+	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
+	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
+	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
+	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
+	sleep 5
 
-	 	kernel_kontrol
+	kernel_kontrol
+}
+
+zram_settings_custom(){
+	if [ $zram == 0 ]; then
+		game_booster
+	elif [ $zram == 1 ]; then
+		zram_settings
 	fi
 }
 
 zram_settings(){
 	clear
-	if [[ "$zram" == 0 ]]; then
-	 	game_booster
-	else
-	 	echo "${yellow}zRAM Options:$nc"
-	 	echo " 1|Disable zRAM"
-	 	echo " 2|Enable zRAM"
-	 	echo " B|Back"
-	 	echo
-	 	echo -n "> "
-	 	read zram_settings_opt
-	 	case $zram_settings_opt in
-	 		1 ) zram_disable;;
-	 		2 ) zram_enable;;
-	 		b|B ) title;;
-	 		* ) checkers; zram_settings;;
-	 	esac
-	fi
+	echo "${yellow}zRAM Options:$nc"
+	echo " 1|Disable zRAM"
+	echo " 2|Enable zRAM"
+	echo " B|Back"
+	echo
+	echo -n "> "
+	read zram_settings_opt
+	case $zram_settings_opt in
+	 	1 ) zram_disable;;
+	 	2 ) zram_enable;;
+	 	b|B ) title;;
+	 	* ) checkers; zram_settings;;
+	esac
 }
 
 zram_disable(){
@@ -979,18 +976,15 @@ zram_enable(){
 	zram_settings
 }
 
-game_booster_redirect(){
-	if [[ "$zram" == 0 ]]; then
-		checkers
-	elif [[ "$zram" == 1 ]]; then
+game_booster_custom(){
+	if [ $zram == 0 ]; then
+		checkers; title
+	elif [ $zram == 1 ]; then
 		game_booster
 	fi
 }
 
 game_booster(){
-	if [[ $zram == 1 ]]; then
-		zram_settings
-	fi
 	clear
 	echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
@@ -1059,7 +1053,7 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [[ "$permanent" == 0 ]] || [[ "$permanent" == 1 ]]; then
+	if [ $permanent == 0 ] || [ $permanent == 1 ]; then
 	 	echo
 	 	echo " B|Back"
 	 	echo
@@ -1091,12 +1085,11 @@ first_install(){
 
 sensor_fix(){
 	clear
-	#this is a fix for dirty flashers with bad sensors.
 	echo "Wipe sensor data? [Y/N]"
 	echo -n "> "
 	read sensor_fix_opt
 	case $sensor_fix_opt in
-		y|Y ) rm -rf /data/misc/sensor; echo "done!"; options;;
+		y|Y ) rm -rf /data/misc/sensor/; echo "Done"; sleep 1; options;;
 		n|N ) options;;
 		* ) checkers; options;;
 	esac
@@ -1110,7 +1103,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes" #outdated
+	echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
@@ -1128,8 +1121,8 @@ about_info(){
 	echo -n "> "
 	read about_info_opt
 	case $about_info_opt in
-	 	f|F ) am start "http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600" >/dev/null 2>&1; about_info;;
-	 	s|S ) am start "https://github.com/HybridMod" >/dev/null 2>&1; about_info;;
+	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1; about_info;;
+	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1; about_info;;
 	 	b|B ) title;;
 	 	* ) checkers; about_info;;
 	esac
@@ -1148,9 +1141,7 @@ custom_reboot(){
 	clear
 	echo "Bam!"
 	sleep 1
-	sync
-	reboot
-	echo "annndd its gone :P"
+	sync; reboot
 }
 
 safe_exit(){
@@ -1163,12 +1154,12 @@ safe_exit(){
 mount -o remount,rw /system
 mount -o remount,rw /data
 
-if [[ "$1" == --debug ]]; then #type 'hybrid --debug' to trigger debug_shell().
+if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-if [[ "$interval_time" == "" ]]; then
+if [ $interval_time == "" ]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
