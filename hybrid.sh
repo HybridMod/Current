@@ -399,12 +399,12 @@ title(){
 body(){
 	while true; do
 		echo "${yellow}Menu:$nc"
-		echo " 1|Instant Boost"
+		echo " 1|Instant UI Boost"
 		echo " 2|Clean up my crap"
 		echo " 3|Optimize my SQLite DB's"
-		echo " 4|Tune my VM"
-		echo " 5|Tune my LMK"
-		echo " 6|Tune my Networks"
+		echo " 4|VM Optimizations"
+		echo " 5|LMK Profiles"
+		echo " 6|Network Fixes"
 		echo " 7|Kernel Kontrol"
 		if [ -f /dev/block/zram* ]; then
 			zram="1"
