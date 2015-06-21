@@ -44,6 +44,7 @@ ver_revision="2.3-staging"
 
 #SizeOf
 FILENAME=$FULL_NAME
+#FILESIZE=$(stat -c%s "$FILENAME")
 FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}')
 
 #options
