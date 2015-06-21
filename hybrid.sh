@@ -98,20 +98,9 @@ invert_rand=1
 # Busybox Applet Generator 2.4
 # You can type in any commands you would want it to check.
 # It will start by checking from cmd1, and its limit is up to cmd224.
-cmd1=dirname
-cmd2=basename
-cmd3=ls
-cmd4=grep
-cmd5=head
-cmd6=awk
-cmd7=cat
-cmd8=pgrep
-cmd9=ps
-cmd10=cp
-cmd11=cut
-cmd= # It notifies the generator how many cmds are available for check. Leave it as blank.
+cmd=0 # It notifies the generator how many cmds are available for check. Leave it as blank.
 
-silent_mode= # enabling this will hide errors.
+silent_mode=1 # enabling this will hide errors.
 # This feature might not be compatible with some other multi-call binaries.
 # if similar applets are found and Busybox do not have them, it will still continue but leave out some error messages regarding compatibility issues.
 bb_check= # BB availability.
