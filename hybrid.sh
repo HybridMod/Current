@@ -2,19 +2,7 @@
 
 #NOTES (Sign off please)
 #generate ascii title art (~Diamond)
-#resolution changing :D this is good for gamers.
-#
-#	wm size 1080x1920   #the display resoltuion here, you can upscale aswell, no problem, the display will just be weird
-						#also android resolution = flipped, just remember that.
-#	wm density 469 		#density, must be adequately changed with the resolution.
-#
-#	wm size reset		#reset commands
-#	wm density reset	#again reset command here
-#
-# So yeah , wanna implement this in our script, take alook at our legacy repo, theres a script called jeeves in there, it already
-# does this but the implementation isnt so great i guess...
-# linkys: https://github.com/HybridMod/Legacy/blob/master/jeeves.sh
-# (~Diamond)
+#res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
