@@ -7,6 +7,7 @@
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
+readonly debug=
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -23,7 +24,9 @@ else
 fi
 reg_name=$(which $BASE_NAME 2>/dev/null) # somewhat seems to be incompatible with 1.22.1-stericson.
 if [[ ! "$reg_name" ]]; then
-	echo "you are not running this program in the required location, this may cause trouble for code that uses the DIR_NAME function."
+	if [[ "$debug" == 1 ]]; then
+		echo "you are not running this program in the required location, this may cause trouble for code that uses the DIR_NAME function."
+	fi
 	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
 else
 	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
@@ -41,7 +44,7 @@ ver_revision="2.3-staging"
 
 #SizeOf
 FILENAME=$FULL_NAME
-FILESIZE=$(stat -c%s "$FILENAME")
+FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}')
 
 #options
 initd=`if [ -d $initd_dir ]; then echo "1"; else echo "0"; fi`
