@@ -290,7 +290,7 @@ checkers(){
 
 #Debug Shell
 debug_shell(){
-	echo "welcome to the debug_shell program! type in: 'help' for more information."
+	echo "welcome to the debug shell! type in: 'help' for more information."
 	echo  -ne "\e[1;32mdebug-\e[1;33m$version\e[0m"
 	if [[ "$su_check" == 0 ]]; then
 		echo -n '# '
@@ -312,8 +312,8 @@ debug_shell(){
 				done
 			;;
 			help)
-				echo -e "this debug shell is \e[1;31mONLY\e[0m used for testing conditions inside this program!
-you can now use '>' and '>>' for output redirection. use along with 'set -x' for debugging purposes.
+				echo -e "this debug shell is \e[1;31mONLY\e[0m used for testing conditions inside this script!
+you can now use '>' and '>>' for output redirection, use along with 'set -x' for debugging purposes.
 use 'export' if you want to declare a variable.
 such includes:
 	-functions
@@ -325,14 +325,14 @@ instead, you can use these commands built-in to this program:
 	-print_RANDOM_BYTE
 	-bb_apg_2
 	-as_root
-	-any other functions built-in to this program...
-you can use set command to view all the functions and variables built-in to this program.
+	-or any other functions built-in to this program...
+you can use the set command to view all the functions and variables built-in to this program.
 
-you can also use these built-in commands in debug_shell:
+you can also use these built-in commands in this debug shell:
 	-randtest (tests if print_RANDOM_BYTE is functioning properly)
-	-help (brings out this message)
+	-help (prints this message)
 
-debug_shell \e[1;33mv$version\e[0m
+debug shell \e[1;33mv$version\e[0m
 Copyright (C) 2013-2015 hoholee12@naver.com"
 			;;
 			return*)
