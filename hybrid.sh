@@ -16,6 +16,7 @@
 # does this but the implementation isnt so great i guess...
 # linkys: https://github.com/HybridMod/Legacy/blob/master/jeeves.sh
 # (~Diamond)
+#nice vm documentation: https://www.kernel.org/doc/Documentation/sysctl/vm.txt (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
