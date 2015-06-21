@@ -87,7 +87,7 @@ error(){
 			mkdir $i
 			chmod 755 $i
 		fi
-		cd $i
+		cd $i #we shouldnt use single letter variables :P
 	done
 	if [[ "$LOG_DIR" ]]; then
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $LOG_DIR/$NO_EXTENSION.log
