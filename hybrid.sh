@@ -396,13 +396,13 @@ title(){
 	 	sleep 1
 	 	echo "$cyan          Hybrid$nc"
 	 	sleep 1
-	 	echo "$cyan                      Project$nc"
+	 	echo "$cyan                      Mod$nc"
 	 	sleep 1
 	 	echo "                                                :)"
 	 	sleep 3
 	 	install_options
 	else
-	 	echo "$cyan[-=The Hybrid Project=-]$nc"
+	 	echo "$cyan[-=Hybrid-Mod=-]$nc"
 	 	echo
 		body
 	fi
@@ -1099,7 +1099,7 @@ about_info(){
 	clear
 	echo "${green}About:$nc"
 	echo
-	echo "Hybrid Version: $ver_revision"
+	echo "HybridMod Version: $ver_revision"
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
