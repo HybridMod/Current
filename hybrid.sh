@@ -68,6 +68,9 @@ bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
+#directory to put error logs in(it will force-create when directory is nonexistant)
+CUSTOM_DIR=/data/log
+
 error(){
 	message=$@
 	if [[ "$(echo $message | grep \")" ]]; then
@@ -291,6 +294,21 @@ checkers(){
 	echo -ne "\r$(eval echo \$chk$random)"
 	sleep 1
 }
+
+# Check Superuser.
+su_check= # root availability
+as_root_lite(){
+	bb_apg_2 -f id grep sed
+	if [[ "$?" == 1 ]]; then
+		error critical command missing. run with --supass for bypassing root check. \"error code 2\"
+		exit 2
+	fi
+	su_check=0
+	if [[ "$(id | sed 's/(/ /g' | sed 's/ /\n/g' | grep uid | sed 's/uid=//g')" != 0 ]]; then
+		su_check=1
+	fi
+}
+as_root_lite #modified version of as_root, required for debug_shell
 
 #Debug Shell
 debug_shell(){
