@@ -23,7 +23,7 @@ else
 fi
 reg_name=$(which $BASE_NAME 2>/dev/null) # somewhat seems to be incompatible with 1.22.1-stericson.
 if [[ ! "$reg_name" ]]; then
-	echo "you are not running this program in proper location. this may cause trouble for codes that use this function: DIR_NAME"
+	echo "you are not running this program in the required location. this may cause trouble for code that uses the DIR_NAME function."
 	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
 else
 	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
