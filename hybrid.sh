@@ -69,7 +69,7 @@ blnk='\033[0;5m'
 nc='\033[0m'
 
 #directory to put error logs in(it will force-create when directory is nonexistant)
-CUSTOM_DIR=/data/log
+LOG_DIR=/data/log
 
 error(){
 	message=$@
@@ -80,19 +80,19 @@ error(){
 	else
 		echo $message
 	fi
-	CUSTOM_DIR=$(echo $CUSTOM_DIR | sed 's/\/$//')
+	LOG_DIR=$(echo $LOG_DIR | sed 's/\/$//')
 	cd /
-	for i in $(echo $CUSTOM_DIR | sed 's/\//\n/g'); do
+	for i in $(echo $LOG_DIR | sed 's/\//\n/g'); do
 		if [[ ! -d $i ]]; then
 			mkdir $i
 			chmod 755 $i
 		fi
 		cd $i
 	done
-	if [[ "$CUSTOM_DIR" ]]; then
-		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $CUSTOM_DIR/$NO_EXTENSION.log
+	if [[ "$LOG_DIR" ]]; then
+		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $LOG_DIR/$NO_EXTENSION.log
 	else
-		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $DIR_NAME/$NO_EXTENSION.log
+		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $LOG_NAME/$NO_EXTENSION.log
 	fi
 }
 # Use /dev/urandom for print_RANDOM_BYTE.
