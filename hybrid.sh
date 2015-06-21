@@ -2,8 +2,8 @@
 
 #NOTES (Sign off please)
 #props don't update untill re-run the script (~Deic)
-#generate ascii title art (~Diamond)
 #res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
+#replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
