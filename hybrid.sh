@@ -399,7 +399,7 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 }
 
 title(){
-	#clear
+	clear
 	if [ "$permanent" == "" ]; then
 	 	sleep 1
 	 	echo "${cyan}The$nc"
@@ -490,7 +490,7 @@ EOF
 	echo "${yellow}Caches dropped!$nc"
 	sleep 1
 
-	#install_msg
+	install_msg
 
 	title
 }
@@ -1050,32 +1050,23 @@ install_options(){
 	echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
-	if [ "$permanent" == 0 ] || [ "$permanent" == 1 ]; then
-	 	echo
-	 	echo " B|Back"
-	 	echo
-	 	echo -n "> "
-	 	read install_options_opt
-	 	case $install_options_opt in
-	 	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; options;;
-		 	p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; options;;
-	 	 	b|B ) title;;
-		 	* ) checkers; install_options;;
-	 	esac
-	else
-	first_install
-	fi
-}
-
-first_install(){
 	echo
-	echo "${cyan}You can change it in Options later$nc"
+	if [ "$permanent" == "" ]; then
+	 	iGo="title"
+	 	iBack="checkers"
+	 	echo "${cyan}You can change it in Options later$nc"
+	else
+	 	iGo="options"
+	 	iBack="options"
+	 	echo " B|Back"
+	fi
 	echo
 	echo -n "> "
-	read first_install_opt
-	case $first_install_opt in
-		t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; title;;
-		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; title;;
+	read install_options_opt
+	case $install_options_opt in
+	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; $iGo;;
+		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; $iGo;;
+	 	b|B ) $iBack;;
 		* ) checkers; install_options;;
 	esac
 }
