@@ -546,39 +546,44 @@ EOF
 sql_optimize(){
 	clear
 	echo "${yellow}Optimizing SQLite databases...$nc"
-	sleep 1
+	echo
 
 	if [ -f /system/xbin/sqlite3 ]; then
-		chown root.root  /system/xbin/sqlite3
+		chown 0.0  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC="/system/xbin/sqlite3"
 	fi
 
 	if [ -f /system/bin/sqlite3 ]; then
-		chown root.root /system/bin/sqlite3
+		chown 0.0 /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC="/system/bin/sqlite3"
 	fi
 
-	if [ -f /system/sbin/sqlite3 ]; then
-		chown root.root /sbin/sqlite3
+	if [ -f /sbin/sqlite3 ]; then
+		chown 0.0 /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC="/sbin/sqlite3"
 	fi
 	for i in `find / -iname "*.db" 2>/dev/null`
 	do
-	 	clear
 		$SQLLOC $i 'VACUUM;'
-		echo "${yellow}Vacuumed:$nc $i"
+		echo "${yellow}Optimizing$nc $i"
 		$SQLLOC $i 'REINDEX;'
-		echo "${yellow}Reindexed:$nc $i"
 	done
 
-	clear
+	echo
 	echo "${yellow}SQLite database optimizations complete!$nc"
-	sleep 1
 
-	title
+	echo
+	echo "Press any key to continue..."
+	stty cbreak -echo
+	f=$(dd bs=1 count=1 2>/dev/null)
+	stty -cbreak echo
+	echo "$f"
+	case $f in
+	 	* ) title;;
+	esac
 }
 
 vm_tune(){
