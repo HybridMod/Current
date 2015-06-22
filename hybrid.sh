@@ -580,10 +580,7 @@ sql_optimize(){
 	stty cbreak -echo
 	f=$(dd bs=1 count=1 2>/dev/null)
 	stty -cbreak echo
-	echo "$f"
-	case $f in
-	 	* ) title;;
-	esac
+	title
 }
 
 vm_tune(){
