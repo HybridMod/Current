@@ -1009,7 +1009,7 @@ game_inject(){
 	echo
 
 	while true; do
-	 	sync; echo "3" > /proc/sys/vm/drop_caches
+	 	sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null #to kill background task
 		sleep $interval_time
 	done
 }
@@ -1056,7 +1056,7 @@ install_options(){
 	echo
 	if [ "$permanent" == "" ]; then
 	 	iGo="title"
-	 	iBack="checkers"
+	 	iBack="checkers; install_options"
 	 	echo "${cyan}You can change it in Options later$nc"
 	else
 	 	iGo="options"
