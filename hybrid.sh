@@ -49,13 +49,13 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}')
 
 #options
-initd=`if [ -d $initd_dir ]; then echo "1"; else echo "0"; fi`
+initd=`if [ -d $init_dir ]; then echo "1"; else echo "0"; fi`
 permanent=`getprop persist.hybrid.permanent`
 interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
 tmp_dir="/data/local/tmp/"
-initd_dir="/system/etc/init.d/"
+init_dir="/system/etc/init.d/"
 
 #color control
 red='\033[0;31m'
