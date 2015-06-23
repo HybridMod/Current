@@ -1,10 +1,16 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #NOTES (Sign off please)
+#Move notes to its own file
 #props don't update untill re-run the script (~Deic)
 #res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
 #replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
-#http://explainshell.com/
+#http://explainshell.com/ (~Diamond)
+#CodingStyle:
+#No single letter variables
+#Use tabs
+#All tabs are 8 characters
+#80 character line limit
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
