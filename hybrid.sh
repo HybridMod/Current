@@ -420,59 +420,55 @@ title(){
 }
 
 body(){
-	while true; do
-		echo "${yellow}Menu:$nc"
-		echo " 1|Clean up my Crap"
-		echo " 2|Optimize my Memory"
-		echo " 3|Optimize my Network"
-		echo " 4|Optimize my Databases"
-		echo " 5|RAM Profiles"
-		echo " 6|Kernel Kontrol"
-		if [ -f /dev/block/zram* ]; then
-			zram="1"
-			echo " 7|zRAM Settings"
-			echo " 8|Game Booster"
-		else
-			zram="0"
-			echo " 7|Game Booster"
-		fi
-		echo
-		echo " O|Options"
-		echo " A|About"
-		echo " R|Reboot"
-		echo " E|Exit"
-		echo
-		echo -n "> "
-		read selection_opt
-		case $selection_opt in
-			1 ) clean_up;;
-			2 ) vm_tune;;
-			3 ) network_tune;;
-			4 ) sql_optimize;;
-			5 ) lmk_tune;;
-			6 ) kernel_kontrol;;
-			7 ) zram_settings_custom;;
-			8 ) game_booster_custom;;
-			o|O ) options;;
-			a|A ) about_info;;
-			r|R ) custom_reboot;;
-			e|E ) safe_exit;;
-			* ) checkers; title;;
-		esac
-	done
+	echo "${yellow}Menu:$nc"
+	echo " 1|Clean up my Crap"
+	echo " 2|Optimize my Memory"
+	echo " 3|Optimize my Network"
+	echo " 4|Optimize my Databases"
+	echo " 5|RAM Profiles"
+	echo " 6|Kernel Kontrol"
+	if [ -f /dev/block/zram* ]; then
+		zram="1"
+		echo " 7|zRAM Settings"
+		echo " 8|Game Booster"
+	else
+		zram="0"
+		echo " 7|Game Booster"
+	fi
+	echo
+	echo " O|Options"
+	echo " A|About"
+	echo
+	echo " R|Reboot"
+	echo " E|Exit"
+	echo
+	echo -n "> "
+	read selection_opt
+	case $selection_opt in
+		1 ) clean_up;;
+		2 ) vm_tune;;
+		3 ) network_tune;;
+		4 ) sql_optimize;;
+		5 ) lmk_tune;;
+		6 ) kernel_kontrol;;
+		7 ) zram_settings_custom;;
+		8 ) game_booster_custom;;
+		o|O ) options;;
+		a|A ) about_info;;
+		r|R ) custom_reboot;;
+		e|E ) safe_exit;;
+		* ) checkers; title;;
+	esac
 }
 
 tweak_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then tweak_dir=$init_dir; else tweak_dir=$tmp_dir; fi }
-
-install_msg(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
 
 clean_up(){
 	clear
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	tweak_dir
-	tweak="$tweak_dir/99clean_up"
+	tweak_dir; tweak="$tweak_dir/99clean_up"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -510,8 +506,6 @@ EOF
 	echo "${yellow}Clean up complete!$nc"
 	sleep 1
 
-	install_msg
-
 	title
 }
 
@@ -520,8 +514,7 @@ vm_tune(){
 	echo "${yellow}Optimizing Memory...$nc"
 	sleep 1
 
-	tweak_dir
-	tweak="$tweak_dir/75vm"
+	tweak_dir; tweak="$tweak_dir/75vm"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -537,8 +530,6 @@ EOF
 	echo "${yellow}Memory Optimized!$nc"
 	sleep 1
 
-	install_msg
-
 	title
 }
 
@@ -547,8 +538,7 @@ network_tune(){
 	echo "${yellow}Optimizing Network...$nc"
 	sleep 1
 
-	tweak_dir
-	tweak="$tweak_dir/56net"
+	tweak_dir; tweak="$tweak_dir/56net"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -564,8 +554,7 @@ sysctl -wq net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.i
 #TCP echo
 sleep 0
 
-echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_rmem
-echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_wmem
+echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_rmem; echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_wmem
 
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
@@ -573,8 +562,6 @@ EOF
 	clear
 	echo "${yellow}Network Optimized!$nc"
 	sleep 1
-
-	install_msg
 
 	title
 }
@@ -611,7 +598,7 @@ sql_optimize(){
 	echo
 	echo "Press any key to continue..."
 	stty cbreak -echo
-	f=$(dd bs=1 count=1 2>/dev/null)
+	dd bs=1 count=1 2>/dev/null
 	stty -cbreak echo
 
 	title
@@ -654,8 +641,7 @@ lmk_apply(){
 	echo "${yellow}Applying Profile...$nc"
 	sleep 1
 
-	tweak_dir
-	tweak="$tweak_dir/95lmk"
+	tweak_dir; tweak="$tweak_dir/95lmk"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -673,8 +659,6 @@ EOF
 	echo "${yellow}Profile Applied!$nc"
 	sleep 1
 
-	install_msg
-
 	title
 }
 
@@ -688,6 +672,7 @@ kernel_kontrol(){
 		kcal=1
 	 	echo " 4|View KCal Values"
 	fi
+	echo
 	echo " B|Back"
 	echo
 	echo -n "> "
@@ -722,8 +707,7 @@ setcpufreq(){
 	echo -n "New Max Freq: "; read newmaxfreq
 	echo -n "New Min Freq: "; read newminfreq
 
-	tweak_dir
-	tweak="$tweak_dir/69cpu_freq"
+	tweak_dir; tweak="$tweak_dir/69cpu_freq"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -741,8 +725,6 @@ EOF
 	clear
 	echo "${yellow}New Freq's applied!$nc"
 	sleep 1
-
-	install_msg
 
 	kernel_kontrol
 }
@@ -765,8 +747,7 @@ setgov(){
 
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-	tweak_dir
-	tweak="$tweak_dir/70cpu_gov"
+	tweak_dir; tweak="$tweak_dir/70cpu_gov"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -783,8 +764,6 @@ EOF
 	clear
 	echo "${yellow}New Governor applied!$nc"
 	sleep 1
-
-	install_msg
 
 	kernel_kontrol
 }
@@ -810,8 +789,7 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	tweak_dir
-	tweak="$tweak_dir/71io_sched"
+	tweak_dir; tweak="$tweak_dir/71io_sched"
 
 	touch $tweak
 	chmod 755 $tweak
@@ -826,8 +804,6 @@ done
 
 EOF
 	sed -i 's/dir/$j/' $tweak; $tweak; sed -i 's/sleep 0/sleep 15/' $tweak
-
-	install_msg
 
 	kernel_kontrol
 }
@@ -863,6 +839,7 @@ zram_settings(){
 	echo "${yellow}zRAM Options:$nc"
 	echo " 1|Disable zRAM"
 	echo " 2|Enable zRAM"
+	echo
 	echo " B|Back"
 	echo
 	echo -n "> "
@@ -922,6 +899,7 @@ game_booster(){
 	echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
 	echo " [2] Options"
+	echo
 	echo " [B] Back"
 	echo
 	echo -n "> "
@@ -942,8 +920,12 @@ game_inject(){
 	echo
 
 	while true; do
-	 	sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null #to kill background apps
-		sleep $interval_time
+		for g in $(grep MemFree /proc/meminfo | awk '{print $2}' ); do
+
+	 		sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null
+			echo "Free RAM: $g kB"
+			sleep $interval_time
+		done
 	done
 }
 
@@ -969,6 +951,7 @@ options(){
 	echo "${yellow}Options$nc"
 	echo " I|Install options"
 	echo " S|Sensor fix"
+	echo
 	echo " B|Back"
 	echo
 	echo -n "> "
@@ -1010,12 +993,13 @@ install_options(){
 sensor_fix(){
 	clear
 	echo "Wipe sensor data? [Y/N]"
+	echo
 	echo -n "> "
 	read sensor_fix_opt
 	case $sensor_fix_opt in
 		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1; options;;
 		n|N ) options;;
-		* ) checkers; options;;
+		* ) checkers; sensor_fix;;
 	esac
 }
 
@@ -1065,7 +1049,8 @@ custom_reboot(){
 	clear
 	echo "Just kidding :] (?)"
 	sleep 1
-	sync; reboot
+	sync
+	reboot
 }
 
 safe_exit(){
