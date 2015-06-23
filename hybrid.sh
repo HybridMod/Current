@@ -480,29 +480,27 @@ cat > $script_dir/99clean_up <<-EOF
 
 sleep 0
 
-r="rm -f "
-
-$r/cache/*.apk
-$r/cache/*.tmp
-$r/cache/recovery/*
-$r/data/*.log
-$r/data/*.txt
-$r/data/anr/*.*
-$r/data/backup/pending/*.tmp
-$r/data/cache/*.*
-$r/data/dalvik-cache/*.apk
-$r/data/dalvik-cache/*.tmp
-$r/data/log/*.*
-$r/data/local/*.apk
-$r/data/local/*.log
-$r/data/local/tmp/*.*
-$r/data/last_alog/*
-$r/data/last_kmsg/*
-$r/data/mlog/*
-$r/data/tombstones/*
-$r/data/system/dropbox/*
-$r/data/system/usagestats/*
-$r$EXTERNAL_STORAGE/LOST.DIR/*
+rm -f /cache/*.apk
+rm -f /cache/*.tmp
+rm -f /cache/recovery/*
+rm -f /data/*.log
+rm -f /data/*.txt
+rm -f /data/anr/*.*
+rm -f /data/backup/pending/*.tmp
+rm -f /data/cache/*.*
+rm -f /data/dalvik-cache/*.apk
+rm -f /data/dalvik-cache/*.tmp
+rm -f /data/log/*.*
+rm -f /data/local/*.apk
+rm -f /data/local/*.log
+rm -f /data/local/tmp/*.*
+rm -f /data/last_alog/*
+rm -f /data/last_kmsg/*
+rm -f /data/mlog/*
+rm -f /data/tombstones/*
+rm -f /data/system/dropbox/*
+rm -f /data/system/usagestats/*
+rm -f $EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
 	$script_dir/99clean_up; sed -i 's/sleep 0/sleep 15/' $initd_dir/99clean_up
@@ -528,7 +526,7 @@ vm_tune(){
 cat > $script_dir/75vm <<-EOF
 #!/system/bin/sh
 
-sysctl -q vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000 vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500 vm.drop_caches=3 vm.min_free_kbytes=4096 vm.oom_kill_allocating_task=1 vm.overcommit_memory=1 vm.overcommit_ratio=150 vm.swappiness=80 vm.vfs_cache_pressure=10
+sysctl -wq vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000 vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500 vm.drop_caches=3 vm.min_free_kbytes=4096 vm.oom_kill_allocating_task=1 vm.overcommit_memory=1 vm.overcommit_ratio=150 vm.swappiness=80 vm.vfs_cache_pressure=10
 
 EOF
 	$initd_dir/75vm
@@ -555,10 +553,10 @@ cat > $script_dir/56net <<-EOF
 #!/system/bin/sh
 
 #TCP
-sysctl -q net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144 net.ipv4.tcp_rmem=6144 87380 2097152 net.ipv4.tcp_wmem=6144 87380 2097152 net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
+sysctl -wq net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144 net.ipv4.tcp_rmem=6144 87380 2097152 net.ipv4.tcp_wmem=6144 87380 2097152 net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
 
 #IPv4
-sysctl -q net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0 net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0 net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1 net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
+sysctl -wq net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0 net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0 net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1 net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
 
 EOF
 	$initd_dir/56net
