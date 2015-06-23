@@ -462,7 +462,7 @@ body(){
 	done
 }
 
-script_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then script_dir=$initd_dir; else script_dir=$tmp_dir; fi }
+tweak_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then tweak_dir=$init_dir; else tweak_dir=$tmp_dir; fi }
 
 install_msg(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
 
@@ -471,11 +471,12 @@ clean_up(){
 	echo "${yellow}Cleaning up...$nc"
 	sleep 1
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/99clean_up"
 
-	touch $script_dir/99clean_up
-	chmod 755 $script_dir/99clean_up
-cat > $script_dir/99clean_up <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
@@ -503,7 +504,7 @@ rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
-	$script_dir/99clean_up; sed -i 's/sleep 0/sleep 15/' $initd_dir/99clean_up
+	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}Clean up complete!$nc"
@@ -519,17 +520,18 @@ vm_tune(){
 	echo "${yellow}Optimizing Memory...$nc"
 	sleep 1
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/75vm"
 
-	touch $script_dir/75vm
-	chmod 755 $script_dir/75vm
-cat > $script_dir/75vm <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sysctl -wq vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000 vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500 vm.drop_caches=3 vm.min_free_kbytes=4096 vm.oom_kill_allocating_task=1 vm.overcommit_memory=1 vm.overcommit_ratio=150 vm.swappiness=80 vm.vfs_cache_pressure=10
 
 EOF
-	$initd_dir/75vm
+	$tweak
 
 	clear
 	echo "${yellow}Memory Optimized!$nc"
@@ -545,21 +547,28 @@ network_tune(){
 	echo "${yellow}Optimizing Network...$nc"
 	sleep 1
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/56net"
 
-	touch $script_dir/56net
-	chmod 755 $script_dir/56net
-cat > $script_dir/56net <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 #TCP
-sysctl -wq net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144 net.ipv4.tcp_rmem=6144 87380 2097152 net.ipv4.tcp_wmem=6144 87380 2097152 net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
+sysctl -wq net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144  net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
 
 #IPv4
 sysctl -wq net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0 net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0 net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1 net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
 
+#TCP echo
+sleep 0
+
+echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_rmem
+echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_wmem
+
 EOF
-	$initd_dir/56net
+	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}Network Optimized!$nc"
@@ -579,19 +588,16 @@ sql_optimize(){
 		chown 0.0  /system/xbin/sqlite3
 		chmod 755 /system/xbin/sqlite3
 		SQLLOC="/system/xbin/sqlite3"
-	fi
-
-	if [ -f /system/bin/sqlite3 ]; then
+	elif [ -f /system/bin/sqlite3 ]; then
 		chown 0.0 /system/bin/sqlite3
 		chmod 755 /system/bin/sqlite3
 		SQLLOC="/system/bin/sqlite3"
-	fi
-
-	if [ -f /sbin/sqlite3 ]; then
+	elif [ -f /sbin/sqlite3 ]; then
 		chown 0.0 /sbin/sqlite3
 		chmod 755 /sbin/sqlite3
 		SQLLOC="/sbin/sqlite3"
 	fi
+
 	for i in `find / -iname "*.db" 2>/dev/null`
 	do
 		$SQLLOC $i 'VACUUM;'
@@ -625,7 +631,7 @@ lmk_tune(){
 	echo -n "> "
 	read lmk_tune_opt
 	case $lmk_tune_opt in
-		b|B|m|M|g|G ) clear; sleep 1; lmk_profile=$lmk_tune_opt; lmk_apply;;
+		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply;;
 		r|R ) title;;
 		* ) checkers; lmk_tune;;
 	esac
@@ -648,11 +654,12 @@ lmk_apply(){
 	echo "${yellow}Applying Profile...$nc"
 	sleep 1
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/95lmk"
 
-	touch $script_dir/95lmk
-	chmod 755 $script_dir/95lmk
-cat > $script_dir/95lmk <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
@@ -660,7 +667,7 @@ sleep 0
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 
 EOF
-	$script_dir/95lmk; sed -i 's/sleep 0/sleep 15/' $initd_dir/95lmk
+	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}Profile Applied!$nc"
@@ -715,11 +722,12 @@ setcpufreq(){
 	echo -n "New Max Freq: "; read newmaxfreq
 	echo -n "New Min Freq: "; read newminfreq
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/69cpu_freq"
 
-	touch $script_dir/69cpu_freq
-	chmod 755 $script_dir/69cpu_freq
-cat > $script_dir/69cpu_freq <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
@@ -728,7 +736,7 @@ echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 EOF
-	$initd_dir/69cpu_freq; sed -i 's/sleep 0/sleep 15/' $initd_dir/69cpu_freq
+	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}New Freq's applied!$nc"
@@ -757,11 +765,12 @@ setgov(){
 
 	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/70cpu_gov"
 
-	touch $script_dir/70cpu_gov
-	chmod 755 $script_dir/70cpu_gov
-cat > $script_dir/70cpu_gov <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
@@ -769,7 +778,7 @@ sleep 0
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 EOF
-	$initd_dir/70cpu_gov; sed -i 's/sleep 0/sleep 15/' $initd_dir/70cpu_gov
+	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}New Governor applied!$nc"
@@ -801,11 +810,12 @@ setiosched(){
 	echo "${yellow}New I/O Scheduler applied!$nc"
 	sleep 1
 
-	script_dir
+	tweak_dir
+	tweak="$tweak_dir/71io_sched"
 
-	touch $script_dir/71io_sched
-	chmod 755 $script_dir/71io_sched
-cat > $script_dir/71io_sched <<-EOF
+	touch $tweak
+	chmod 755 $tweak
+cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
@@ -815,7 +825,7 @@ for j in /sys/block/*/queue/scheduler; do
 done
 
 EOF
-	sed -i 's/dir/$j/' $initd_dir/71io_sched; $initd_dir/71io_sched; sed -i 's/sleep 0/sleep 15/' $initd_dir/71io_sched
+	sed -i 's/dir/$j/' $tweak; $tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	install_msg
 
@@ -932,7 +942,7 @@ game_inject(){
 	echo
 
 	while true; do
-	 	sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null #to kill background task
+	 	sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null #to kill background apps
 		sleep $interval_time
 	done
 }
@@ -1003,7 +1013,7 @@ sensor_fix(){
 	echo -n "> "
 	read sensor_fix_opt
 	case $sensor_fix_opt in
-		y|Y ) rm -rf /data/misc/sensor/; echo "Done"; sleep 1; options;;
+		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1; options;;
 		n|N ) options;;
 		* ) checkers; options;;
 	esac
