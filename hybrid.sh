@@ -422,20 +422,19 @@ title(){
 body(){
 	while true; do
 		echo "${yellow}Menu:$nc"
-		echo " 1|Instant UI Boost"
-		echo " 2|Clean up my crap"
-		echo " 3|Optimize my SQLite DB's"
-		echo " 4|VM Optimizations"
-		echo " 5|LMK Profiles"
-		echo " 6|Network Fixes"
-		echo " 7|Kernel Kontrol"
+		echo " 1|Clean up my Crap"
+		echo " 2|Optimize my Memory"
+		echo " 3|Optimize my Network"
+		echo " 4|Optimize my Databases"
+		echo " 5|RAM Profiles"
+		echo " 6|Kernel Kontrol"
 		if [ -f /dev/block/zram* ]; then
 			zram="1"
-			echo " 8|zRAM Settings"
-			echo " 9|Game Booster"
+			echo " 7|zRAM Settings"
+			echo " 8|Game Booster"
 		else
 			zram="0"
-			echo " 8|Game Booster"
+			echo " 7|Game Booster"
 		fi
 		echo
 		echo " O|Options"
@@ -446,15 +445,14 @@ body(){
 		echo -n "> "
 		read selection_opt
 		case $selection_opt in
-			1 ) drop_caches;;
-			2 ) clean_up;;
-			3 ) sql_optimize;;
-			4 ) vm_tune;;
+			1 ) clean_up;;
+			2 ) vm_tune;;
+			3 ) network_tune;;
+			4 ) sql_optimize;;
 			5 ) lmk_tune;;
-			6 ) network_tune;;
-			7 ) kernel_kontrol;;
-			8 ) zram_settings_custom;;
-			9 ) game_booster_custom;;
+			6 ) kernel_kontrol;;
+			7 ) zram_settings_custom;;
+			8 ) game_booster_custom;;
 			o|O ) options;;
 			a|A ) about_info;;
 			r|R ) custom_reboot;;
@@ -467,34 +465,6 @@ body(){
 script_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then script_dir=$initd_dir; else script_dir=$tmp_dir; fi }
 
 install_msg(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then clear; echo "${yellow}Installed!$nc"; sleep 1; fi }
-
-drop_caches(){
-	clear
-	echo "${yellow}Dropping caches...$nc"
-	sleep 1
-
-	script_dir
-
-	touch $script_dir/97cache_drop
-	chmod 755 $script_dir/97cache_drop
-cat > $script_dir/97cache_drop <<-EOF
-#!/system/bin/sh
-
-sleep 0
-
-sync; echo "3" > /proc/sys/vm/drop_caches
-
-EOF
-	$script_dir/97cache_drop; sed -i 's/sleep 0/sleep 15/' $initd_dir/97cache_drop
-
-	clear
-	echo "${yellow}Caches dropped!$nc"
-	sleep 1
-
-	install_msg
-
-	title
-}
 
 clean_up(){
 	clear
@@ -510,27 +480,29 @@ cat > $script_dir/99clean_up <<-EOF
 
 sleep 0
 
-rm -f /cache/*.apk
-rm -f /cache/*.tmp
-rm -f /cache/recovery/*
-rm -f /data/*.log
-rm -f /data/*.txt
-rm -f /data/anr/*.*
-rm -f /data/backup/pending/*.tmp
-rm -f /data/cache/*.*
-rm -f /data/dalvik-cache/*.apk
-rm -f /data/dalvik-cache/*.tmp
-rm -f /data/log/*.*
-rm -f /data/local/*.apk
-rm -f /data/local/*.log
-rm -f /data/local/tmp/*.*
-rm -f /data/last_alog/*
-rm -f /data/last_kmsg/*
-rm -f /data/mlog/*
-rm -f /data/tombstones/*
-rm -f /data/system/dropbox/*
-rm -f /data/system/usagestats/*
-rm -f $EXTERNAL_STORAGE/LOST.DIR/*
+r="rm -f "
+
+$r/cache/*.apk
+$r/cache/*.tmp
+$r/cache/recovery/*
+$r/data/*.log
+$r/data/*.txt
+$r/data/anr/*.*
+$r/data/backup/pending/*.tmp
+$r/data/cache/*.*
+$r/data/dalvik-cache/*.apk
+$r/data/dalvik-cache/*.tmp
+$r/data/log/*.*
+$r/data/local/*.apk
+$r/data/local/*.log
+$r/data/local/tmp/*.*
+$r/data/last_alog/*
+$r/data/last_kmsg/*
+$r/data/mlog/*
+$r/data/tombstones/*
+$r/data/system/dropbox/*
+$r/data/system/usagestats/*
+$r$EXTERNAL_STORAGE/LOST.DIR/*
 
 EOF
 	$script_dir/99clean_up; sed -i 's/sleep 0/sleep 15/' $initd_dir/99clean_up
@@ -544,9 +516,65 @@ EOF
 	title
 }
 
+vm_tune(){
+	clear
+	echo "${yellow}Optimizing Memory...$nc"
+	sleep 1
+
+	script_dir
+
+	touch $script_dir/75vm
+	chmod 755 $script_dir/75vm
+cat > $script_dir/75vm <<-EOF
+#!/system/bin/sh
+
+sysctl -q vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000 vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500 vm.drop_caches=3 vm.min_free_kbytes=4096 vm.oom_kill_allocating_task=1 vm.overcommit_memory=1 vm.overcommit_ratio=150 vm.swappiness=80 vm.vfs_cache_pressure=10
+
+EOF
+	$initd_dir/75vm
+
+	clear
+	echo "${yellow}Memory Optimized!$nc"
+	sleep 1
+
+	install_msg
+
+	title
+}
+
+network_tune(){
+	clear
+	echo "${yellow}Optimizing Network...$nc"
+	sleep 1
+
+	script_dir
+
+	touch $script_dir/56net
+	chmod 755 $script_dir/56net
+cat > $script_dir/56net <<-EOF
+#!/system/bin/sh
+
+#TCP
+sysctl -q net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144 net.ipv4.tcp_rmem=6144 87380 2097152 net.ipv4.tcp_wmem=6144 87380 2097152 net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
+
+#IPv4
+sysctl -q net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0 net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0 net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1 net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
+
+EOF
+	$initd_dir/56net
+
+	clear
+	echo "${yellow}Network Optimized!$nc"
+	sleep 1
+
+	install_msg
+
+	title
+}
+
 sql_optimize(){
 	clear
-	echo "${yellow}Optimizing SQLite databases...$nc"
+	echo "${yellow}Checking Databases...$nc"
 	echo
 
 	if [ -f /system/xbin/sqlite3 ]; then
@@ -574,58 +602,22 @@ sql_optimize(){
 	done
 
 	echo
-	echo "${yellow}SQLite database optimizations complete!$nc"
+	echo "${yellow}Database optimizations complete!$nc"
 
 	echo
 	echo "Press any key to continue..."
 	stty cbreak -echo
 	f=$(dd bs=1 count=1 2>/dev/null)
 	stty -cbreak echo
-	title
-}
-
-vm_tune(){
-	clear
-	echo "${yellow}Optimizing VM...$nc"
-	sleep 1
-
-	script_dir
-
-	touch $script_dir/75vm
-	chmod 755 $script_dir/75vm
-cat > $script_dir/75vm <<-EOF
-#!/system/bin/sh
-
-sleep 0
-
-echo "80" > /proc/sys/vm/swappiness
-echo "10" > /proc/sys/vm/vfs_cache_pressure
-echo "3000" > /proc/sys/vm/dirty_expire_centisecs
-echo "500" > /proc/sys/vm/dirty_writeback_centisecs
-echo "90" > /proc/sys/vm/dirty_ratio
-echo "70" > /proc/sys/vm/dirty_background_ratio
-echo "1" > /proc/sys/vm/overcommit_memory
-echo "150" > /proc/sys/vm/overcommit_ratio
-echo "4096" > /proc/sys/vm/min_free_kbytes
-echo "1" > /proc/sys/vm/oom_kill_allocating_task
-
-EOF
-	$script_dir/75vm; sed -i 's/sleep 0/sleep 15/' $initd_dir/75vm
-
-	clear
-	echo "${yellow}VM Optimized!$nc"
-	sleep 1
-
-	install_msg
 
 	title
 }
 
 lmk_tune(){
 	clear
-	echo "${yellow}LMK Optimization$nc"
+	echo "${yellow}RAM Profiles$nc"
 	echo
-	echo "${yellow}Minfree profiles available:$nc"
+	echo "${yellow}Profiles available:$nc"
 	echo " B|Balanced"
 	echo " M|Multitasking|"
 	echo " G|Gaming"
@@ -635,7 +627,7 @@ lmk_tune(){
 	echo -n "> "
 	read lmk_tune_opt
 	case $lmk_tune_opt in
-		b|B|m|M|g|G ) clear; echo "Done"; sleep 1; lmk_profile=$lmk_tune_opt; lmk_apply;;
+		b|B|m|M|g|G ) clear; sleep 1; lmk_profile=$lmk_tune_opt; lmk_apply;;
 		r|R ) title;;
 		* ) checkers; lmk_tune;;
 	esac
@@ -655,7 +647,7 @@ lmk_apply(){
     minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
-	echo "${yellow}Optimizing LMK...$nc"
+	echo "${yellow}Applying Profile...$nc"
 	sleep 1
 
 	script_dir
@@ -673,74 +665,7 @@ EOF
 	$script_dir/95lmk; sed -i 's/sleep 0/sleep 15/' $initd_dir/95lmk
 
 	clear
-	echo "${yellow}LMK Optimized!$nc"
-	sleep 1
-
-	install_msg
-
-	title
-}
-
-network_tune(){
-	clear
-	echo "${yellow}Optimizing Networks...$nc"
-	sleep 1
-
-	script_dir
-
-	touch $script_dir/56net
-	chmod 755 $script_dir/56net
-cat > $script_dir/56net <<-EOF
-#!/system/bin/sh
-
-sleep 0
-
-#TCP
-echo "2097152" > /proc/sys/net/core/wmem_max
-echo "2097152" > /proc/sys/net/core/rmem_max
-echo "20480" > /proc/sys/net/core/optmem_max
-echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
-echo "6144" > /proc/sys/net/ipv4/udp_rmem_min
-echo "6144" > /proc/sys/net/ipv4/udp_wmem_min
-echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem
-echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem
-echo "0" > /proc/sys/net/ipv4/tcp_timestamps
-echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
-echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
-echo "1" > /proc/sys/net/ipv4/tcp_sack
-echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
-echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
-echo "156" > /proc/sys/net/ipv4/tcp_keepalive_intvl
-echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
-echo "0" > /proc/sys/net/ipv4/tcp_ecn
-echo "360000" > /proc/sys/net/ipv4/tcp_max_tw_buckets
-echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
-echo "1" > /proc/sys/net/ipv4/route/flush
-echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
-echo "524288" > /proc/sys/net/core/wmem_max
-echo "524288" > /proc/sys/net/core/rmem_max
-echo "110592" > /proc/sys/net/core/rmem_default
-echo "110592" > /proc/sys/net/core/wmem_default
-
-#IPv4
-echo "1" > /proc/sys/net/ipv4/conf/all/rp_filter
-echo "1" > /proc/sys/net/ipv4/conf/default/rp_filter
-echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
-echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects
-echo "0" > /proc/sys/net/ipv4/conf/all/send_redirects
-echo "0" > /proc/sys/net/ipv4/conf/default/send_redirects
-echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
-echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route
-echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
-echo "1" > /proc/sys/net/ipv4/conf/default/log_martians
-
-EOF
-	$script_dir/56net; sed -i 's/sleep 0/sleep 15/' $initd_dir/56net
-
-	clear
-	echo "${yellow}Networks Optimized!$nc"
+	echo "${yellow}Profile Applied!$nc"
 	sleep 1
 
 	install_msg
