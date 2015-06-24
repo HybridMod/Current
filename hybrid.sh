@@ -422,7 +422,10 @@ install(){
 			v=$(eval echo $i)
 			echo -n -e "\rwould you like to install it in $v? (y/n) "
 			while true; do
+				stty cbreak -echo
 				f=$(dd bs=1 count=1 2>/dev/null)
+				stty -cbreak echo
+				echo $f
 				case $f in
 					y* | Y*)
 						loc=$v
@@ -465,7 +468,10 @@ install(){
 		if [[ -f "$loc/$NO_EXTENSION" ]]; then
 			echo -n 'program file already exists. overwrite? (y/n) '
 			while true; do
+				stty cbreak -echo
 				f=$(dd bs=1 count=1 2>/dev/null)
+				stty -cbreak echo
+				echo $f
 				case $f in
 					y* | Y*)
 						break
