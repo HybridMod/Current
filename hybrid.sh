@@ -771,8 +771,10 @@ kernel_kontrol(){
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
 	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
-		kcal=1
+		kcal="1"
 	 	echo " 4|View KCal Values"
+ 	else
+ 	 	kcal="0"
 	fi
 	echo
 	echo " B|Back"
@@ -782,7 +784,7 @@ kernel_kontrol(){
 		1) set_cpu_freq;;
 		2) set_gov;;
 		3) set_io_sched;;
-		4) kcal;;
+		4) kcal_custom;;
 		b|B) break;;
 		* ) checkers;;
 	 esac
@@ -888,10 +890,15 @@ EOF
 	clear; echo "${yellow}New I/O Scheduler applied!$nc"; sleep 1
 }
 
+kcal_custom(){
+     	if [ "$kcal" == 0 ]; then
+         	checkers
+     	elif [ "$kcal" == 1 ]; then
+         	kcal
+ 	fi
+}
+
 kcal(){
-	if [ "$kcal" == "" ]; then
-	 	checkers; break
-	fi
  	clear; echo "${yellow}Current KCal Values:${nc}"
 	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
 	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
