@@ -1,23 +1,5 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
-#NOTES (Sign off please)
-#Move notes to its own file
-#res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
-#replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
-#http://explainshell.com/ (~Diamond)
-#what do you mean by 'all tabs are 8 characters'?? (~hoholee12)
-#
-#CodingStyle:
-#No single letter variables, unless its completely useless and does not have a meaning...(at least for loops)
-#Use tabs
-#All tabs are 8 characters
-#80 character line limit
-#make one base for loop(such as title or body)
-#functions should end itself if done working and go back to the base automagically.
-#don't call base function just to go back to it, else we'd have a function inside function inside function ......
-#typical thread bomb or memleak method..
-#solution is to remove all base function callings on other functions.(although i dont want to touch this because i dont know what will break.. havent seen through yet:p)
-
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
 readonly debug=
