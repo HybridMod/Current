@@ -2,11 +2,9 @@
 
 #NOTES (Sign off please)
 #Move notes to its own file
-#props don't update untill re-run the script (~Deic)
 #res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
 #replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
 #http://explainshell.com/ (~Diamond)
-#$DIR_NAME Does why not work with /data/media/ or /mnt/external_sd?
 
 #CodingStyle:
 #No single letter variables
@@ -408,20 +406,22 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 }
 
 title(){
-	clear
-	if [ "$permanent" == "" ]; then
-	 	sleep 1; echo "${cyan}The$nc"; sleep 1
-	 	echo "$cyan          Hybrid$nc"; sleep 1
-	 	echo "$cyan                      Mod$nc"; sleep 1
-	 	echo "                                                :)"; sleep 3
+	while true; do
+		clear
+		if [ "$permanent" == "" ]; then
+	 		sleep 1; echo "${cyan}The$nc"; sleep 1
+	 		echo "$cyan          Hybrid$nc"; sleep 1
+	 		echo "$cyan                      Mod$nc"; sleep 1
+	 		echo "                                                :)"; sleep 3
 
-	 	install_options
-	else
-	 	echo "$cyan[-=Hybrid-Mod=-]$nc"
-	 	echo
+	 		install_options
+		else
+	 		echo "$cyan[-=Hybrid-Mod=-]$nc"
+	 		echo
 
-		body
-	fi
+			body
+		fi
+	done
 }
 
 body(){
@@ -868,9 +868,10 @@ game_inject(){
 		clear; echo "Please leave the terminal emulator running"
 		echo "This will continue to run untill close the terminal"
 		echo
+
+			sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null
 		for free_ram in $(grep MemFree /proc/meminfo | awk '{print $2}' ); do
-	 		sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null
-			sleep 1; echo "Free RAM: $free_ram kB"; sleep $interval_time
+			echo "Free RAM: $free_ram kB"; sleep $interval_time
 		done
 	done
 }
