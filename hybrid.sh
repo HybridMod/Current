@@ -6,7 +6,7 @@
 #replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
 #http://explainshell.com/ (~Diamond)
 #what do you mean by 'all tabs are 8 characters'?? (~hoholee12)
-
+#
 #CodingStyle:
 #No single letter variables, unless its completely useless and does not have a meaning...(at least for loops)
 #Use tabs
