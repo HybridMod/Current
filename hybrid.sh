@@ -8,7 +8,7 @@
 #what do you mean by 'all tabs are 8 characters'?? (~hoholee12)
 
 #CodingStyle:
-#No single letter variables, unless its completely useless and does not have a meaning...
+#No single letter variables, unless its completely useless and does not have a meaning...(at least for loops)
 #Use tabs
 #All tabs are 8 characters
 #80 character line limit
