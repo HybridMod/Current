@@ -1,4 +1,7 @@
-#Stickies:
+#Notices:
+Please use the staging branch for code that has to be reviewed by someone else and or if the code is potentially unstable.
+
+#Quick Links:
 Resolution QuickSwitch - https://github.com/HybridMod/Current/issues/15
 Shell man pages - http://explainshell.com/
 
