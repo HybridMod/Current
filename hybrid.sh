@@ -726,7 +726,7 @@ lmk_tune(){
 	echo
 	echo -n "> "
 	read lmk_tune_opt; case $lmk_tune_opt in
-		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply;;
+		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply; break;;
 		r|R ) break;;
 		* ) checkers;;
 	esac
@@ -890,7 +890,7 @@ EOF
 
 kcal(){
 	if [ "$kcal" == "" ]; then
-	 	checkers; kernel_kontrol
+	 	checkers; break
 	fi
  	clear; echo "${yellow}Current KCal Values:${nc}"
 	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
@@ -919,8 +919,8 @@ zram_settings(){
 	echo
 	echo -n "> "
 	read zram_settings_opt; case $zram_settings_opt in
-	 	1 ) zram_disable;;
-	 	2 ) zram_enable;;
+	 	1 ) zram_disable; break;;
+	 	2 ) zram_enable; break;;
 	 	b|B ) break;;
 	 	* ) checkers;;
 	esac
@@ -965,7 +965,7 @@ game_booster(){
 	echo
 	echo -n "> "
 	read game_booster_opt; case $game_booster_opt in
-		1 ) game_inject;;
+		1 ) game_inject; break;;
 		2 ) game_time_cfg;;
 		b|B ) break;;
 		* ) checkers;;
@@ -1034,8 +1034,8 @@ install_options(){
 	echo
 	echo -n "> "
 	read install_options_opt; case $install_options_opt in
-	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1;;
-		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1;;
+	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; break;;
+		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; break;;
 	 	b|B ) $iBack;;
 		* ) checkers;;
 	esac
@@ -1048,7 +1048,7 @@ sensor_fix(){
 	echo
 	echo -n "> "
 	read sensor_fix_opt; case $sensor_fix_opt in
-		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1;;
+		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1; break;;
 		n|N ) break;;
 		* ) checkers;;
 	esac
