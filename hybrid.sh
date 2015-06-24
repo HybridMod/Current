@@ -77,12 +77,12 @@ error(){
 	fi
 	LOG_DIR=$(echo $LOG_DIR | sed 's/\/$//')
 	cd /
-	for i in $(echo $LOG_DIR | sed 's/\//\n/g'); do
-		if [[ ! -d $i ]]; then
-			mkdir $i
-			chmod 755 $i
+	for count in $(echo $LOG_DIR | sed 's/\//\n/g'); do
+		if [[ ! -d $count ]]; then
+			mkdir $count
+			chmod 755 $count
 		fi
-		cd $i
+		cd $count
 	done
 	if [[ "$LOG_DIR" ]]; then
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $LOG_DIR/$NO_EXTENSION.log
@@ -131,9 +131,9 @@ bb_apg_2(){
 		else
 			cmd=224
 		fi
-		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
-			v=$(eval echo $i)
-			x=$(echo $i | sed 's/^\$//')
+		for count in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $count)
+			x=$(echo $count | sed 's/^\$//')
 			export $x=$v #export everything.
 			if [[ "$v" ]]; then
 				unset $x
@@ -164,9 +164,9 @@ bb_apg_2(){
 		else
 			cmd=224
 		fi
-		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
-			v=$(eval echo $i)
-			x=$(echo $i | sed 's/^\$//')
+		for count in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $count)
+			x=$(echo $count | sed 's/^\$//')
 			export $x=$v #export everything.
 			if [[ "$v" ]]; then
 				if [[ ! "$(which $v)" ]]; then
@@ -182,17 +182,17 @@ bb_apg_2(){
 	else
 		busyboxloc=$(dirname $(which busybox))
 		n=0
-		for i in $(echo $PATH | sed 's/:/ /g'); do
+		for count in $(echo $PATH | sed 's/:/ /g'); do
 			n=$(($n+1))
-			export slot$n=$i
-			if [[ "$i" == "$busyboxloc" ]]; then
+			export slot$n=$count
+			if [[ "$count" == "$busyboxloc" ]]; then
 				busyboxenv=slot$n
 			fi
 		done
 		if [[ "$busyboxenv" != slot1 ]]; then
 			export PATH=$(echo -n $busyboxloc
-			for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
-				v=$(eval echo $i)
+			for count in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+				v=$(eval echo $count)
 				if [[ "$v" != "$busyboxloc" ]]; then
 					echo -n ":$v"
 				fi
@@ -205,9 +205,9 @@ bb_apg_2(){
 		else
 			cmd=224
 		fi
-		for i in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
-			v=$(eval echo $i)
-			x=$(echo $i | sed 's/^\$//')
+		for count in $(seq -s ' $cmd' 0 $cmd | sed 's/^0//'); do
+			v=$(eval echo $count)
+			x=$(echo $count | sed 's/^\$//')
 			export $x=$v #export everything.
 			if [[ "$v" ]]; then
 				if [[ ! "$(busybox | grep "\<$v\>")" ]]; then
@@ -226,7 +226,7 @@ bb_apg_2(){
 					fi
 				fi
 				if [[ ! -e "$busyboxloc"/"$v" ]]; then
-					alias $i="busybox $i"
+					alias $count="busybox $count"
 				fi
 			else
 				break #reduce cycle
@@ -278,8 +278,8 @@ chk3="pardon?"
 chk4="are you retarded?"
 chk5="I no understand enchiladas"
 checkers(){
-	for i in $(seq 1 20); do
-		if [[ ! "$(eval echo \$chk$i)" ]]; then
+	for count in $(seq 1 20); do
+		if [[ ! "$(eval echo \$chk$count)" ]]; then
 			i=$((i-1))
 			break
 		fi
@@ -356,23 +356,23 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 				exit
 			;;
 			*)
-				if [[ "$(echo $i | grep '>')" ]]; then
-					if [[ "$(echo $i | grep '>>')" ]]; then
-						i=$(echo $i | sed 's/>>/>/')
-						if [[ "$(echo $i | cut -d'>' -f1)" ]]; then
-							first_comm=$(echo $i | cut -d'>' -f1)
-							second_comm=$(echo $i | sed 's/2>&1//' | cut -d'>' -f2)
-							if [[ "$(echo $i | grep '2>&1')" ]]; then
+				if [[ "$(echo $count | grep '>')" ]]; then
+					if [[ "$(echo $count | grep '>>')" ]]; then
+						i=$(echo $count | sed 's/>>/>/')
+						if [[ "$(echo $count | cut -d'>' -f1)" ]]; then
+							first_comm=$(echo $count | cut -d'>' -f1)
+							second_comm=$(echo $count | sed 's/2>&1//' | cut -d'>' -f2)
+							if [[ "$(echo $count | grep '2>&1')" ]]; then
 								eval $first_comm >> $second_comm 2>&1
 							else
 								eval $first_comm >> $second_comm
 							fi
 						fi
 					else
-						if [[ "$(echo $i | cut -d'>' -f1)" ]]; then
-							first_comm=$(echo $i | cut -d'>' -f1)
-							second_comm=$(echo $i | sed 's/2>&1//' | cut -d'>' -f2)
-							if [[ "$(echo $i | grep '2>&1')" ]]; then
+						if [[ "$(echo $count | cut -d'>' -f1)" ]]; then
+							first_comm=$(echo $count | cut -d'>' -f1)
+							second_comm=$(echo $count | sed 's/2>&1//' | cut -d'>' -f2)
+							if [[ "$(echo $count | grep '2>&1')" ]]; then
 								eval $first_comm > $second_comm 2>&1
 							else
 								eval $first_comm > $second_comm
@@ -396,18 +396,18 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 install(){
 	local loc # prevent breaks
 	n=0
-	for i in $(echo $PATH | sed 's/:/ /g'); do
+	for count in $(echo $PATH | sed 's/:/ /g'); do
 		n=$(($n+1))
-		export slot$n=$i
+		export slot$n=$count
 	done
 	if [[ "$1" == -i ]]; then
-		for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
-			eval echo $i
+		for count in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+			eval echo $count
 		done
 	else
 		echo $n hits.
-		for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
-			v=$(eval echo $i)
+		for count in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+			v=$(eval echo $count)
 			echo -n -e "\rwould you like to install it in $v? (y/n) "
 			while true; do
 				stty cbreak -echo
