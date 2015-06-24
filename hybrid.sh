@@ -582,7 +582,7 @@ body(){
 		a|A ) about_info;;
 		r|R ) custom_reboot;;
 		e|E ) safe_exit;;
-		* ) checkers; title;;
+		* ) checkers;;
 	esac
 }
 
@@ -620,8 +620,6 @@ EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear; echo "${yellow}Clean up complete!$nc"; sleep 1
-
-	title
 }
 
 vm_tune(){
@@ -643,8 +641,6 @@ EOF
 	$tweak
 
 	clear; echo "${yellow}Memory Optimized!$nc"; sleep 1
-
-	title
 }
 
 network_tune(){
@@ -685,8 +681,6 @@ EOF
 	$tweak
 
 	clear; echo "${yellow}Network Optimized!$nc"; sleep 1
-
-	title
 }
 
 sql_optimize(){
@@ -717,11 +711,10 @@ sql_optimize(){
 	echo
 	echo "Press any key to continue..."
 	stty cbreak -echo; dd bs=1 count=1 2>/dev/null; stty -cbreak echo
-
-	title
 }
 
 lmk_tune(){
+	while true; do
 	clear; echo "${yellow}RAM Profiles$nc"
 	echo
 	echo "${yellow}Profiles available:$nc"
@@ -734,9 +727,10 @@ lmk_tune(){
 	echo -n "> "
 	read lmk_tune_opt; case $lmk_tune_opt in
 		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply;;
-		r|R ) title;;
-		* ) checkers; lmk_tune;;
+		r|R ) break;;
+		* ) checkers;;
 	esac
+done
 }
 
 lmk_apply(){
@@ -768,11 +762,10 @@ EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear; echo "${yellow}Profile Applied!$nc"; sleep 1
-
-	title
 }
 
 kernel_kontrol(){
+	while true; do
 	clear; echo "${yellow}Kernel Kontrol$nc"
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
@@ -790,9 +783,10 @@ kernel_kontrol(){
 		2) set_gov;;
 		3) set_io_sched;;
 		4) kcal;;
-		b|B) title;;
-		* ) checkers; kernel_kontrol;;
+		b|B) break;;
+		* ) checkers;;
 	 esac
+done
 }
 
 set_cpu_freq(){
@@ -829,8 +823,6 @@ EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear; echo "${yellow}New Freq's applied!$nc"; sleep 1
-
-	kernel_kontrol
 }
 
 set_gov(){
@@ -861,8 +853,6 @@ EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear; echo "${yellow}New Governor applied!$nc"; sleep 1
-
-	kernel_kontrol
 }
 
 
@@ -896,8 +886,6 @@ EOF
 	sed -i 's/dir/$io_sched/' $tweak; $tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear; echo "${yellow}New I/O Scheduler applied!$nc"; sleep 1
-
-	kernel_kontrol
 }
 
 kcal(){
@@ -911,8 +899,6 @@ kcal(){
 	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
 	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
 	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"; sleep 5
-
-	kernel_kontrol
 }
 
 zram_settings_custom(){
@@ -924,6 +910,7 @@ zram_settings_custom(){
 }
 
 zram_settings(){
+	while true; do
 	clear; echo "${yellow}zRAM Options:$nc"
 	echo " 1|Disable zRAM"
 	echo " 2|Enable zRAM"
@@ -934,9 +921,10 @@ zram_settings(){
 	read zram_settings_opt; case $zram_settings_opt in
 	 	1 ) zram_disable;;
 	 	2 ) zram_enable;;
-	 	b|B ) title;;
-	 	* ) checkers; zram_settings;;
+	 	b|B ) break;;
+	 	* ) checkers;;
 	esac
+done
 }
 
 zram_disable(){
@@ -947,8 +935,6 @@ zram_disable(){
 	done
 
 	clear; echo "${yellow}zRAM disabled!$nc"; sleep 1
-	
-	zram_settings
 }
 
 zram_enable(){
@@ -959,19 +945,18 @@ zram_enable(){
 	done
 
 	clear; echo "${yellow}zRAM enabled!$nc"; sleep 1
-	
-	zram_settings
 }
 
 game_booster_custom(){
 	if [ "$zram" == 0 ]; then
-		checkers; title
+		checkers
 	elif [ "$zram" == 1 ]; then
 		game_booster
 	fi
 }
 
 game_booster(){
+	while true; do
 	clear; echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
 	echo " [2] Options"
@@ -982,9 +967,10 @@ game_booster(){
 	read game_booster_opt; case $game_booster_opt in
 		1 ) game_inject;;
 		2 ) game_time_cfg;;
-		b|B ) title;;
-		* ) checkers; game_booster;;
+		b|B ) break;;
+		* ) checkers;;
 	esac
+done
 }
 
 game_inject(){
@@ -1012,11 +998,10 @@ game_time_cfg(){
 	clear
 	echo "Time updated!"
 	sleep 1
-	
-	game_booster
 }
 
 options(){
+	while true; do
 	clear; echo "${yellow}Options$nc"
 	echo " I|Install options"
 	echo " S|Sensor fix"
@@ -1027,45 +1012,51 @@ options(){
 	read options_opt; case $options_opt in
 	 	i|I ) install_options;;
 		s|S ) sensor_fix;;
-	 	b|B ) title;;
-		* ) checkers; options;;
+	 	b|B ) break;;
+		* ) checkers;;
 	esac
+done
 }
 
 install_options(){
+	while true; do
 	clear; echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
 	echo
 	if [ "$permanent" == "" ]; then
-	 	iGo="title"; iBack="checkers; install_options"
+	 	iBack="checkers"
 	 	echo "${cyan}You can change it in Options later$nc"
 	else
-	 	iGo="options"; iBack="options"
+	 	iBack="break"
 	 	echo " B|Back"
 	fi
 	echo
 	echo -n "> "
 	read install_options_opt; case $install_options_opt in
-	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; $iGo;;
-		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; $iGo;;
+	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1;;
+		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1;;
 	 	b|B ) $iBack;;
-		* ) checkers; install_options;;
+		* ) checkers;;
 	esac
+done
 }
 
 sensor_fix(){
+	while true; do
 	clear; echo "Wipe sensor data? [Y/N]"
 	echo
 	echo -n "> "
 	read sensor_fix_opt; case $sensor_fix_opt in
-		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1; options;;
-		n|N ) options;;
-		* ) checkers; sensor_fix;;
+		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1;;
+		n|N ) break;;
+		* ) checkers;;
 	esac
+done
 }
 
 about_info(){
+	while true; do
 	clear; echo "${green}About:$nc"
 	echo
 	echo "HybridMod Version: $ver_revision"
@@ -1088,11 +1079,12 @@ about_info(){
 	echo
 	echo -n "> "
 	read about_info_opt; case $about_info_opt in
-	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1; about_info;;
-	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1; about_info;;
-	 	b|B ) title;;
-	 	* ) checkers; about_info;;
+	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1;;
+	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1;;
+	 	b|B ) break;;
+	 	* ) checkers;;
 	esac
+done
 }
 
 custom_reboot(){
