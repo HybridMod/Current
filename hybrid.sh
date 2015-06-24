@@ -715,22 +715,22 @@ sql_optimize(){
 
 lmk_tune(){
 	while true; do
-	clear; echo "${yellow}RAM Profiles$nc"
-	echo
-	echo "${yellow}Profiles available:$nc"
-	echo " B|Balanced"
-	echo " M|Multitasking|"
-	echo " G|Gaming"
-	echo
-	echo " R|Return"
-	echo
-	echo -n "> "
-	read lmk_tune_opt; case $lmk_tune_opt in
-		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply; break;;
-		r|R ) break;;
-		* ) checkers;;
-	esac
-done
+	 	clear; echo "${yellow}RAM Profiles$nc"
+	 	echo
+	 	echo "${yellow}Profiles available:$nc"
+	 	echo " B|Balanced"
+	 	echo " M|Multitasking|"
+	 	echo " G|Gaming"
+	 	echo
+	 	echo " R|Return"
+	 	echo
+	 	echo -n "> "
+	 	read lmk_tune_opt; case $lmk_tune_opt in
+		 	b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply; break;;
+		 	r|R ) break;;
+		 	* ) checkers;;
+	 	esac
+ 	done
 }
 
 lmk_apply(){
@@ -766,29 +766,29 @@ EOF
 
 kernel_kontrol(){
 	while true; do
-	clear; echo "${yellow}Kernel Kontrol$nc"
-	echo " 1|Set CPU Freq"
-	echo " 2|Set CPU Gov"
-	echo " 3|Set I/O Sched"
-	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
-		kcal="1"
-	 	echo " 4|View KCal Values"
- 	else
- 	 	kcal="0"
-	fi
-	echo
-	echo " B|Back"
-	echo
-	echo -n "> "
-	read kernel_kontrol_opt; case $kernel_kontrol_opt in
-		1) set_cpu_freq;;
-		2) set_gov;;
-		3) set_io_sched;;
-		4) kcal_custom;;
-		b|B) break;;
-		* ) checkers;;
-	 esac
-done
+	 	clear; echo "${yellow}Kernel Kontrol$nc"
+	 	echo " 1|Set CPU Freq"
+	 	echo " 2|Set CPU Gov"
+	 	echo " 3|Set I/O Sched"
+	 	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
+		 	kcal="1"
+	 	 	echo " 4|View KCal Values"
+ 	 	else
+ 	 	 	kcal="0"
+	 	fi
+	 	echo
+	 	echo " B|Back"
+	 	echo
+	 	echo -n "> "
+	 	read kernel_kontrol_opt; case $kernel_kontrol_opt in
+		 	1) set_cpu_freq;;
+		 	2) set_gov;;
+		 	3) set_io_sched;;
+		 	4) kcal_custom;;
+		 	b|B) break;;
+		 	* ) checkers;;
+	  	esac
+ 	done
 }
 
 set_cpu_freq(){
