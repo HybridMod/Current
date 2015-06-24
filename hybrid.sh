@@ -6,6 +6,8 @@
 #res qs - https://github.com/HybridMod/Current/issues/15 (~Diamond)
 #replace all single letter variables with either count if used in loops or a proper variable name. (~Diamond)
 #http://explainshell.com/ (~Diamond)
+#$DIR_NAME Does why not work with /data/media/ or /mnt/external_sd?
+
 #CodingStyle:
 #No single letter variables
 #Use tabs
@@ -408,19 +410,16 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 title(){
 	clear
 	if [ "$permanent" == "" ]; then
-	 	sleep 1
-	 	echo "${cyan}The$nc"
-	 	sleep 1
-	 	echo "$cyan          Hybrid$nc"
-	 	sleep 1
-	 	echo "$cyan                      Mod$nc"
-	 	sleep 1
-	 	echo "                                                :)"
-	 	sleep 3
+	 	sleep 1; echo "${cyan}The$nc"; sleep 1
+	 	echo "$cyan          Hybrid$nc"; sleep 1
+	 	echo "$cyan                      Mod$nc"; sleep 1
+	 	echo "                                                :)"; sleep 3
+
 	 	install_options
 	else
 	 	echo "$cyan[-=Hybrid-Mod=-]$nc"
 	 	echo
+
 		body
 	fi
 }
@@ -433,13 +432,13 @@ body(){
 	echo " 4|Optimize my Databases"
 	echo " 5|RAM Profiles"
 	echo " 6|Kernel Kontrol"
-	if [ -f /dev/block/zram* ]; then
+	if [ ! -d /dev/block/zram* ]; then
+		zram="0"
+		echo " 7|Game Booster"
+	else
 		zram="1"
 		echo " 7|zRAM Settings"
 		echo " 8|Game Booster"
-	else
-		zram="0"
-		echo " 7|Game Booster"
 	fi
 	echo
 	echo " O|Options"
@@ -449,8 +448,7 @@ body(){
 	echo " E|Exit"
 	echo
 	echo -n "> "
-	read selection_opt
-	case $selection_opt in
+	read selection_opt; case $selection_opt in
 		1 ) clean_up;;
 		2 ) vm_tune;;
 		3 ) network_tune;;
@@ -467,135 +465,126 @@ body(){
 	esac
 }
 
-tweak_dir(){ if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then tweak_dir=$init_dir; else tweak_dir=$tmp_dir; fi }
+tweak_dir(){
+if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
+tweak_dir=$init_dir
+else
+tweak_dir=$tmp_dir
+fi
+}
 
 clean_up(){
-	clear
-	echo "${yellow}Cleaning up...$nc"
-	sleep 1
+	clear; echo "${yellow}Cleaning up...$nc"; sleep 1
 
 	tweak_dir; tweak="$tweak_dir/99clean_up"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
-rm -f /cache/*.apk
-rm -f /cache/*.tmp
-rm -f /cache/recovery/*
-rm -f /data/*.log
-rm -f /data/*.txt
-rm -f /data/anr/*.*
-rm -f /data/backup/pending/*.tmp
-rm -f /data/cache/*.*
-rm -f /data/dalvik-cache/*.apk
-rm -f /data/dalvik-cache/*.tmp
-rm -f /data/log/*.*
-rm -f /data/local/*.apk
-rm -f /data/local/*.log
-rm -f /data/local/tmp/*.*
-rm -f /data/last_alog/*
-rm -f /data/last_kmsg/*
-rm -f /data/mlog/*
-rm -f /data/tombstones/*
-rm -f /data/system/dropbox/*
-rm -f /data/system/usagestats/*
+rm -f /cache/*.apk; rm -f /cache/*.tmp
+rm -f /cache/recovery/*; rm -f /data/*.log
+rm -f /data/*.txt; rm -f /data/anr/*.*
+rm -f /data/backup/pending/*.tmp; rm -f /data/cache/*.*
+rm -f /data/dalvik-cache/*.apk; rm -f /data/dalvik-cache/*.tmp
+rm -f /data/log/*.*; rm -f /data/local/*.apk
+rm -f /data/local/*.log; rm -f /data/local/tmp/*.*
+rm -f /data/last_alog/*; rm -f /data/last_kmsg/*
+rm -f /data/mlog/*; rm -f /data/tombstones/*
+rm -f /data/system/dropbox/*; rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
-
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
-	clear
-	echo "${yellow}Clean up complete!$nc"
-	sleep 1
+	clear; echo "${yellow}Clean up complete!$nc"; sleep 1
 
 	title
 }
 
 vm_tune(){
-	clear
-	echo "${yellow}Optimizing Memory...$nc"
-	sleep 1
+	clear; echo "${yellow}Optimizing Memory...$nc"; sleep 1
 
 	tweak_dir; tweak="$tweak_dir/75vm"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
-sysctl -wq vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000 vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500 vm.drop_caches=3 vm.min_free_kbytes=4096 vm.oom_kill_allocating_task=1 vm.overcommit_memory=1 vm.overcommit_ratio=150 vm.swappiness=80 vm.vfs_cache_pressure=10
-
+sysctl -wq vm.dirty_background_ratio=70 vm.dirty_expire_centisecs=3000
+sysctl -wq vm.dirty_ratio=90 vm.dirty_writeback_centisecs=500
+sysctl -wq vm.drop_caches=3 vm.min_free_kbytes=4096
+sysctl -wq vm.oom_kill_allocating_task=1 vm.overcommit_memory=1
+sysctl -wq vm.overcommit_ratio=150 vm.swappiness=80
+sysctl -wq vm.vfs_cache_pressure=10
 EOF
 	$tweak
 
-	clear
-	echo "${yellow}Memory Optimized!$nc"
-	sleep 1
+	clear; echo "${yellow}Memory Optimized!$nc"; sleep 1
 
 	title
 }
 
 network_tune(){
-	clear
-	echo "${yellow}Optimizing Network...$nc"
-	sleep 1
+	clear; echo "${yellow}Optimizing Network...$nc"; sleep 1
 
 	tweak_dir; tweak="$tweak_dir/56net"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 #TCP
-sysctl -wq net.core.wmem_max=2097152 net.core.rmem_max=2097152 net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1 net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144  net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1 net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5 net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000 net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1 net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288 net.core.rmem_max=524288 net.core.rmem_default=110592 net.core.wmem_default=110592
+touch /system/etc/hybrid.conf
+echo net.ipv4.tcp_rmem=6144 87380 2097152 > /system/etc/hybrid.conf
+echo net.ipv4.tcp_wmem=6144 87380 2097152 >> /system/etc/hybrid.conf
+sysctl -pq /system/etc/hybrid.conf
+sysctl -wq net.core.wmem_max=2097152 net.core.rmem_max=2097152
+sysctl -wq net.core.optmem_max=20480 net.ipv4.tcp_moderate_rcvbuf=1
+sysctl -wq net.ipv4.udp_rmem_min=6144 net.ipv4.udp_wmem_min=6144
+sysctl -wq net.ipv4.tcp_timestamps=0 net.ipv4.tcp_tw_reuse=1
+sysctl -wq net.ipv4.tcp_tw_recycle=1 net.ipv4.tcp_sack=1
+sysctl -wq net.ipv4.tcp_window_scaling=1 net.ipv4.tcp_keepalive_probes=5
+sysctl -wq net.ipv4.tcp_keepalive_intvl=156 net.ipv4.tcp_fin_timeout=30
+sysctl -wq net.ipv4.tcp_ecn=0 net.ipv4.tcp_max_tw_buckets=360000
+sysctl -wq net.ipv4.tcp_synack_retries=2 net.ipv4.route.flush=1
+sysctl -wq net.ipv4.icmp_echo_ignore_all=1 net.core.wmem_max=524288
+sysctl -wq net.core.rmem_max=524288 net.core.rmem_default=110592
+sysctl -wq net.core.wmem_default=110592
 
 #IPv4
-sysctl -wq net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1 net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0 net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0 net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1 net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0 net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
-
-#TCP echo
-sleep 0
-
-echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_rmem; echo "6144 87380 2097152" > proc/sys/net/ipv4/tcp_wmem
-
+sysctl -wq net.ipv4.conf.all.rp_filter=1 net.ipv4.conf.default.rp_filter=1
+sysctl -wq net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.default.accept_redirects=0
+sysctl -wq net.ipv4.conf.all.send_redirects=0 net.ipv4.conf.default.send_redirects=0
+sysctl -wq net.ipv4.icmp_echo_ignore_broadcasts=1 net.ipv4.icmp_ignore_bogus_error_responses=1
+sysctl -wq net.ipv4.conf.all.accept_source_route=0 net.ipv4.conf.default.accept_source_route=0
+sysctl -wq net.ipv4.conf.all.log_martians=1 net.ipv4.conf.default.log_martians=1
 EOF
-	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
+	$tweak
 
-	clear
-	echo "${yellow}Network Optimized!$nc"
-	sleep 1
+	clear; echo "${yellow}Network Optimized!$nc"; sleep 1
 
 	title
 }
 
 sql_optimize(){
-	clear
-	echo "${yellow}Checking Databases...$nc"
+	clear; echo "${yellow}Checking Databases...$nc"
 	echo
 
-	if [ -f /system/xbin/sqlite3 ]; then
-		chown 0.0  /system/xbin/sqlite3
-		chmod 755 /system/xbin/sqlite3
-		SQLLOC="/system/xbin/sqlite3"
-	elif [ -f /system/bin/sqlite3 ]; then
-		chown 0.0 /system/bin/sqlite3
-		chmod 755 /system/bin/sqlite3
-		SQLLOC="/system/bin/sqlite3"
-	elif [ -f /sbin/sqlite3 ]; then
-		chown 0.0 /sbin/sqlite3
-		chmod 755 /sbin/sqlite3
-		SQLLOC="/sbin/sqlite3"
+	XSQL="/system/xbin/sqlite3"
+	BSQL="/system/bin/sqlite3"
+	SSQL="/sbin/sqlite3"
+	if [ -f $XSQL ]; then
+		chown 0.0  $XSQL; chmod 755 $XSQL; SQLOC=$XSQL
+	elif [ -f $BSQL ]; then
+		chown 0.0 $BSQL; chmod 755 $BSQL; SQLOC=$BSQL
+	elif [ -f $SSQL ]; then
+		chown 0.0 $SSQL; chmod 755 $SSQL; SQLOC=$SSQL
 	fi
 
-	for i in `find / -iname "*.db" 2>/dev/null`
-	do
-		$SQLLOC $i 'VACUUM;'
-		echo "${yellow}Optimizing$nc $i"
-		$SQLLOC $i 'REINDEX;'
+	for DB in `find / -iname "*.db" 2>/dev/null`; do
+		$SQLOC $DB 'VACUUM;'; echo "${yellow}Optimizing$nc $DB"; $SQLOC $DB 'REINDEX;'
 	done
 
 	echo
@@ -603,16 +592,13 @@ sql_optimize(){
 
 	echo
 	echo "Press any key to continue..."
-	stty cbreak -echo
-	dd bs=1 count=1 2>/dev/null
-	stty -cbreak echo
+	stty cbreak -echo; dd bs=1 count=1 2>/dev/null; stty -cbreak echo
 
 	title
 }
 
 lmk_tune(){
-	clear
-	echo "${yellow}RAM Profiles$nc"
+	clear; echo "${yellow}RAM Profiles$nc"
 	echo
 	echo "${yellow}Profiles available:$nc"
 	echo " B|Balanced"
@@ -622,8 +608,7 @@ lmk_tune(){
 	echo " R|Return"
 	echo
 	echo -n "> "
-	read lmk_tune_opt
-	case $lmk_tune_opt in
+	read lmk_tune_opt; case $lmk_tune_opt in
 		b|B|m|M|g|G ) lmk_profile=$lmk_tune_opt; lmk_apply;;
 		r|R ) title;;
 		* ) checkers; lmk_tune;;
@@ -644,33 +629,27 @@ lmk_apply(){
     minfree_array='10393,14105,18188,27468,31552,37120'
 	fi
 
-	echo "${yellow}Applying Profile...$nc"
-	sleep 1
+	echo "${yellow}Applying Profile...$nc"; sleep 1
 
 	tweak_dir; tweak="$tweak_dir/95lmk"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
-
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
-	clear
-	echo "${yellow}Profile Applied!$nc"
-	sleep 1
+	clear; echo "${yellow}Profile Applied!$nc"; sleep 1
 
 	title
 }
 
 kernel_kontrol(){
-	clear
-	echo "${yellow}Kernel Kontrol$nc"
+	clear; echo "${yellow}Kernel Kontrol$nc"
 	echo " 1|Set CPU Freq"
 	echo " 2|Set CPU Gov"
 	echo " 3|Set I/O Sched"
@@ -682,152 +661,132 @@ kernel_kontrol(){
 	echo " B|Back"
 	echo
 	echo -n "> "
-	read kernel_kontrol_opt
-	case $kernel_kontrol_opt in
-		1) setcpufreq;;
-		2) setgov;;
-		3) setiosched;;
+	read kernel_kontrol_opt; case $kernel_kontrol_opt in
+		1) set_cpu_freq;;
+		2) set_gov;;
+		3) set_io_sched;;
 		4) kcal;;
 		b|B) title;;
 		* ) checkers; kernel_kontrol;;
 	 esac
 }
 
-setcpufreq(){
+set_cpu_freq(){
 	clear
 	#configure sub variables
-	maxfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`
-	minfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`
-	curfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`
-	listfreq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
+	max_freq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`
+	min_freq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`
+	cur_freq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`
+	list_freq=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`
 
 	echo "${yellow}CPU Control$nc"
 	echo
-	echo "${bld}Max Freq:$nc $maxfreq"
-	echo "${bld}Min Freq:$nc $minfreq"
-	echo "${bld}Current Freq:$nc $curfreq"
+	echo "${bld}Max Freq:$nc $max_freq"
+	echo "${bld}Min Freq:$nc $min_freq"
+	echo "${bld}Current Freq:$nc $cur_freq"
 	echo
 	echo "${bld}Available Freq's:$nc"
-	echo "$listfreq"
+	echo "$list_freq"
 	echo
-	echo -n "New Max Freq: "; read newmaxfreq
-	echo -n "New Min Freq: "; read newminfreq
+	echo -n "New Max Freq: "; read new_max_freq
+	echo -n "New Min Freq: "; read new_min_freq
 
 	tweak_dir; tweak="$tweak_dir/69cpu_freq"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
-echo "$newmaxfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-echo "$newminfreq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-
+echo "$new_max_freq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo "$new_min_freq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
-	clear
-	echo "${yellow}New Freq's applied!$nc"
-	sleep 1
+	clear; echo "${yellow}New Freq's applied!$nc"; sleep 1
 
 	kernel_kontrol
 }
 
-setgov(){
+set_gov(){
 	clear
-
 	#sub-variables
-	curgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
-	listgov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`
+	cur_gov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+	list_gov=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`
 
 	echo "${yellow}Governor Control$nc"
 	echo
-	echo "${bld}Current Governor:$nc $curgov"
+	echo "${bld}Current Governor:$nc $cur_gov"
 	echo
 	echo "${bld}Available Governors:$nc"
-	echo "$listgov"
+	echo "$list_gov"
 	echo
-	echo -n "New Governor: "; read newgov
-
-	echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	echo -n "New Governor: "; read new_gov
 
 	tweak_dir; tweak="$tweak_dir/70cpu_gov"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak;chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
 echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
-	clear
-	echo "${yellow}New Governor applied!$nc"
-	sleep 1
+	clear; echo "${yellow}New Governor applied!$nc"; sleep 1
 
 	kernel_kontrol
 }
 
 
-setiosched(){
+set_io_sched(){
 	clear
-
 	#sub-variables
-	curiosched=`cat /sys/block/mmcblk0/queue/scheduler | sed 's/.*\[\([a-zA-Z0-9_]*\)\].*/\1/'`
-	listiosched=`cat /sys/block/mmcblk0/queue/scheduler | tr -s "[[:blank:]]" "\n" | sed 's/\[\([a-zA-Z0-9_]*\)\]/\1/'`
+	cur_io_sched=`cat /sys/block/mmcblk0/queue/scheduler | sed 's/.*\[\([a-zA-Z0-9_]*\)\].*/\1/'`
+	list_io_sched=`cat /sys/block/mmcblk0/queue/scheduler | tr -s "[[:blank:]]" "\n" | sed 's/\[\([a-zA-Z0-9_]*\)\]/\1/'`
 
 	echo "${yellow}I/O Schedulder Control$nc"
 	echo
-	echo "${bld}Current I/O Scheduler:$nc $curiosched"
+	echo "${bld}Current I/O Scheduler:$nc $cur_io_sched"
 	echo
 	echo "${bld}Available I/O Schedulers:$nc"
-	echo "$listiosched"
+	echo "$list_io_sched"
 	echo
-	echo -n "New Scheduler: "; read newiosched
-
-	clear
-	echo "${yellow}New I/O Scheduler applied!$nc"
-	sleep 1
+	echo -n "New Scheduler: "; read new_io_sched
 
 	tweak_dir; tweak="$tweak_dir/71io_sched"
 
-	touch $tweak
-	chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
-for j in /sys/block/*/queue/scheduler; do
-	echo "$newiosched" > dir
+for io_sched in /sys/block/*/queue/scheduler; do
+	echo "$new_io_sched" > dir
 done
-
 EOF
-	sed -i 's/dir/$j/' $tweak; $tweak; sed -i 's/sleep 0/sleep 15/' $tweak
+	sed -i 's/dir/$io_sched/' $tweak; $tweak; sed -i 's/sleep 0/sleep 15/' $tweak
+
+	clear; echo "${yellow}New I/O Scheduler applied!$nc"; sleep 1
 
 	kernel_kontrol
 }
 
 kcal(){
 	if [ "$kcal" == "" ]; then
-	 	checkers
-	 	kernel_kontrol
+	 	checkers; kernel_kontrol
 	fi
- 	clear
-	echo "${yellow}Current KCal Values:${nc}"
+ 	clear; echo "${yellow}Current KCal Values:${nc}"
 	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
 	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
 	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
 	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
 	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
-	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
-	sleep 5
+	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"; sleep 5
 
 	kernel_kontrol
 }
@@ -841,16 +800,14 @@ zram_settings_custom(){
 }
 
 zram_settings(){
-	clear
-	echo "${yellow}zRAM Options:$nc"
+	clear; echo "${yellow}zRAM Options:$nc"
 	echo " 1|Disable zRAM"
 	echo " 2|Enable zRAM"
 	echo
 	echo " B|Back"
 	echo
 	echo -n "> "
-	read zram_settings_opt
-	case $zram_settings_opt in
+	read zram_settings_opt; case $zram_settings_opt in
 	 	1 ) zram_disable;;
 	 	2 ) zram_enable;;
 	 	b|B ) title;;
@@ -859,35 +816,25 @@ zram_settings(){
 }
 
 zram_disable(){
-	clear
-	echo "${yellow}Disabling zRAM...$nc"
-	sleep 1
+	clear; echo "${yellow}Disabling zRAM...$nc"; sleep 1
 
-	for l in `ls /dev/block/zram*`
-	do
-		swapoff $l
+	for swap_dir in `ls /dev/block/zram*`; do
+		swapoff $swap_dir
 	done
 
-	clear
-	echo "${yellow}zRAM disabled!$nc"
-	sleep 1
+	clear; echo "${yellow}zRAM disabled!$nc"; sleep 1
 	
 	zram_settings
 }
 
 zram_enable(){
-	clear
-	echo "${yellow}Enabling zRAM...$nc"
-	sleep 1
+	clear; echo "${yellow}Enabling zRAM...$nc"; sleep 1
 
-	for l in `ls /dev/block/zram*`
-	do
-		swapon $l
+	for swap_dir in `ls /dev/block/zram*`; do
+		swapon $swap_dir
 	done
 
-	clear
-	echo "${yellow}zRAM enabled!$nc"
-	sleep 1
+	clear; echo "${yellow}zRAM enabled!$nc"; sleep 1
 	
 	zram_settings
 }
@@ -901,16 +848,14 @@ game_booster_custom(){
 }
 
 game_booster(){
-	clear
-	echo "${yellow}Game Booster$nc"
+	clear; echo "${yellow}Game Booster$nc"
 	echo " [1] Boost"
 	echo " [2] Options"
 	echo
 	echo " [B] Back"
 	echo
 	echo -n "> "
-	read game_booster_opt
-	case $game_booster_opt in
+	read game_booster_opt; case $game_booster_opt in
 		1 ) game_inject;;
 		2 ) game_time_cfg;;
 		b|B ) title;;
@@ -919,25 +864,19 @@ game_booster(){
 }
 
 game_inject(){
-	clear
-	echo
-	echo "Please leave the terminal emulator running"
-	echo "This will continue to run untill close the terminal"
-	echo
-
 	while true; do
-		for g in $(grep MemFree /proc/meminfo | awk '{print $2}' ); do
-
+		clear; echo "Please leave the terminal emulator running"
+		echo "This will continue to run untill close the terminal"
+		echo
+		for free_ram in $(grep MemFree /proc/meminfo | awk '{print $2}' ); do
 	 		sync; echo "3" > /proc/sys/vm/drop_caches; am kill-all 2>/dev/null
-			echo "Free RAM: $g kB"
-			sleep $interval_time
+			sleep 1; echo "Free RAM: $free_ram kB"; sleep $interval_time
 		done
 	done
 }
 
 game_time_cfg(){
-	clear
-	echo "Current rate: $interval_time"
+	clear; echo "Current rate: $interval_time"
 	echo "60 - Every minute - Default"
 	echo "3600 - Every hour"
 	echo
@@ -953,16 +892,14 @@ game_time_cfg(){
 }
 
 options(){
-	clear
-	echo "${yellow}Options$nc"
+	clear; echo "${yellow}Options$nc"
 	echo " I|Install options"
 	echo " S|Sensor fix"
 	echo
 	echo " B|Back"
 	echo
 	echo -n "> "
-	read options_opt
-	case $options_opt in
+	read options_opt; case $options_opt in
 	 	i|I ) install_options;;
 		s|S ) sensor_fix;;
 	 	b|B ) title;;
@@ -971,24 +908,20 @@ options(){
 }
 
 install_options(){
-	clear
-	echo "${yellow}How to install tweaks?$nc"
+	clear; echo "${yellow}How to install tweaks?$nc"
 	echo " T|Temporary installs"
 	echo " P|Permanent installs"
 	echo
 	if [ "$permanent" == "" ]; then
-	 	iGo="title"
-	 	iBack="checkers; install_options"
+	 	iGo="title"; iBack="checkers; install_options"
 	 	echo "${cyan}You can change it in Options later$nc"
 	else
-	 	iGo="options"
-	 	iBack="options"
+	 	iGo="options"; iBack="options"
 	 	echo " B|Back"
 	fi
 	echo
 	echo -n "> "
-	read install_options_opt
-	case $install_options_opt in
+	read install_options_opt; case $install_options_opt in
 	 	t|T ) setprop persist.hybrid.permanent 0; clear; echo "Done"; sleep 1; $iGo;;
 		p|P ) setprop persist.hybrid.permanent 1; clear; echo "Done"; sleep 1; $iGo;;
 	 	b|B ) $iBack;;
@@ -997,12 +930,10 @@ install_options(){
 }
 
 sensor_fix(){
-	clear
-	echo "Wipe sensor data? [Y/N]"
+	clear; echo "Wipe sensor data? [Y/N]"
 	echo
 	echo -n "> "
-	read sensor_fix_opt
-	case $sensor_fix_opt in
+	read sensor_fix_opt; case $sensor_fix_opt in
 		y|Y ) rm -rf /data/misc/sensor/; clear; echo "Done"; sleep 1; options;;
 		n|N ) options;;
 		* ) checkers; sensor_fix;;
@@ -1010,8 +941,7 @@ sensor_fix(){
 }
 
 about_info(){
-	clear
-	echo "${green}About:$nc"
+	clear; echo "${green}About:$nc"
 	echo
 	echo "HybridMod Version: $ver_revision"
 	echo
@@ -1024,7 +954,6 @@ about_info(){
 	echo "Deic : Maintainer"
 	echo "Hoholee12 : Maintainer"
 	echo "Wedgess/Imbawind/Luca020400 : Code $yellow:)$nc"
-
 	echo
 	echo "${yellow}Links:$nc"
 	echo " F|Forum"
@@ -1033,8 +962,7 @@ about_info(){
 	echo " B|Back"
 	echo
 	echo -n "> "
-	read about_info_opt
-	case $about_info_opt in
+	read about_info_opt; case $about_info_opt in
 	 	f|F ) am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1; about_info;;
 	 	s|S ) am start https://github.com/HybridMod >/dev/null 2>&1; about_info;;
 	 	b|B ) title;;
@@ -1043,35 +971,23 @@ about_info(){
 }
 
 custom_reboot(){
-	clear
-	echo "Factory reset in 3."
-	sleep 1
-	clear
-	echo "Factory reset in 2.."
-	sleep 1
-	clear
-	echo "Factory reset in 1..."
-	sleep 1
-	clear
-	echo "Just kidding :] (?)"
-	sleep 1
-	sync
-	reboot
+	clear; echo "Factory reset in 3."; sleep 1
+	clear; echo "Factory reset in 2.."; sleep 1
+	clear; echo "Factory reset in 1..."; sleep 1
+	clear; echo "Just kidding :] (?)"; sleep 1
+	sync; reboot
 }
 
 safe_exit(){
 	clear
-	mount -o remount,ro /system >/dev/null 2>&1
-	mount -o remount,ro /data >/dev/null 2>&1
+	mount -o remount,ro /system 2>/dev/null; mount -o remount,ro /data 2>/dev/null
 	exit
 }
 
-mount -o remount,rw /system
-mount -o remount,rw /data
+mount -o remount,rw /system; mount -o remount,rw /data
 
 if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
-	shift
-	debug_shell
+	shift; debug_shell
 fi
 
 if [ "$interval_time" == "" ]; then
