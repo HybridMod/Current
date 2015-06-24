@@ -696,6 +696,9 @@ sql_optimize(){
 		chown 0.0 $BSQL; chmod 755 $BSQL; SQLOC=$BSQL
 	elif [ -f $SSQL ]; then
 		chown 0.0 $SSQL; chmod 755 $SSQL; SQLOC=$SSQL
+	else
+		error you dont have sqlite3 installed on your device. "fatal error!" #some devices like mine don't come with sqlite3.
+		title #we shouldn't really be doing this method though.
 	fi
 
 	for DB in `find / -iname "*.db" 2>/dev/null`; do
