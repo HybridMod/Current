@@ -405,6 +405,121 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 	done
 }
 
+install(){
+	local loc # prevent breaks
+	n=0
+	for i in $(echo $PATH | sed 's/:/ /g'); do
+		n=$(($n+1))
+		export slot$n=$i
+	done
+	if [[ "$1" == -i ]]; then
+		for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+			eval echo $i
+		done
+	else
+		echo $n hits.
+		for i in $(seq -s ' $slot' 0 $n | sed 's/^0//'); do
+			v=$(eval echo $i)
+			echo -n -e "\rwould you like to install it in $v? (y/n) "
+			while true; do
+				stty cbreak -echo
+				f=$(dd bs=1 count=1 2>/dev/null)
+				stty -cbreak echo
+				echo $f
+				case $f in
+					y* | Y*)
+						loc=$v
+						break
+					;;
+					n* | N*)
+						break
+					;;
+					q* | Q*)
+						echo canceled.
+						return 0
+					;;
+					*)
+						checkers
+					;;
+				esac
+				echo -n press \'q\' to quit.
+			done
+			if [[ "$loc" ]]; then
+				break
+			fi
+		done
+		if [[ ! "$loc" ]]; then
+			echo couldnt install, sorry. :p
+			return 1
+		fi
+		echo -e '\rplease wait...'
+		loc_DIR_NAME=$(echo $loc | sed 's/\//\n/g' | head -n2 | sed ':a;N;s/\n/\//g;ba')
+		mountstat=$(mount | grep $loc_DIR_NAME | head -n1)
+		availperm=$(echo $mountstat | grep 'ro\|rw')
+		if [[ "$availperm" ]]; then #linux else unix
+			if [[ "$(echo $mountstat | grep ro)" ]]; then
+				ro=1
+				echo -n -e '\rmounting...'
+				mount -o remount,rw $loc_DIR_NAME
+			fi
+		else
+			ro=0
+		fi
+		if [[ -f "$loc/$NO_EXTENSION" ]]; then
+			echo -n 'program file already exists. overwrite? (y/n) '
+			while true; do
+				stty cbreak -echo
+				f=$(dd bs=1 count=1 2>/dev/null)
+				stty -cbreak echo
+				echo $f
+				case $f in
+					y* | Y*)
+						break
+					;;
+					n* | N* | q* | Q*)
+						echo canceled.
+						return 0
+					;;
+					*)
+						checkers
+					;;
+				esac
+			done
+		fi
+		if [[ "$(echo $mountstat | grep rw)" ]]; then
+			echo -n -e '\rcopying files...'
+			cp $0 $loc/$NO_EXTENSION
+			if [[ "$?" != 0 ]]; then
+				return 1
+			fi
+			chmod 755 $loc/$NO_EXTENSION
+			if [[ "$ro" == 1 ]]; then
+				mount -o remount,ro $loc_DIR_NAME
+			fi
+		else
+			if [[ ! "$availperm" ]]; then
+				echo -n -e '\rcopying files...'
+				cp $0 $loc/$NO_EXTENSION
+				if [[ "$?" != 0 ]]; then
+					return 1
+				fi
+				chmod 755 $loc/$NO_EXTENSION
+			else
+				error=1
+			fi
+		fi
+		if [[ "$error" == 1 ]]; then
+			echo -e "internal error! please use '--verbose' and try again. \e[1;31m\"error code 1\"\e[0m"
+			return 1
+		else
+			echo
+			long_line 2
+			echo install complete!
+			echo type \'$NO_EXTENSION\' to run the program!
+		fi
+	fi
+}
+
 title(){
 	while true; do
 		clear
@@ -989,6 +1104,10 @@ mount -o remount,rw /system; mount -o remount,rw /data
 
 if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift; debug_shell
+fi
+if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory...
+	install
+	exit 0
 fi
 
 if [ "$interval_time" == "" ]; then
