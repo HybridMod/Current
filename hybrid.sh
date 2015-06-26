@@ -549,7 +549,7 @@ body(){
 	echo
 	echo " R|Reboot"
 	echo " E|Exit"
-	echo
+	echo #this is a test comment
 	echo -n "> "
 	read selection_opt; case $selection_opt in
 		1 ) clean_up;;
