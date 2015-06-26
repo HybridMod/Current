@@ -1051,12 +1051,12 @@ about_info(){
 	if [ $debug == 0 ] then
 		echo "HybridMod Version: $version"
 	fi
-	if [ $debug == 1 ] then #keep as two seperate if's for future purpose
+	if [ $debug == 1 ] then #keep as two seperate if's for future purposes
 		echo "HybridMod Revision: $revision"
 	fi
 	echo
 	echo "${yellow}INFO$nc"
-	echo "This script deals with many things apps normally do."
+	#echo "This script deals with many things apps normally do."
 	echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
 	echo
 	echo "${yellow}CREDITS$nc"
