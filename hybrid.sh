@@ -1057,7 +1057,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	#echo "This script deals with many things apps normally do."
-	echo "This script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
+	echo "This` script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
@@ -1106,7 +1106,7 @@ if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory..
 fi
 
 if [ "$interval_time" == "" ]; then
-	setprop persist.hybrid.interval_time 60
+	setprop persist.hybrid.interval_time 69
 fi
 
 title
