@@ -35,7 +35,7 @@ print_PARTIAL_DIR_NAME(){
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 
 #Master version
-ver_revision="2.3-staging"
+ver_revision="2.3.1"
 
 #SizeOf
 FILENAME=$FULL_NAME
