@@ -550,7 +550,7 @@ body(){
 	echo " R|Reboot"
 	echo " E|Exit"
 	echo 
-	echo -n "> " #this is a comment
+	echo -n "> "
 	read selection_opt; case $selection_opt in
 		1 ) clean_up;;
 		2 ) vm_tune;;
