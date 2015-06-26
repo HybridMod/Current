@@ -1045,7 +1045,7 @@ done
 }
 
 about_info(){
-	while true; do
+while true; do
 	clear; echo "${green}About:$nc"
 	echo
 	if [ $debug == 0 ] then
