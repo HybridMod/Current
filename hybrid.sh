@@ -826,13 +826,13 @@ set_gov(){
 
 	tweak_dir; tweak="$tweak_dir/70cpu_gov"
 
-	touch $tweak;chmod 755 $tweak
+	touch $tweak; chmod 755 $tweak
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
 sleep 0
 
-echo "$newgov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo "$new_gov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 EOF
 	$tweak; sed -i 's/sleep 0/sleep 15/' $tweak
 
