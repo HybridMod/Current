@@ -2,7 +2,7 @@
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
-readonly debug=
+readonly debug= #to be set
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -34,8 +34,8 @@ print_PARTIAL_DIR_NAME(){
 
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 
-#Master version
-ver_revision="2.3.1"
+#Internal version
+revision="2.3.1"
 
 #SizeOf
 FILENAME=$FULL_NAME
@@ -1048,7 +1048,12 @@ about_info(){
 	while true; do
 	clear; echo "${green}About:$nc"
 	echo
-	echo "HybridMod Version: $ver_revision"
+	if [ $debug == 0 ] then
+		echo "HybridMod Version: $version"
+	fi
+	if [ $debug == 1 ] then #keep as two seperate if's for future purpose
+		echo "HybridMod Revision: $revision"
+	fi
 	echo
 	echo "${yellow}INFO$nc"
 	echo "This script deals with many things apps normally do."
