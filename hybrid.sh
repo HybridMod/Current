@@ -1057,7 +1057,7 @@ about_info(){
 	echo
 	echo "${yellow}INFO$nc"
 	#echo "This script deals with many things apps normally do."
-	echo "But this script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
+	echo "This script is ${cyan}AWESOME!$nc because its only $bld$FILESIZE$nc bytes"
 	echo
 	echo "${yellow}CREDITS$nc"
 	echo "DiamondBond : Script creator & maintainer"
