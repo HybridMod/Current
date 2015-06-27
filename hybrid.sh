@@ -1050,7 +1050,7 @@ while true; do
 	echo
 	if [ $debug == 0 ] then
 		echo "HybridMod Version: $version"
-	fi
+	fi #this one, but it looks fine... ;-;
 	if [ $debug == 1 ] then #keep as two seperate if's for future purposes
 		echo "HybridMod Revision: $revision"
 	fi
