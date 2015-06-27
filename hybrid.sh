@@ -1106,7 +1106,7 @@ if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory..
 fi
 
 if [ "$interval_time" == "" ]; then
-	setprop persist.hybrid.interval_time 69
+	setprop persist.hybrid.interval_time 60
 fi
 
 title
