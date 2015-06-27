@@ -2,7 +2,7 @@
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.3"
-readonly debug= #to be set
+readonly debug= #if blank, it will not show an error.
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -40,7 +40,7 @@ revision="2.3.1"
 #SizeOf
 FILENAME=$FULL_NAME
 #FILESIZE=$(stat -c%s "$FILENAME")
-FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}')
+FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}' 2>/dev/null) #this only works when installed to any exec enabled parts. it is intended.
 
 #options
 initd=`if [ -d $init_dir ]; then echo "1"; else echo "0"; fi`
@@ -1100,7 +1100,7 @@ mount -o remount,rw /system; mount -o remount,rw /data
 if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift; debug_shell
 fi
-if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory...
+if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory... this is also intended.
 	install
 	exit 0
 fi
