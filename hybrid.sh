@@ -40,7 +40,7 @@ revision="2.3.1"
 #SizeOf
 FILENAME=$FULL_NAME
 #FILESIZE=$(stat -c%s "$FILENAME")
-FILESIZE=$(wc -c "$FILENAME" | awk '{print $1}' 2>/dev/null) #this only works when installed to any exec enabled parts. it is intended.
+FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
 initd=`if [ -d $init_dir ]; then echo "1"; else echo "0"; fi`
