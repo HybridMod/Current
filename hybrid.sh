@@ -1048,10 +1048,10 @@ about_info(){
 while true; do
 	clear; echo "${green}About:$nc"
 	echo
-	if [ $debug == 0 ]; then
+	if [ "$debug" == 0 ]; then
 		echo "HybridMod Version: $version"
 	fi #this one, but it looks fine... ;-;
-	if [ $debug == 1 ]; then #keep as two seperate if's for future purposes
+	if [ "$debug" == 1 ]; then #keep as two seperate if's for future purposes
 		echo "HybridMod Revision: $revision"
 	fi
 	echo
