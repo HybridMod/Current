@@ -58,12 +58,12 @@ yellow='\033[0;33m'
 cyan='\033[0;36m'
 white='\033[0;97m'
 
-#formatting control
+#format control
 bld='\033[0;1m'
 blnk='\033[0;5m'
 nc='\033[0m'
 
-#directory to put error logs in(it will force-create when directory is nonexistant)
+#directory to throw error logs in (it will force-create when the directory is non-existant)
 LOG_DIR=/data/log
 
 error(){
@@ -90,10 +90,12 @@ error(){
 		date '+date: %m/%d/%y%ttime: %H:%M:%S ->'"$message"'' >> $LOG_NAME/$NO_EXTENSION.log
 	fi
 }
+
 # Use /dev/urandom for print_RANDOM_BYTE.
 use_urand=1
 # invert print_RANDOM_BYTE.
 invert_rand=1
+
 # Busybox Applet Generator 2.4
 # You can type in any commands you would want it to check.
 # It will start by checking from cmd1, and its limit is up to cmd224.
@@ -279,6 +281,7 @@ chk2="i dont understand!"
 chk3="pardon?"
 chk4="are you retarded?"
 chk5="I no understand enchiladas"
+
 checkers(){
 	for count in $(seq 1 20); do
 		if [[ ! "$(eval echo \$chk$count)" ]]; then
@@ -294,6 +297,7 @@ checkers(){
 
 # Checks for Superuser 
 su_check= # root availability
+
 as_root_lite(){
 	bb_apg_2 -f id grep sed
 	if [[ "$?" == 1 ]]; then
@@ -305,6 +309,7 @@ as_root_lite(){
 		su_check=1
 	fi
 }
+
 as_root_lite #modified version of as_root, required for debug_shell
 
 #Debug Shell
