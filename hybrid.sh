@@ -1,4 +1,4 @@
-# hybrid.sh by DiamondBond, Deic & Hoholee12
+# hybrid.sh by DiamondBond, Deic & hoholee12
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.4"
@@ -809,8 +809,8 @@ lmk_tune(){
 	 	read lmk_tune_opt
 		case $lmk_tune_opt in
 		 	b|B|m|M|g|G )
-				lmk_profile=$lmk_tune_opt;
-				lmk_apply;
+				lmk_profile=$lmk_tune_opt
+				lmk_apply
 				break;;
 		 	r|R )
 				break;;
@@ -1066,10 +1066,10 @@ zram_settings(){
 		read zram_settings_opt
 		case $zram_settings_opt in
 	 		1 )
-				zram_disable;
+				zram_disable
 				break;;
 	 		2 )
-				zram_enable;
+				zram_enable
 				break;;
 	 		b|B )
 				break;;
@@ -1128,7 +1128,7 @@ game_booster(){
 		read game_booster_opt
 		case $game_booster_opt in
 			1 )
-				game_inject;
+				game_inject
 				break;;
 			2 )
 				game_time_cfg;;
@@ -1218,16 +1218,16 @@ install_options(){
 		read install_options_opt
 		case $install_options_opt in
 	 		t|T )
-				setprop persist.hybrid.permanent 0;
-				clear;
-				echo "Done";
-				sleep 1;
-break;;
+				setprop persist.hybrid.permanent 0
+				clear
+				echo "Done"
+				sleep 1
+				break;;
 			p|P )
-				setprop persist.hybrid.permanent 1;
-				clear;
-				echo "Done";
-				sleep 1;
+				setprop persist.hybrid.permanent 1
+				clear
+				echo "Done"
+				sleep 1
 				break;;
 	 		b|B )
 				$iBack;;
@@ -1246,10 +1246,10 @@ sensor_fix(){
 		read sensor_fix_opt
 		case $sensor_fix_opt in
 			y|Y )
-				rm -rf /data/misc/sensor/;
-				clear;
-				echo "Done";
-				sleep 1;
+				rm -rf /data/misc/sensor/
+				clear
+				echo "Done"
+				sleep 1
 				break;;
 			n|N )
 				break;;
@@ -1331,12 +1331,12 @@ safe_exit(){
 mount -o remount,rw /system
 mount -o remount,rw /data
 
-if [ "$1" == --debug ]; then
+if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-if [ "$DIR_NAME" == NULL ]; then
+if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory... this is also intended.
 	install
 	exit
 fi
