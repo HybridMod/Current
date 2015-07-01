@@ -71,7 +71,7 @@ error(){
 	if [[ "$(echo $message | grep \")" ]]; then
 		echo -n $message | sed 's/".*//'
 		errmsg=$(echo $message | cut -d'"' -f2)
-		echo -e "${red}$errmsg${nc}"
+		echo -e "${red}\"$errmsg\"${nc}"
 	else
 		echo $message
 	fi
@@ -773,8 +773,8 @@ sql_optimize(){
 		chmod 755 $SSQL
 		SQLOC=$SSQL
 	else
-		echo "You do not have sqlite3 binary on your device. ${red}Fatal error!${nc}"
-		title
+		error You do not have sqlite3 binary on your device. \"Fatal error!\" # we need to use error function for debugging. passing the \" char will automatically print the next char in color red.
+		return 1
 	fi
 
 	for DB in `find / -iname "*.db" 2>/dev/null`; do
