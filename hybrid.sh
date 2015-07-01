@@ -176,7 +176,9 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
-initd=`if [ -d $init_dir ]; then echo "1"; else echo "0"; fi`
+initd=`if [ -d $initd_dir ]; then echo "1"; fi`
+zram=`if [ -d /dev/block/zram* ]; then echo "1"; fi`
+kcal=`if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo "1"; fi`
 permanent=`getprop persist.hybrid.permanent`
 interval_time=`getprop persist.hybrid.interval_time`
 
@@ -652,7 +654,12 @@ title(){
 	while true; do
 		clear
 
-		if [ "$permanent" == "" ]; then
+		if [ "$permanent" == 1 ]; then
+	 		echo "${cyan}[-=Hybrid-Mod=-]${nc}"
+	 		echo
+
+			body
+		else
 	 		sleep 1
 			echo "${cyan}The${nc}"
 			sleep 1
@@ -664,11 +671,6 @@ title(){
 			sleep 3
 
 	 		install_options
-		else
-	 		echo "${cyan}[-=Hybrid-Mod=-]${nc}"
-	 		echo
-
-			body
 		fi
 	done
 }
@@ -682,11 +684,11 @@ body(){
 	echo " 5|RAM Profiles"
 	echo " 6|Kernel Kontrol"
 
-	if [ "$zram" == 0 ]; then
-		echo " 7|Game Booster"
-	else
+	if [ "$zram" == 1 ]; then
 		echo " 7|zRAM Settings"
 		echo " 8|Game Booster"
+	else
+		echo " 7|zRAM Settings"
 	fi
 
 	echo
@@ -730,7 +732,7 @@ body(){
 
 tweak_dir(){
 	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
-		tweak_dir=$init_dir
+		tweak_dir=$initd_dir
 	else
 		tweak_dir=$tmp_dir
 	fi
@@ -1470,18 +1472,6 @@ fi
 
 if [ "$interval_time" == "" ]; then
 	setprop persist.hybrid.interval_time 60
-fi
-
-if [ ! -d /dev/block/zram* ]; then
-	zram="0"
-else
-	zram="1"
-fi
-
-if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]; then
-	kcal="0"
-else
- 	kcal="1"
 fi
 
 title
