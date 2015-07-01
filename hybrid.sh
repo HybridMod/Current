@@ -1,8 +1,8 @@
 # hybrid.sh by DiamondBond, Deic & Hoholee12
 
 #code snippets from standard.sh by hoholee12
-readonly version="2.3"
-readonly debug= #if blank, it will not show an error.
+readonly version="2.4"
+readonly debug=0 #if blank, it will not show an error.
 readonly BASE_NAME=$(basename $0)
 readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 readonly backup_PATH=$PATH
@@ -35,7 +35,7 @@ print_PARTIAL_DIR_NAME(){
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
 
 #Internal version
-revision="2.3.1"
+revision="2.4.0"
 
 #SizeOf
 FILENAME=$FULL_NAME
@@ -114,6 +114,7 @@ silent_mode=1 # enabling this will hide errors.
 # This feature might not be compatible with some other multi-call binaries.
 # if similar applets are found and Busybox do not have them, it will still continue but leave out some error messages regarding compatibility issues.
 bb_check= # BB availability.
+
 bb_apg_2(){
 	if [[ "$1" == -f ]]; then
 		shift
@@ -246,6 +247,7 @@ bb_apg_2(){
 		return 1
 	fi
 }
+
 print_RANDOM_BYTE(){
 	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
 		echo $RANDOM
@@ -290,7 +292,7 @@ checkers(){
 	sleep 1
 }
 
-# Check Superuser.
+# Checks for Superuser 
 su_check= # root availability
 as_root_lite(){
 	bb_apg_2 -f id grep sed
