@@ -688,7 +688,7 @@ body(){
 		echo " 7|zRAM Settings"
 		echo " 8|Game Booster"
 	else
-		echo " 7|zRAM Settings"
+		echo " 7|Game Booster"
 	fi
 
 	echo
@@ -1067,7 +1067,7 @@ echo "$new_min_freq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 EOF
 
 	$tweak
-	sed -i 's/sleep 0/sleep 15/' $tweak
+	sed -i 's/sleep 0/sleep 20/' $tweak
 
 	clear
 	echo "${yellow}New Freq's applied!${nc}"
@@ -1105,7 +1105,7 @@ echo "$new_gov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 EOF
 
 	$tweak
-	sed -i 's/sleep 0/sleep 15/' $tweak
+	sed -i 's/sleep 0/sleep 20/' $tweak
 
 	clear
 	echo "${yellow}New Governor applied!${nc}"
@@ -1147,7 +1147,7 @@ EOF
 
 	sed -i 's/dir/$io_sched/' $tweak
 	$tweak
-	sed -i 's/sleep 0/sleep 15/' $tweak
+	sed -i 's/sleep 0/sleep 20/' $tweak
 
 	clear
 	echo "${yellow}New I/O Scheduler applied!${nc}"
