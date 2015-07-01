@@ -932,41 +932,42 @@ lmk_tune(){
 		echo "${yellow}RAM Profiles${nc}"
 	 	echo
 	 	echo "${yellow}Profiles available:${nc}"
-	 	echo " B|Balanced"
-	 	echo " M|Multitasking|"
-	 	echo " G|Gaming"
+	 	echo " 1|Balanced"
+	 	echo " 2|Multitasking|"
+	 	echo " 3|Gaming"
 	 	echo
-	 	echo " R|Return"
+	 	echo " B|Back"
 	 	echo
 	 	echo -n "> "
 	 	read lmk_tune_opt
 		case $lmk_tune_opt in
-		 	b|B|m|M|g|G )
-				lmk_profile=$lmk_tune_opt
+		 	1 )
+				minfree_array='1024,2048,4096,8192,12288,16384'
 				lmk_apply
-				break;;
-		 	r|R )
-				break;;
+				break
+		 	;;
+			2 )
+				minfree_array='1536,2048,4096,5120,5632,6144'
+				lmk_apply
+				break
+		 	;;
+			3 )
+				minfree_array='10393,14105,18188,27468,31552,37120'
+				lmk_apply
+				break
+		 	;;
+		 	b|B )
+				break
+		 	;;
 		 	* )
-				checkers;;
+				checkers
+		 	;;
 	 	esac
  	done
 }
 
 lmk_apply(){
 	clear
-
-	if [ "$lmk_profile" == b ] || [ "$lmk_profile" == B ]; then
-    minfree_array='1024,2048,4096,8192,12288,16384'
-	fi
-
-	if [ "$lmk_profile" == m ] || [ "$lmk_profile" == M ]; then
-    minfree_array='1536,2048,4096,5120,5632,6144'
-	fi
-
-	if [ "$lmk_profile" == g ] || [ "$lmk_profile" == G ]; then
-    minfree_array='10393,14105,18188,27468,31552,37120'
-	fi
 
 	echo "${yellow}Applying Profile...${nc}"
 	sleep 1
