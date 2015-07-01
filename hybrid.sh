@@ -773,7 +773,7 @@ sql_optimize(){
 		chmod 755 $SSQL
 		SQLOC=$SSQL
 	else
-		error You do not have sqlite3 binary on your device. "fatal error!"
+		echo "You do not have sqlite3 binary on your device. ${red}Fatal error!${nc}"
 		title
 	fi
 
@@ -939,7 +939,7 @@ EOF
 	sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
-	echo "${yellow}New Freq's applied!${nc}
+	echo "${yellow}New Freq's applied!${nc}"
 	sleep 1
 }
 
