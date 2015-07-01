@@ -682,11 +682,9 @@ body(){
 	echo " 5|RAM Profiles"
 	echo " 6|Kernel Kontrol"
 
-	if [ ! -d /dev/block/zram* ]; then
-		zram="0"
+	if [ "$zram" == 0 ]; then
 		echo " 7|Game Booster"
 	else
-		zram="1"
 		echo " 7|zRAM Settings"
 		echo " 8|Game Booster"
 	fi
@@ -1003,11 +1001,8 @@ kernel_kontrol(){
 	 	echo " 2|Set CPU Gov"
 	 	echo " 3|Set I/O Sched"
 
-	 	if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then
-		 	kcal="1"
+	 	if [ "$kcal" == 1 ]; then
 	 	 	echo " 4|View KCal Values"
- 	 	else
- 	 	 	kcal="0"
 	 	fi
 
 	 	echo
@@ -1158,10 +1153,10 @@ EOF
 }
 
 kcal_custom(){
-     	if [ "$kcal" == 0 ]; then
-         	checkers
-     	elif [ "$kcal" == 1 ]; then
+     	if [ "$kcal" == 1 ]; then
          	kcal
+     	else
+         	checkers
  	fi
 }
 
@@ -1179,10 +1174,10 @@ kcal(){
 }
 
 zram_settings_custom(){
-	if [ "$zram" == 0 ]; then
-		game_booster
-	elif [ "$zram" == 1 ]; then
+	if [ "$zram" == 1 ]; then
 		zram_settings
+	else
+		game_booster
 	fi
 }
 
@@ -1242,10 +1237,10 @@ zram_enable(){
 }
 
 game_booster_custom(){
-	if [ "$zram" == 0 ]; then
-		checkers
-	elif [ "$zram" == 1 ]; then
+	if [ "$zram" == 1 ]; then
 		game_booster
+	else
+		checkers
 	fi
 }
 
@@ -1311,17 +1306,17 @@ options(){
 	while true; do
 		clear
 		echo "${yellow}Options${nc}"
-		echo " I|Install options"
-		echo " S|Sensor fix"
+		echo " 1|Install options"
+		echo " 2|Sensor fix"
 		echo
 		echo " B|Back"
 		echo
 		echo -n "> "
 		read options_opt
 		case $options_opt in
-	 		i|I )
+	 		1 )
 				install_options;;
-			s|S )
+			2 )
 				sensor_fix;;
 			b|B )
 				break;;
@@ -1401,9 +1396,7 @@ about_info(){
 
 		if [ "$debug" == 0 ]; then
 			echo "HybridMod Version: $version"
-		fi
-
-		if [ "$debug" == 1 ]; then
+		elif [ "$debug" == 1 ]; then
 			echo "HybridMod Revision: $revision"
 		fi
 
@@ -1477,6 +1470,18 @@ fi
 
 if [ "$interval_time" == "" ]; then
 	setprop persist.hybrid.interval_time 60
+fi
+
+if [ ! -d /dev/block/zram* ]; then
+	zram="0"
+else
+	zram="1"
+fi
+
+if [ ! -d /sys/devices/platform/kcal_ctrl.0/ ]; then
+	kcal="0"
+else
+ 	kcal="1"
 fi
 
 title
