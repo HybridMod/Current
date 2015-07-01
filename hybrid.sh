@@ -773,7 +773,7 @@ sql_optimize(){
 		chmod 755 $SSQL
 		SQLOC=$SSQL
 	else
-		error You don'/t have sqlite3 binary on your device. "fatal error!"
+		error You do not have sqlite3 binary on your device. "fatal error!"
 		title
 	fi
 
