@@ -184,7 +184,7 @@ interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
 initd_dir="/system/etc/init.d/"
-56net_conf="/system/etc/56net.conf"
+net_conf="/system/etc/56net.conf"
 XSQL="/system/xbin/sqlite3"
 BSQL="/system/bin/sqlite3"
 SSQL="/sbin/sqlite3"
@@ -840,7 +840,7 @@ cat > $tweak <<-EOF
 #!/system/bin/sh
 
 #TCP
-sysctl -pq $56net_conf
+sysctl -pq $net_conf
 sysctl -wq net.core.wmem_max=2097152
 sysctl -wq net.core.rmem_max=2097152
 sysctl -wq net.core.optmem_max=20480
@@ -880,10 +880,10 @@ sysctl -wq net.ipv4.conf.all.log_martians=1
 sysctl -wq net.ipv4.conf.default.log_martians=1
 EOF
 
-	touch $56net_conf
-	chmod 755 $56net_conf
-	echo "net.ipv4.tcp_rmem=6144 87380 2097152" > $56net_conf
-	echo "net.ipv4.tcp_wmem=6144 87380 2097152" >> $56net_conf
+	touch $net_conf
+	chmod 755 $net_conf
+	echo "net.ipv4.tcp_rmem=6144 87380 2097152" > $net_conf
+	echo "net.ipv4.tcp_wmem=6144 87380 2097152" >> $net_conf
 	$tweak
 
 	clear
