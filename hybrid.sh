@@ -184,7 +184,7 @@ interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
 tmp_dir="/data/local/tmp/"
-init_dir="/system/etc/init.d/"
+initd_dir="/system/etc/init.d/"
 
 #color control
 red='\033[0;31m'
