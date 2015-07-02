@@ -183,8 +183,11 @@ permanent=`getprop persist.hybrid.permanent`
 interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
-tmp_dir="/data/local/tmp/"
 initd_dir="/system/etc/init.d/"
+56net_conf="/system/etc/56net.conf"
+XSQL="/system/xbin/sqlite3"
+BSQL="/system/bin/sqlite3"
+SSQL="/sbin/sqlite3"
 
 #color control
 red='\033[0;31m'
@@ -734,7 +737,9 @@ tweak_dir(){
 	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
 		tweak_dir=$initd_dir
 	else
-		tweak_dir=$tmp_dir
+		tweak_dir="/tmp/"
+		mkdir -p /tmp/
+		chmod 755 /tmp/
 	fi
 }
 
@@ -754,6 +759,7 @@ cat > $tweak <<-EOF
 
 sleep 0
 
+rm -f /tmp/*
 rm -f /cache/*.apk
 rm -f /cache/*.tmp
 rm -f /cache/recovery/*
@@ -764,10 +770,10 @@ rm -f /data/backup/pending/*.tmp
 rm -f /data/cache/*.*
 rm -f /data/dalvik-cache/*.apk
 rm -f /data/dalvik-cache/*.tmp
-rm -f /data/log/*.*
+rm -f /data/log/*
 rm -f /data/local/*.apk
 rm -f /data/local/*.log
-rm -f /data/local/tmp/*.*
+rm -f /data/local/tmp/*
 rm -f /data/last_alog/*
 rm -f /data/last_kmsg/*
 rm -f /data/mlog/*
@@ -834,10 +840,7 @@ cat > $tweak <<-EOF
 #!/system/bin/sh
 
 #TCP
-touch /system/etc/hybrid.conf
-echo "net.ipv4.tcp_rmem=6144 87380 2097152" > /system/etc/hybrid.conf
-echo "net.ipv4.tcp_wmem=6144 87380 2097152" >> /system/etc/hybrid.conf
-sysctl -pq /system/etc/hybrid.conf
+sysctl -pq $56net_conf
 sysctl -wq net.core.wmem_max=2097152
 sysctl -wq net.core.rmem_max=2097152
 sysctl -wq net.core.optmem_max=20480
@@ -877,6 +880,10 @@ sysctl -wq net.ipv4.conf.all.log_martians=1
 sysctl -wq net.ipv4.conf.default.log_martians=1
 EOF
 
+	touch $56net_conf
+	chmod 755 $56net_conf
+	echo "net.ipv4.tcp_rmem=6144 87380 2097152" > $56net_conf
+	echo "net.ipv4.tcp_wmem=6144 87380 2097152" >> $56net_conf
 	$tweak
 
 	clear
@@ -888,10 +895,6 @@ sql_optimize(){
 	clear
 	echo "${yellow}Checking Databases...${nc}"
 	echo
-
-	XSQL="/system/xbin/sqlite3"
-	BSQL="/system/bin/sqlite3"
-	SSQL="/sbin/sqlite3"
 
 	if [ -f $XSQL ]; then
 		chown 0.0  $XSQL
