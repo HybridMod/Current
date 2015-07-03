@@ -421,15 +421,15 @@ chk4="are you retarded?"
 chk5="I no understand enchiladas"
 
 checkers(){
-	for count in $(seq 1 20); do
-		if [[ ! "$(eval echo \$chk$count)" ]]; then
+	for i in $(seq 1 20); do
+		if [[ ! "$(eval echo \$chk$i)" ]]; then
 			i=$((i-1))
 			break
 		fi
 	done
 	random=$(print_RANDOM_BYTE)
 	random=$((random%i+1))
-	echo -ne "\r$(eval echo \$chk$random)"
+	echo -n -e "\r$(eval echo \$chk$random) "
 	sleep 1
 }
 
