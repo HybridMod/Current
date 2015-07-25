@@ -1,4 +1,4 @@
-# hybrid.sh by DiamondBond, Deic & hoholee12
+# hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
 
 #code snippets from standard.sh by hoholee12
 readonly version="2.4"
