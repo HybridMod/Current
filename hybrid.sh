@@ -39,12 +39,15 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 	#Edit values
 	cloud="https://github.com/DeicPro/Download/releases/download/hybrid/version.sh"
 
-	#Not edit
+	#Dont edit
 	base_name=`basename $0`
 
+	#Mount
 	mount -o remount,rw rootfs
 	mount -o remount,rw /system
 	mount -o remount,rw /data
+
+	#Create dirs
 	mkdir -p /tmp/
 	chmod 755 /tmp/
 
@@ -72,8 +75,10 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 
 		while true; do
 			if [ -f /tmp/curl ] && [ -f /tmp/openssl ] && [ -f /tmp/openssl.cnf ] && [ -f /tmp/ca-bundle.crt ]; then
+				#Create dirs
 				mkdir /data/local/ssl/
 				mkdir /data/local/ssl/certs/
+				#Copy binaries / scripts
 				cp -f /tmp/curl /system/xbin/
 				cp -f /tmp/openssl /system/xbin/
 				cp -f /tmp/openssl.cnf /data/local/ssl/
@@ -81,6 +86,7 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 				sleep 2
 				chmod -R 755 /system/xbin/
 				chmod -R 755 /data/local/ssl/
+				#Cleanup
 				rm -f $EXTERNAL_STORAGE/download/curl.zip
 				break
 			fi
@@ -97,7 +103,7 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 	fi
 
 	clear
-	echo "Checking updates..."
+	echo "Checking for updates..."
 	curl -k -L -o /tmp/version.sh $cloud 2>/dev/null
 
 	while true; do
@@ -112,7 +118,7 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 				clear
 				echo "A new version of the script was found..."
 				echo
-				echo "Want install it? (Y/N)"
+				echo "Would you like to install it? (Y/N)"
 				echo
 				echo -n "> "
 				read install_opt
@@ -126,7 +132,7 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 						break
 					;;
 					* )
-						echo "Write [Y] or [N] and press enter..."
+						echo "Invalid option, please enter either Y/N"
 						sleep 1.5
 					;;
 				esac
@@ -172,7 +178,6 @@ revision="2.4.0"
 
 #SizeOf
 FILENAME=$FULL_NAME
-#FILESIZE=$(stat -c%s "$FILENAME")
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
