@@ -170,6 +170,7 @@ SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 		fi
 	done
 }
+
 #hashtag in SH-OTA function to testing hybrid.sh
 #SH-OTA
 
@@ -379,11 +380,11 @@ bb_apg_2(){
 			fi
 		done
 	fi 2>/dev/null
-	if [[ "$used_gopt" == 1 ]]&&[[ "$bb_check" == 1 ]]; then
+	if [[ "$used_gopt" == 1 ]] && [[ "$bb_check" == 1 ]]; then
 		fail=1 #used_gopt is NOT recommended, unless needed for specific use.
 	fi
 	if [[ "$fail" == 1 ]]; then #the fail manager!
-		if [[ "$used_fopt" == 1 ]]||[[ "$used_gopt" == 1 ]]; then
+		if [[ "$used_fopt" == 1 ]] || [[ "$used_gopt" == 1 ]]; then
 			unset used_fopt
 			unset used_gopt
 			return 1
@@ -394,7 +395,7 @@ bb_apg_2(){
 }
 
 print_RANDOM_BYTE(){
-	if [[ "$BASH" ]]&&[[ "$RANDOM" ]]; then
+	if [[ "$BASH" ]] && [[ "$RANDOM" ]]; then
 		echo $RANDOM
 	else
 		bb_apg_2 -f od
@@ -1329,6 +1330,7 @@ options(){
 		echo "${yellow}Options${nc}"
 		echo " 1|Install options"
 		echo " 2|Sensor fix"
+		echo " 3|Output Logs"
 		echo
 		echo " B|Back"
 		echo
@@ -1339,6 +1341,8 @@ options(){
 				install_options;;
 			2 )
 				sensor_fix;;
+			3 )
+				log_out;;
 			b|B )
 				break;;
 			* )
@@ -1407,6 +1411,10 @@ sensor_fix(){
 				checkers;;
 		esac
 	done
+}
+
+log_out(){
+	#temp
 }
 
 about_info(){
