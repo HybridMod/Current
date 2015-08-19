@@ -1631,7 +1631,9 @@ custom_reboot(){
 	clear
 	echo "Just kidding :] (?)"
 	sleep 1
-	echo 128 > /proc/sys/kernel/sysrq #0x80
+	echo 16 > /proc/sys/kernel/sysrq #0x10 //sync
+	echo s > /proc/sysrq-trigger
+	echo 128 > /proc/sys/kernel/sysrq #0x80 //reboot
 	echo b > /proc/sysrq-trigger
 }
 
