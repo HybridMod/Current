@@ -458,6 +458,14 @@ as_root_lite(){
 
 as_root_lite #modified version of as_root, required for debug_shell
 
+part_line(){
+	count=$(echo $@ | wc -c)
+	for i in $(seq 1 $(($(stty size | awk '{print $2}' 2>/dev/null)-count))); do
+		echo -n '_'
+	done
+	echo $@
+}
+
 #Debug Shell
 debug_shell(){
 	echo "welcome to the debug shell! type in: 'help' for more information."
@@ -1341,7 +1349,7 @@ sensor_fix(){
 			y|Y )
 				rm -f -r /data/misc/sensor
 				clear
-				echo "Done."
+				part_line Done.
 				sleep 1
 				break
 			;;
@@ -1419,7 +1427,7 @@ EOF
 	$tweak
 	sed -i 's/sleep 0/sleep 15/' $tweak
 
-	echo "Done."
+	part_line Done.
 	sleep 1
 
 	break
@@ -1623,7 +1631,8 @@ custom_reboot(){
 	clear
 	echo "Just kidding :] (?)"
 	sleep 1
-	reboot
+	echo 128 > /proc/sys/kernel/sysrq #0x80
+	echo b > /proc/sysrq-trigger
 }
 
 safe_exit(){
