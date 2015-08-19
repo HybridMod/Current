@@ -1522,7 +1522,7 @@ entropy_tweak_apply(){
 	touch $tweak
 	chmod 0755 $tweak
 
-	if [[ "$entropy_tweak_opt" == "2"]]; then
+	if [[ "$entropy_tweak_opt" == "2" ]]; then
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1740,14 +1740,13 @@ about_info(){
 
 custom_reboot(){
 	clear
-	echo "Factory reset in 3."
-	sleep 1
-	clear
-	echo "Factory reset in 2.."
-	sleep 1
-	clear
-	echo "Factory reset in 1..."
-	sleep 1
+	for i in 3 2 1; do
+		echo -n -e "\rFactory reset in $i"
+		for j in $(seq 1 $((4-i))); do
+			echo -n '.'
+		done
+		sleep 1
+	done
 	clear
 	echo "Just kidding :] (?)"
 	sleep 1
