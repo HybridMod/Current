@@ -680,6 +680,103 @@ install(){
 	fi
 }
 
+# Task Killer 1.0 by hoholee12@naver.com
+# this program includes:
+# target_killer - reads 'exclude_target' and kills the desired ones.
+# check_launcher - use this to exclude launcher pid
+# debug_space - use this to log details
+# task_killer - main program. launch this to start.
+
+exclude_target='^-16\|^-12\|^0\|^1' # exclude target adj
+target_killer(){
+	for i in $(pgrep -l '' | grep '\<org\.\|\<app\.\|\<com\.\|\<android\.' | grep -v -e ':remote' | awk '{print $1}' | grep -v -e $launcher_pid); do
+		if [[ $(grep -v -e $exclude_target /proc/$i/oom_adj) ]]; then
+			kill -9 $i
+		fi
+	done
+}
+
+check_launcher(){ # code snippets from boostdemo.sh
+	unset launcher_pid
+	while true; do
+		for launcher in $(grep "<h\>" /data/system/appwidgets.xml | sed 's/ /\n/g' | grep pkg | sed 's/^pkg="//; s/"$//'); do
+			launcher_pid=$(pgrep $launcher)
+			if [[ "$launcher_pid" ]]; then
+				break
+			fi
+		done
+		if [[ "$launcher_pid" ]]; then
+			break
+		fi
+		sleep 1
+	done
+}
+
+debug_space(){
+	space=0
+	for i in $(grep -i -e 'memfree\|buffers\|^cached' /proc/meminfo | awk '{print $2}'); do
+		space=$((space+i))
+	done
+	if [[ "$1" == -i ]]; then
+		if [[ "$prev_space" ]]; then
+			freed=$((space-prev_space))
+			if [[ "$freed" -lt 0 ]]; then
+				freed=0
+			fi
+			error freed "$freed"KB of memory.
+		fi
+		prev_space=$space
+	fi
+}
+
+task_killer(){
+	backuplmk=$(cat /sys/module/lowmemorykiller/parameters/minfree)
+	echo "0,0,0,0,0,0" > /sys/module/lowmemorykiller/parameters/minfree
+	trap "echo "$backuplmk" > /sys/module/lowmemorykiller/parameters/minfree; exit" EXIT INT TERM
+	debug=$1
+	if [[ "$debug" == -i ]]; then
+		shift
+	else
+		unset debug
+	fi
+	sleep=$1
+	if [[ ! "$sleep" ]]; then
+		sleep=10 #dumpsys refresh time is 10 secs.
+	fi
+	memlimit=$2
+	if [[ ! "$memlimit" ]]; then
+		memlimit=$(($(grep -i -e memtotal /proc/meminfo | awk '{print $2}')/2))
+	else
+		memlimit=$((memlimit*1024))
+	fi
+	renice 19 $$
+	check_launcher
+	debug_space
+	while true; do
+		if [[ "$no_wakelock" == 1 ]]; then
+			until [[ "$(cat /sys/class/graphics/fb0/show_blank_event)" == "panel_power_on = 1" ]]; do
+				sleep 10
+			done
+		else
+			awake=$(cat /sys/power/wait_for_fb_wake)
+		fi
+		if [[ "$space" -lt "$memlimit" ]]; then
+			target_killer
+			if [[ ! "$(pgrep '' | grep "\<$launcher_pid\>")" ]]; then
+				check_launcher
+			fi
+			if [[ "$debug" ]]; then
+				debug_space -i
+			else
+				debug_space
+			fi
+		else
+			debug_space
+		fi
+		sleep $sleep
+	done
+}
+
 title(){
 	while true; do
 		clear
