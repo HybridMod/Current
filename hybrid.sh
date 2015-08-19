@@ -1,5 +1,7 @@
 # hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
 
+#!/system/bin/sh
+
 #code snippets from standard.sh by hoholee12
 readonly version="2.4"
 readonly debug=0 #if blank, it will not show an error.
@@ -182,7 +184,7 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
-initd=`if [ -d $initd_dir ]; then echo "1"; fi`
+initd=`if [ -d "$initd_dir" ]; then echo "1"; fi`
 zram=`if [ -d /dev/block/zram* ]; then echo "1"; fi`
 kcal=`if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo "1"; fi`
 permanent=`getprop persist.hybrid.permanent`
@@ -675,22 +677,22 @@ title(){
 		clear
 
 		if [ "$permanent" == 1 ]; then
-	 		echo "${cyan}[-=Hybrid-Mod=-]${nc}"
-	 		echo
+			echo "${cyan}[-=Hybrid-Mod=-]${nc}"
+			echo
 
 			body
 		else
-	 		sleep 1
+			sleep 1
 			echo "${cyan}The${nc}"
 			sleep 1
-	 		echo "${cyan}          Hybrid${nc}"
+			echo "${cyan}          Hybrid${nc}"
 			sleep 1
-	 		echo "${cyan}                      Mod${nc}"
+			echo "${cyan}                      Mod${nc}"
 			sleep 1
-	 		echo "                                                :)"
+			echo "                                                :)"
 			sleep 3
 
-	 		install_options
+			install_options
 		fi
 	done
 }
@@ -701,16 +703,11 @@ body(){
 	echo " 2|Optimize my Memory"
 	echo " 3|Optimize my Network"
 	echo " 4|Optimize my Databases"
-	echo " 5|RAM Profiles"
-	echo " 6|Kernel Kontrol"
-
-	if [ "$zram" == 1 ]; then
-		echo " 7|zRAM Settings"
-		echo " 8|Game Booster"
-	else
-		echo " 7|Game Booster"
-	fi
-
+	echo " 5|Optimize my Nandroid"
+	echo " 6|RAM Profiles"
+	echo " 7|Kernel Kontrol"
+	echo " 8|Game Booster"
+	echo " 9|More"
 	echo
 	echo " O|Options"
 	echo " A|About"
@@ -722,31 +719,47 @@ body(){
 	read selection_opt
 	case $selection_opt in
 		1 )
-			clean_up;;
+			clean_up
+		;;
 		2 )
-			vm_tune;;
+			vm_tune
+		;;
 		3 )
-			network_tune;;
+			network_tune
+		;;
 		4 )
-			sql_optimize;;
+			sql_optimize
+		;;
 		5 )
-			lmk_tune;;
+			trim_nand
+		;;
 		6 )
-			kernel_kontrol;;
+			lmk_tune
+		;;
 		7 )
-			zram_settings_custom;;
+			kernel_kontrol
+		;;
 		8 )
-			game_booster_custom;;
+			game_booster
+		;;
+		9 )
+			more_tweaks
+		;;
 		o|O )
-			options;;
+			options
+		;;
 		a|A )
-			about_info;;
+			about_info
+		;;
 		r|R )
-			custom_reboot;;
+			custom_reboot
+		;;
 		e|E )
-			safe_exit;;
+			safe_exit
+		;;
 		* )
-			checkers;;
+			checkers
+		;;
 	esac
 }
 
@@ -833,8 +846,13 @@ sysctl -wq vm.overcommit_memory=1
 sysctl -wq vm.overcommit_ratio=150
 sysctl -wq vm.swappiness=80
 sysctl -wq vm.vfs_cache_pressure=10
+
+for i in /sys/devices/virtual/bdi/*/read_ahead_kb; do
+	echo "2048" > replace
+done
 EOF
 
+	sed -i 's/replace/$i/' $tweak
 	$tweak
 
 	clear
@@ -940,48 +958,56 @@ sql_optimize(){
 	echo "${yellow}Database optimizations complete!${nc}"
 
 	echo
-	echo -n "Press any key to continue..."
+	echo -n "Press any key to exit..."
 	stty cbreak -echo
 	dd bs=1 count=1 2>/dev/null
 	stty -cbreak echo
 }
 
+trim_nand(){
+	fstrim -v /cache
+	fstrim -v /data
+	fstrim -v /system
+	
+	sleep 1
+}
+
 lmk_tune(){
 	while true; do
-	 	clear
+		clear
 		echo "${yellow}RAM Profiles${nc}"
-	 	echo
-	 	echo "${yellow}Profiles available:${nc}"
-	 	echo " 1|Balanced"
-	 	echo " 2|Multitasking|"
-	 	echo " 3|Gaming"
-	 	echo
-	 	echo " B|Back"
-	 	echo
-	 	echo -n "> "
-	 	read lmk_tune_opt
+		echo
+		echo "${yellow}Profiles available:${nc}"
+		echo " 1|Balanced"
+		echo " 2|Multitasking|"
+		echo " 3|Gaming"
+		echo
+		echo " B|Back"
+		echo
+		echo -n "> "
+		read lmk_tune_opt
 		case $lmk_tune_opt in
-		 	1 )
+			1 )
 				minfree_array='1024,2048,4096,8192,12288,16384'
 				lmk_apply
 				break
-		 	;;
+			;;
 			2 )
 				minfree_array='1536,2048,4096,5120,5632,6144'
 				lmk_apply
 				break
-		 	;;
+			;;
 			3 )
 				minfree_array='10393,14105,18188,27468,31552,37120'
 				lmk_apply
 				break
-		 	;;
-		 	b|B )
+			;;
+			b|B )
 				break
-		 	;;
-		 	* )
+			;;
+			* )
 				checkers
-		 	;;
+			;;
 	 	esac
  	done
 }
@@ -1016,36 +1042,42 @@ EOF
 
 kernel_kontrol(){
 	while true; do
-	 	clear
+		clear
 
 		echo "${yellow}Kernel Kontrol${nc}"
-	 	echo " 1|Set CPU Freq"
-	 	echo " 2|Set CPU Gov"
-	 	echo " 3|Set I/O Sched"
+		echo " 1|Set CPU Freq"
+		echo " 2|Set CPU Gov"
+		echo " 3|Set I/O Sched"
 
-	 	if [ "$kcal" == 1 ]; then
-	 	 	echo " 4|View KCal Values"
-	 	fi
+		if [ "$kcal" == 1 ]; then
+			echo " 4|View KCal Values"
+		fi
 
-	 	echo
-	 	echo " B|Back"
-	 	echo
-	 	echo -n "> "
-	 	read kernel_kontrol_opt
+		echo
+		echo " B|Back"
+		echo
+		echo -n "> "
+		read kernel_kontrol_opt
 		case $kernel_kontrol_opt in
-		 	1)
-				set_cpu_freq;;
-		 	2)
-				set_gov;;
-		 	3)
-				set_io_sched;;
-		 	4)
-				kcal_custom;;
-		 	b|B)
-				break;;
-		 	* )
-				checkers;;
-	  	esac
+			1)
+				set_cpu_freq
+			;;
+			2)
+				set_gov
+			;;
+			3)
+				set_io_sched
+			;;
+			4)
+				kcal
+			;;
+			b|B)
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
  	done
 }
 
@@ -1174,96 +1206,25 @@ EOF
 	sleep 1
 }
 
-kcal_custom(){
-     	if [ "$kcal" == 1 ]; then
-         	kcal
-     	else
-         	checkers
- 	fi
-}
-
 kcal(){
  	clear
 
-	echo "${yellow}Current KCal Values:${nc}"
-	rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
-	sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
-	cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
-	hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
-	gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
-	echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
-	sleep 5
-}
-
-zram_settings_custom(){
-	if [ "$zram" == 1 ]; then
-		zram_settings
-	else
-		game_booster
-	fi
-}
-
-zram_settings(){
-	while true; do
-		clear
-
-		echo "${yellow}zRAM Options:${nc}"
-		echo " 1|Disable zRAM"
-		echo " 2|Enable zRAM"
+	if [ "$kcal" == 1 ]; then
+		echo "${yellow}Current KCal Values:${nc}"
+		rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
+		sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
+		cont=`cat /sys/devices/platform/kcal_ctrl.0/kcal_cont`
+		hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
+		gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
+		echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
 		echo
-		echo " B|Back"
-		echo
-		echo -n "> "
-		read zram_settings_opt
-		case $zram_settings_opt in
-	 		1 )
-				zram_disable
-				break;;
-	 		2 )
-				zram_enable
-				break;;
-	 		b|B )
-				break;;
-	 		* )
-				checkers;;
-		esac
-	done
-}
-
-zram_disable(){
-	clear
-	echo "${yellow}Disabling zRAM...${nc}"
-	sleep 1
-
-	for swap_dir in `ls /dev/block/zram*`; do
-		swapoff $swap_dir
-	done
-
-	clear
-	echo "${yellow}zRAM disabled!${nc}"
-	sleep 1
-}
-
-zram_enable(){
-	clear
-	echo "${yellow}Enabling zRAM...${nc}"
-	sleep 1
-
-	for swap_dir in `ls /dev/block/zram*`; do
-		swapon $swap_dir
-	done
-
-	clear
-	echo "${yellow}zRAM enabled!${nc}"
-	sleep 1
-}
-
-game_booster_custom(){
-	if [ "$zram" == 1 ]; then
-		game_booster
+		echo -n "Press any key to exit..."
+		stty cbreak -echo
+		dd bs=1 count=1 2>/dev/null
+		stty -cbreak echo
 	else
-		checkers
-	fi
+         	checkers
+ 	fi
 }
 
 game_booster(){
@@ -1280,13 +1241,17 @@ game_booster(){
 		case $game_booster_opt in
 			1 )
 				game_inject
-				break;;
+				break
+			;;
 			2 )
-				game_time_cfg;;
+				game_time_cfg
+			;;
 			b|B )
-				break;;
+				break
+			;;
 			* )
-				checkers;;
+				checkers
+			;;
 		esac
 	done
 }
@@ -1294,6 +1259,7 @@ game_booster(){
 game_inject(){
 	while true; do
 		clear
+
 		echo "Please leave the terminal emulator running"
 		echo "This will continue to run untill close the terminal"
 		echo
@@ -1302,10 +1268,20 @@ game_inject(){
 		echo "3" > /proc/sys/vm/drop_caches
 		am kill-all 2>/dev/null
 
-		for free_ram in $(grep MemFree /proc/meminfo | awk '{print $2}' ); do
-			echo "Free RAM: $free_ram kB"
-			sleep $interval_time
-		done
+		free_ram=$(grep MemFree /proc/meminfo | awk '{print $2}')
+		echo "Free RAM: $free_ram KB"
+		
+		stty cbreak -echo
+		dd bs=1 count=1 2>/dev/null
+		stty -cbreak echo
+		read -t 1 game_inject_stop
+		case $game_inject_stop in
+			* )
+				break
+			;;
+		esac
+	
+	sleep $interval_time
 	done
 }
 
@@ -1324,29 +1300,159 @@ game_time_cfg(){
 	sleep 1
 }
 
+more_tweaks(){
+	while true; do
+		clear
+		echo "${yellow}More${nc}"
+		echo
+		echo " 1|Sensor fix"
+		echo " 2|Entropy tweak"
+		echo
+		echo " B|Back"
+		echo
+		echo -n "> "
+		read more_tweaks_opt
+		case $more_tweaks_opt in
+			1 )
+				sensor_fix
+			;;
+			2 )
+				entropy_tweak
+			;;
+			b|B )
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
+	done
+}
+
+sensor_fix(){
+	while true; do
+		clear
+		
+		echo "Wipe sensor data? [Y/N]"
+		echo
+		echo -n "> "
+		read sensor_fix_opt
+		case $sensor_fix_opt in
+			y|Y )
+				rm -f -r /data/misc/sensor
+				clear
+				echo "Done."
+				sleep 1
+				break
+			;;
+			n|N )
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
+	done
+}
+
+entropy_tweak(){
+	while true; do
+		clear
+		
+		echo "${yellow}Entropy tweak methods:${nc}"
+		echo
+		entropy_info=$(cat /proc/sys/kernel/random/entropy_avail)
+		poolsize_info=$(cat /proc/sys/kernel/random/poolsize)
+		echo "Entropy: $entropy_info/$poolsize_info"
+		echo
+		echo " 1|Normal"
+		echo " 2|Experimental (risky)"
+		echo
+		echo " B|Back"
+		echo
+		echo -n "> "
+		read -t 1 entropy_tweak_opt
+		case $entropy_tweak_opt in
+			1|2 )
+				entropy_tweak_apply
+				break
+			;;
+			b|B )
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
+	done
+}
+
+entropy_tweak_apply(){
+	tweak_dir
+	tweak="$tweak_dir/99entropy_tweak"
+
+	touch $tweak
+	chmod 0755 $tweak
+
+	if [[ "$entropy_tweak_opt" == "2"]]; then
+cat > $tweak <<-EOF
+#!/system/bin/sh
+
+sleep 0
+
+rm -f /dev/random
+ln -s /dev/urandom /dev/random
+EOF
+	else
+cat > $tweak <<-EOF
+#!/system/bin/sh
+
+sleep 0
+EOF
+	fi
+	
+cat >> $tweak <<-EOF
+sysctl -w kernel.random.read_wakeup_threshold=1366
+sysctl -w kernel.random.write_wakeup_threshold=2048
+EOF
+
+	$tweak
+	sed -i 's/sleep 0/sleep 15/' $tweak
+
+	echo "Done."
+	sleep 1
+
+	break
+}
+
 options(){
 	while true; do
 		clear
 		echo "${yellow}Options${nc}"
 		echo " 1|Install options"
-		echo " 2|Sensor fix"
-		echo " 3|Output Logs"
+		echo " 2|Output Logs"
+		echo " 3|zRam Settings"
 		echo
 		echo " B|Back"
 		echo
 		echo -n "> "
 		read options_opt
 		case $options_opt in
-	 		1 )
-				install_options;;
+			1 )
+				install_options
+			;;
 			2 )
-				sensor_fix;;
+				log_out
+			;;
 			3 )
-				log_out;;
+				zram_settings
+			;;
 			b|B )
-				break;;
+				break
+			;;
 			* )
-				checkers;;
+				checkers
+			;;
 		esac
 	done
 }
@@ -1359,62 +1465,102 @@ install_options(){
 		echo " P|Permanent installs"
 		echo
 
-		if [ "$permanent" == "" ]; then
-	 		iBack="checkers"
-	 		echo "${cyan}You can change it in Options later${nc}"
+		if [[ "$permanent" == "" ]]; then
+			iBack="checkers"
+			echo "${cyan}You can change it in Options later${nc}"
 		else
-	 		iBack="break"
-	 		echo " B|Back"
+			iBack="break"
+			echo " B|Back"
 		fi
 
 		echo
 		echo -n "> "
 		read install_options_opt
 		case $install_options_opt in
-	 		t|T )
+			t|T )
 				setprop persist.hybrid.permanent 0
 				clear
 				echo "Done"
 				sleep 1
-				break;;
+				break
+			;;
 			p|P )
 				setprop persist.hybrid.permanent 1
 				clear
 				echo "Done"
 				sleep 1
-				break;;
-	 		b|B )
-				$iBack;;
+				break
+			;;
+			b|B )
+				$iBack
+			;;
 			* )
-				checkers;;
-		esac
-	done
-}
-
-sensor_fix(){
-	while true; do
-		clear
-		echo "Wipe sensor data? [Y/N]"
-		echo
-		echo -n "> "
-		read sensor_fix_opt
-		case $sensor_fix_opt in
-			y|Y )
-				rm -rf /data/misc/sensor/
-				clear
-				echo "Done"
-				sleep 1
-				break;;
-			n|N )
-				break;;
-			* )
-				checkers;;
+				checkers
+			;;
 		esac
 	done
 }
 
 log_out(){
-	#temp
+	clear
+
+	if [[ "$LOG_DIR" ]]; then
+		cat $LOG_DIR/$NO_EXTENSION.log
+	elif [[ "$LOG_NAME" ]]; then # not sure of this
+		cat $LOG_NAME/$NO_EXTENSION.log
+	else
+		echo "Nothing to output."
+		return 1
+	fi
+
+	echo
+	echo -n "Press any key to exit..."
+	stty cbreak -echo
+	dd bs=1 count=1 2>/dev/null
+	stty -cbreak echo
+}
+
+zram_settings(){
+	while true; do
+		clear
+
+		echo "${yellow}zRAM Options:${nc}"
+		echo " 1|Disable zRAM"
+		echo " 2|Enable zRAM"
+		echo
+		echo " B|Back"
+		echo
+		echo -n "> "
+		read zram_settings_opt
+		case $zram_settings_opt in
+			1 )
+				clear
+				echo "${yellow}Disabling zRAM...${nc}"
+				sleep 1
+				swapoff -a
+				clear
+				echo "${yellow}zRAM disabled!${nc}"
+				sleep 1
+				break
+			;;
+			2 )
+				clear
+				echo "${yellow}Enabling zRAM...${nc}"
+				sleep 1
+				swapon -a
+				clear
+				echo "${yellow}zRAM enabled!${nc}"
+				sleep 1
+				break
+			;;
+			b|B )
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
+	done
 }
 
 about_info(){
@@ -1423,9 +1569,9 @@ about_info(){
 		echo "${green}About:${nc}"
 		echo
 
-		if [ "$debug" == 0 ]; then
+		if [[ "$debug" == "0" ]]; then
 			echo "HybridMod Version: $version"
-		elif [ "$debug" == 1 ]; then
+		elif [[ "$debug" == "1" ]]; then
 			echo "HybridMod Revision: $revision"
 		fi
 
@@ -1448,14 +1594,18 @@ about_info(){
 		echo -n "> "
 		read about_info_opt
 		case $about_info_opt in
-	 		1 )
-				am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1;;
-	 		2 )
-				am start https://github.com/HybridMod >/dev/null 2>&1;;
-	 		b|B )
-				break;;
-	 		* )
-				checkers;;
+			1 )
+				am start http://forum.xda-developers.com/android/software-hacking/dev-hybridmod-t3135600 >/dev/null 2>&1
+			;;
+			2 )
+				am start https://github.com/HybridMod >/dev/null 2>&1
+			;;
+			b|B )
+				break
+			;;
+			* )
+				checkers
+			;;
 		esac
 	done
 }
@@ -1473,31 +1623,35 @@ custom_reboot(){
 	clear
 	echo "Just kidding :] (?)"
 	sleep 1
-	sync
 	reboot
 }
 
 safe_exit(){
 	clear
-	mount -o remount,ro /system 2>/dev/null
-	mount -o remount,ro /data 2>/dev/null
+	mount -r -o remount /system 2>/dev/null
 	exit
 }
 
-mount -o remount,rw /system
-mount -o remount,rw /data
+mount -w -o remount rootfs
+mount -w -o remount /system
+mount -w -o remount /data
 
-if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
+# Previous versions of Android 4.3+ its mksh binary does not create this directory, needed to cat to file temp stdout
+mkdir -p /sqlite_stmt_journals/
+chmod 0755 /sqlite_stmt_journals/
+
+
+if [[ "$1" == --debug ]]; then # type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory... this is also intended.
+if [[ "$DIR_NAME" == "NULL" ]]; then # if not installed on any executable directory... this is also intended.
 	install -s /system/xbin
 	exit
 fi
 
-if [ "$interval_time" == "" ]; then
+if [[ "$interval_time" == "" ]]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
