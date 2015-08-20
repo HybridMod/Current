@@ -184,11 +184,11 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
-initd=`if [ -d "$initd_dir" ]; then echo "1"; fi`
-zram=`if [ -d /dev/block/zram* ]; then echo "1"; fi`
-kcal=`if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo "1"; fi`
-permanent=`getprop persist.hybrid.permanent`
-interval_time=`getprop persist.hybrid.interval_time`
+initd=$(if [[ -d "$initd_dir" ]]; then echo "1"; fi)
+zram=$(if [[ -d /dev/block/zram* ]]; then echo "1"; fi)
+kcal=$(if [[ -d /sys/devices/platform/kcal_ctrl.0/ ]]; then echo "1"; fi)
+permanent=$(getprop persist.hybrid.permanent)
+interval_time=$(getprop persist.hybrid.interval_time)
 
 #symlinks
 initd_dir="/system/etc/init.d/"
@@ -820,7 +820,7 @@ title(){
 			echo "                                                :)"
 			sleep 3
 
-			install_options
+			install_settings
 		fi
 	done
 }
@@ -892,13 +892,21 @@ body(){
 }
 
 tweak_dir(){
-	if [ "$permanent" == 1 ] && [ "$initd" == 1 ]; then
+	if [[ "$permanent" == "1" ]] && [[ "$initd" == "1" ]]; then
 		tweak_dir=$initd_dir
 	else
 		tweak_dir="/tmp/"
-		mkdir -p /tmp/
+		mkdir -p /tmp
 		chmod 755 /tmp/
 	fi
+}
+
+key_exit(){
+	echo
+	echo -n "Press any key to exit..."
+	stty cbreak -echo
+	dd bs=1 count=1 2>/dev/null
+	stty -cbreak echo
 }
 
 clean_up(){
@@ -1085,11 +1093,7 @@ sql_optimize(){
 	echo
 	echo "${yellow}Database optimizations complete!${nc}"
 
-	echo
-	echo -n "Press any key to exit..."
-	stty cbreak -echo
-	dd bs=1 count=1 2>/dev/null
-	stty -cbreak echo
+	key_exit
 }
 
 trim_nand(){
@@ -1097,7 +1101,7 @@ trim_nand(){
 	fstrim -v /data
 	fstrim -v /system
 	
-	sleep 1
+	key_exit
 }
 
 lmk_tune(){
@@ -1177,7 +1181,7 @@ kernel_kontrol(){
 		echo " 2|Set CPU Gov"
 		echo " 3|Set I/O Sched"
 
-		if [ "$kcal" == 1 ]; then
+		if [[ "$kcal" == "1" ]]; then
 			echo " 4|View KCal Values"
 		fi
 
@@ -1345,11 +1349,8 @@ kcal(){
 		hue=`cat /sys/devices/platform/kcal_ctrl.0/kcal_hue`
 		gamma=`cat /sys/devices/platform/kcal_ctrl.0/kcal_val`
 		echo "rgb: $rgb, sat: $sat, cont: $cont, hue: $hue, gamma: $gamma"
-		echo
-		echo -n "Press any key to exit..."
-		stty cbreak -echo
-		dd bs=1 count=1 2>/dev/null
-		stty -cbreak echo
+		
+		key_exit
 	else
          	checkers
  	fi
@@ -1358,38 +1359,9 @@ kcal(){
 game_booster(){
 	while true; do
 		clear
-		echo "${yellow}Game Booster${nc}"
-		echo " 1|Boost"
-		echo " 2|Options"
-		echo
-		echo " B|Back"
-		echo
-		echo -n "> "
-		read game_booster_opt
-		case $game_booster_opt in
-			1 )
-				game_inject
-				break
-			;;
-			2 )
-				game_time_cfg
-			;;
-			b|B )
-				break
-			;;
-			* )
-				checkers
-			;;
-		esac
-	done
-}
-
-game_inject(){
-	while true; do
-		clear
 
 		echo "Please leave the terminal emulator running"
-		echo "This will continue to run untill close the terminal"
+		echo "This will continue to run untill press any key or close the terminal"
 		echo
 
 		sync
@@ -1411,21 +1383,6 @@ game_inject(){
 	
 	sleep $interval_time
 	done
-}
-
-game_time_cfg(){
-	clear
-	echo "Current rate: $interval_time"
-	echo "60 - Every minute - Default"
-	echo "3600 - Every hour"
-	echo
-	echo "Please enter a rate in seconds:"
-	echo -n "> "
-	read game_time_val
-	setprop persist.hybrid.interval_time $game_time_val
-	clear
-	echo "Time updated!"
-	sleep 1
 }
 
 more_tweaks(){
@@ -1557,9 +1514,14 @@ options(){
 	while true; do
 		clear
 		echo "${yellow}Options${nc}"
-		echo " 1|Install options"
+		echo " 1|Install Settings"
 		echo " 2|Output Logs"
-		echo " 3|zRam Settings"
+		echo " 3|Game Booster Settings"
+		
+		if [[ "$zram" == "1" ]]; then
+			echo " 4|zRAM Settings"
+		fi
+		
 		echo
 		echo " B|Back"
 		echo
@@ -1567,12 +1529,15 @@ options(){
 		read options_opt
 		case $options_opt in
 			1 )
-				install_options
+				install_settings
 			;;
 			2 )
 				log_out
 			;;
 			3 )
+				game_booster_settings
+			;;
+			4 )
 				zram_settings
 			;;
 			b|B )
@@ -1585,7 +1550,7 @@ options(){
 	done
 }
 
-install_options(){
+install_settings(){
 	while true; do
 		clear
 		echo "${yellow}How to install tweaks?${nc}"
@@ -1641,53 +1606,69 @@ log_out(){
 		return 1
 	fi
 
+	key_exit
+}
+
+game_booster_settings(){
+	clear
+	echo "Current rate: $interval_time"
+	echo "60 - Every minute - Default"
+	echo "3600 - Every hour"
 	echo
-	echo -n "Press any key to exit..."
-	stty cbreak -echo
-	dd bs=1 count=1 2>/dev/null
-	stty -cbreak echo
+	echo "Please enter a rate in seconds:"
+	echo -n "> "
+	read game_time_val
+	setprop persist.hybrid.interval_time $game_time_val
+	clear
+	echo "Time updated!"
+	sleep 1
 }
 
 zram_settings(){
 	while true; do
 		clear
 
-		echo "${yellow}zRAM Options:${nc}"
-		echo " 1|Disable zRAM"
-		echo " 2|Enable zRAM"
-		echo
-		echo " B|Back"
-		echo
-		echo -n "> "
-		read zram_settings_opt
-		case $zram_settings_opt in
-			1 )
-				clear
-				echo "${yellow}Disabling zRAM...${nc}"
-				sleep 1
-				swapoff -a
-				clear
-				echo "${yellow}zRAM disabled!${nc}"
-				sleep 1
-				break
-			;;
-			2 )
-				clear
-				echo "${yellow}Enabling zRAM...${nc}"
-				sleep 1
-				swapon -a
-				clear
-				echo "${yellow}zRAM enabled!${nc}"
-				sleep 1
-				break
-			;;
-			b|B )
-				break
-			;;
-			* )
-				checkers
-			;;
-		esac
+		if [[ "$zram" == "1" ]]; then
+			echo "${yellow}zRAM Options:${nc}"
+			echo " 1|Disable zRAM"
+			echo " 2|Enable zRAM"
+			echo
+			echo " B|Back"
+			echo
+			echo -n "> "
+			read zram_settings_opt
+			case $zram_settings_opt in
+				1 )
+					clear
+					echo "${yellow}Disabling zRAM...${nc}"
+					sleep 1
+					swapoff -a
+					clear
+					echo "${yellow}zRAM disabled!${nc}"
+					sleep 1
+					break
+				;;
+				2 )
+					clear
+					echo "${yellow}Enabling zRAM...${nc}"
+					sleep 1
+					swapon -a
+					clear
+					echo "${yellow}zRAM enabled!${nc}"
+					sleep 1
+					break
+				;;
+				b|B )
+					break
+				;;
+				* )
+					checkers
+				;;
+			esac
+		else
+			checkers
+			break
+		fi
 	done
 }
 
@@ -1739,21 +1720,41 @@ about_info(){
 }
 
 custom_reboot(){
-	clear
-	for i in 3 2 1; do
-		echo -n -e "\rFactory reset in $i"
-		for j in $(seq 1 $((4-i))); do
-			echo -n '.'
-		done
-		sleep 1
+	while true; do
+		clear
+	
+		echo "Are you sure? [Y/N]"
+		echo
+		echo -n "> "
+		stty cbreak -echo
+		dd bs=1 count=1 2>/dev/null
+		stty -cbreak echo
+		read reboot_opt
+		case $reboot_opt in
+			y|Y )
+				for i in 3 2 1; do
+					echo -n -e "\rFactory reset in $i"
+					for j in $(seq 1 $((4-i))); do
+					echo -n '.'
+					done
+					sleep 1
+				done
+				clear
+				echo "Just kidding :] (?)"
+				sleep 1
+				echo 16 > /proc/sys/kernel/sysrq # 0x10 //sync
+				echo s > /proc/sysrq-trigger
+				echo 128 > /proc/sys/kernel/sysrq # 0x80 //reboot
+				echo b > /proc/sysrq-trigger
+			;;
+			n|N )
+				break
+			;;
+			* )
+				checkers
+			;;
+		esac
 	done
-	clear
-	echo "Just kidding :] (?)"
-	sleep 1
-	echo 16 > /proc/sys/kernel/sysrq #0x10 //sync
-	echo s > /proc/sysrq-trigger
-	echo 128 > /proc/sys/kernel/sysrq #0x80 //reboot
-	echo b > /proc/sysrq-trigger
 }
 
 safe_exit(){
@@ -1767,11 +1768,11 @@ mount -w -o remount /system
 mount -w -o remount /data
 
 # Previous versions of Android 4.3+ its mksh binary does not create this directory, needed to cat to file temp stdout
-mkdir -p /sqlite_stmt_journals/
+mkdir -p /sqlite_stmt_journals
 chmod 0755 /sqlite_stmt_journals/
 
 
-if [[ "$1" == --debug ]]; then # type 'hybrid --debug' to trigger debug_shell().
+if [[ "$1" == "--debug" ]]; then # type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
