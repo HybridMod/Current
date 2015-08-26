@@ -184,18 +184,19 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
-initd=$(if [[ -d "$initd_dir" ]]; then echo "1"; fi)
-zram=$(if [[ -d /dev/block/zram* ]]; then echo "1"; fi)
-kcal=$(if [[ -d /sys/devices/platform/kcal_ctrl.0/ ]]; then echo "1"; fi)
-permanent=$(getprop persist.hybrid.permanent)
-interval_time=$(getprop persist.hybrid.interval_time)
+initd=`if [ -d $initd_dir ]; then echo "1"; fi`
+zram=`if [ -d /dev/block/zram* ]; then echo "1"; fi`
+kcal=`if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo "1"; fi`
+permanent=`getprop persist.hybrid.permanent`
+interval_time=`getprop persist.hybrid.interval_time`
 
 #symlinks
 initd_dir="/system/etc/init.d/"
-net_conf="/system/etc/56net.conf"
-XSQL="/system/xbin/sqlite3"
-BSQL="/system/bin/sqlite3"
-SSQL="/sbin/sqlite3"
+vm_conf="/system/etc/hybrid_vm.conf"
+net_conf="/system/etc/hybrid_net.conf"
+xbin_sql="/system/xbin/sqlite3"
+bin_sql="/system/bin/sqlite3"
+sbin_sql="/sbin/sqlite3"
 
 #color control
 red='\033[0;31m'
@@ -792,7 +793,7 @@ title(){
 	while true; do
 		clear
 
-		if [ "$permanent" == 1 ]; then
+		if [ "$permanent" == "1" ]; then
 			echo "${cyan}[-=Hybrid-Mod=-]${nc}"
 			echo
 
@@ -880,8 +881,8 @@ body(){
 }
 
 tweak_dir(){
-	if [[ "$permanent" == "1" ]] && [[ "$initd" == "1" ]]; then
-		tweak_dir=$initd_dir
+	if [ "$permanent" == "1" ] && [ "$initd" == "1" ]; then
+		tweak_dir="$initd_dir"
 	else
 		tweak_dir="/tmp/"
 		mkdir -p /tmp
@@ -905,9 +906,6 @@ clean_up(){
 	tweak_dir
 	tweak="$tweak_dir/99clean_up"
 
-	touch $tweak
-	chmod 755 $tweak
-
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -927,7 +925,7 @@ rm -f /data/dalvik-cache/*.tmp
 rm -f /data/log/*
 rm -f /data/local/*.apk
 rm -f /data/local/*.log
-rm -f /data/local/tmp/*
+rm -f -r /data/local/tmp/*
 rm -f /data/last_alog/*
 rm -f /data/last_kmsg/*
 rm -f /data/mlog/*
@@ -936,6 +934,8 @@ rm -f /data/system/dropbox/*
 rm -f /data/system/usagestats/*
 rm -f $EXTERNAL_STORAGE/LOST.DIR/*
 EOF
+
+	chmod 0755 $tweak
 
 	$tweak
 	sed -i 's/sleep 0/sleep 15/' $tweak
@@ -953,31 +953,40 @@ vm_tune(){
 	tweak_dir
 	tweak="$tweak_dir/75vm"
 
-	touch $tweak
-	chmod 755 $tweak
+cat > $vm_conf <<-EOF
+# /init.d/75vm
+
+vm.dirty_background_ratio=70
+vm.dirty_expire_centisecs=3000
+vm.dirty_ratio=90
+vm.dirty_writeback_centisecs=500
+vm.drop_caches=3
+vm.min_free_kbytes=4096
+vm.oom_kill_allocating_task=1
+vm.overcommit_memory=1
+vm.overcommit_ratio=150
+vm.swappiness=80
+vm.vfs_cache_pressure=10
+EOF
 
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
-sysctl -wq vm.dirty_background_ratio=70
-sysctl -wq vm.dirty_expire_centisecs=3000
-sysctl -wq vm.dirty_ratio=90
-sysctl -wq vm.dirty_writeback_centisecs=500
-sysctl -wq vm.drop_caches=3
-sysctl -wq vm.min_free_kbytes=4096
-sysctl -wq vm.oom_kill_allocating_task=1
-sysctl -wq vm.overcommit_memory=1
-sysctl -wq vm.overcommit_ratio=150
-sysctl -wq vm.swappiness=80
-sysctl -wq vm.vfs_cache_pressure=10
+sleep 0
+
+sysctl -p -q $vm_conf
 
 for i in /sys/devices/virtual/bdi/*/read_ahead_kb; do
 	echo "2048" > replace
 done
 EOF
 
+	chmod 0755 $vm_conf
+	chmod 0755 $tweak
+
 	sed -i 's/replace/$i/' $tweak
 	$tweak
+	sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}Memory Optimized!${nc}"
@@ -992,58 +1001,64 @@ network_tune(){
 	tweak_dir
 	tweak="$tweak_dir/56net"
 
-	touch $tweak
-	chmod 755 $tweak
+cat > $net_conf <<-EOF
+# /init.d/56net
+
+## TCP
+net.core.wmem_max=2097152
+net.core.rmem_max=2097152
+net.core.optmem_max=20480
+net.ipv4.tcp_moderate_rcvbuf=1
+net.ipv4.udp_rmem_min=6144
+net.ipv4.udp_wmem_min=6144
+net.ipv4.tcp_timestamps=0
+net.ipv4.tcp_tw_reuse=1
+net.ipv4.tcp_tw_recycle=1
+net.ipv4.tcp_sack=1
+net.ipv4.tcp_window_scaling=1
+net.ipv4.tcp_keepalive_probes=5
+net.ipv4.tcp_keepalive_intvl=156
+net.ipv4.tcp_fin_timeout=30
+net.ipv4.tcp_ecn=0
+net.ipv4.tcp_max_tw_buckets=360000
+net.ipv4.tcp_synack_retries=2
+net.ipv4.route.flush=1
+net.ipv4.icmp_echo_ignore_all=1
+net.core.wmem_max=524288
+net.core.rmem_max=524288
+net.core.rmem_default=110592
+net.core.wmem_default=110592
+
+##IPv4
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.default.rp_filter=1
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.default.send_redirects=0
+net.ipv4.icmp_echo_ignore_broadcasts=1
+net.ipv4.icmp_ignore_bogus_error_responses=1
+net.ipv4.conf.all.accept_source_route=0
+net.ipv4.conf.default.accept_source_route=0
+net.ipv4.conf.all.log_martians=1
+net.ipv4.conf.default.log_martians=1
+net.ipv4.tcp_rmem=6144 87380 2097152
+net.ipv4.tcp_wmem=6144 87380 2097152
+EOF
 
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
-#TCP
-sysctl -pq $net_conf
-sysctl -wq net.core.wmem_max=2097152
-sysctl -wq net.core.rmem_max=2097152
-sysctl -wq net.core.optmem_max=20480
-sysctl -wq net.ipv4.tcp_moderate_rcvbuf=1
-sysctl -wq net.ipv4.udp_rmem_min=6144
-sysctl -wq net.ipv4.udp_wmem_min=6144
-sysctl -wq net.ipv4.tcp_timestamps=0
-sysctl -wq net.ipv4.tcp_tw_reuse=1
-sysctl -wq net.ipv4.tcp_tw_recycle=1
-sysctl -wq net.ipv4.tcp_sack=1
-sysctl -wq net.ipv4.tcp_window_scaling=1
-sysctl -wq net.ipv4.tcp_keepalive_probes=5
-sysctl -wq net.ipv4.tcp_keepalive_intvl=156
-sysctl -wq net.ipv4.tcp_fin_timeout=30
-sysctl -wq net.ipv4.tcp_ecn=0
-sysctl -wq net.ipv4.tcp_max_tw_buckets=360000
-sysctl -wq net.ipv4.tcp_synack_retries=2
-sysctl -wq net.ipv4.route.flush=1
-sysctl -wq net.ipv4.icmp_echo_ignore_all=1
-sysctl -wq net.core.wmem_max=524288
-sysctl -wq net.core.rmem_max=524288
-sysctl -wq net.core.rmem_default=110592
-sysctl -wq net.core.wmem_default=110592
+sleep 0
 
-#IPv4
-sysctl -wq net.ipv4.conf.all.rp_filter=1
-sysctl -wq net.ipv4.conf.default.rp_filter=1
-sysctl -wq net.ipv4.conf.all.accept_redirects=0
-sysctl -wq net.ipv4.conf.default.accept_redirects=0
-sysctl -wq net.ipv4.conf.all.send_redirects=0
-sysctl -wq net.ipv4.conf.default.send_redirects=0
-sysctl -wq net.ipv4.icmp_echo_ignore_broadcasts=1
-sysctl -wq net.ipv4.icmp_ignore_bogus_error_responses=1
-sysctl -wq net.ipv4.conf.all.accept_source_route=0
-sysctl -wq net.ipv4.conf.default.accept_source_route=0
-sysctl -wq net.ipv4.conf.all.log_martians=1
-sysctl -wq net.ipv4.conf.default.log_martians=1
+sysctl -p -q $net_conf
 EOF
 
-	touch $net_conf
-	chmod 755 $net_conf
-	echo "net.ipv4.tcp_rmem=6144 87380 2097152" > $net_conf
-	echo "net.ipv4.tcp_wmem=6144 87380 2097152" >> $net_conf
+	chmod 0755 $net_conf
+	chmod 0755 $tweak
+
 	$tweak
+	sed -i 's/sleep 0/sleep 15/' $tweak
 
 	clear
 	echo "${yellow}Network Optimized!${nc}"
@@ -1055,27 +1070,27 @@ sql_optimize(){
 	echo "${yellow}Checking Databases...${nc}"
 	echo
 
-	if [ -f $XSQL ]; then
-		chown 0.0  $XSQL
-		chmod 755 $XSQL
-		SQLOC=$XSQL
-	elif [ -f $BSQL ]; then
-		chown 0.0 $BSQL
-		chmod 755 $BSQL
-		SQLOC=$BSQL
-	elif [ -f $SSQL ]; then
-		chown 0.0 $SSQL
-		chmod 755 $SSQL
-		SQLOC=$SSQL
+	if [ -f "$xbin_sql" ]; then
+		chown 0.0  $xbin_sql
+		chmod 0755 $xbin_sql
+		sql_loc="$xbin_sql"
+	elif [ -f "$bin_sql" ]; then
+		chown 0.0 $bin_sql
+		chmod 0755 $bin_sql
+		sql_loc="$bin_sql"
+	elif [ -f "$sbin_sql" ]; then
+		chown 0.0 $sbin_sql
+		chmod 0755 $sbin_sql
+		sql_loc="$sbin_sql"
 	else
-		error You do not have sqlite3 binary on your device. \"Fatal error!\" # we need to use error function for debugging. passing the \" char will automatically print the next char in color red.
+		error 'You do not have sqlite3 binary on your device. \"Fatal error!\"'
 		return 1
 	fi
 
-	for DB in `find / -iname "*.db" 2>/dev/null`; do
-		$SQLOC $DB 'VACUUM;'
-		echo "${yellow}Optimizing${nc} $DB"
-		$SQLOC $DB 'REINDEX;'
+	for i in `find / -iname "*.db" 2>/dev/null`; do
+		$sql_loc $i VACUUM;
+		echo "${yellow}Optimizing${nc} $i"
+		$sql_loc $i REINDEX;
 	done
 
 	echo
@@ -1085,10 +1100,12 @@ sql_optimize(){
 }
 
 trim_nand(){
-	fstrim -v /cache
-	fstrim -v /data
+	clear
+
 	fstrim -v /system
-	
+	fstrim -v /data
+	fstrim -v /cache
+
 	key_exit
 }
 
@@ -1099,7 +1116,7 @@ lmk_tune(){
 		echo
 		echo "${yellow}Profiles available:${nc}"
 		echo " 1|Balanced"
-		echo " 2|Multitasking|"
+		echo " 2|Multitasking"
 		echo " 3|Gaming"
 		echo
 		echo " B|Back"
@@ -1141,9 +1158,6 @@ lmk_apply(){
 	tweak_dir
 	tweak="$tweak_dir/95lmk"
 
-	touch $tweak
-	chmod 755 $tweak
-
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1151,6 +1165,8 @@ sleep 0
 
 echo "$minfree_array" > /sys/module/lowmemorykiller/parameters/minfree
 EOF
+
+	chmod 0755 $tweak
 
 	$tweak
 	sed -i 's/sleep 0/sleep 15/' $tweak
@@ -1169,7 +1185,7 @@ kernel_kontrol(){
 		echo " 2|Set CPU Gov"
 		echo " 3|Set I/O Sched"
 
-		if [[ "$kcal" == "1" ]]; then
+		if [ "$kcal" == "1" ]; then
 			echo " 4|View KCal Values"
 		fi
 
@@ -1226,9 +1242,6 @@ set_cpu_freq(){
 	tweak_dir
 	tweak="$tweak_dir/69cpu_freq"
 
-	touch $tweak
-	chmod 755 $tweak
-
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1237,6 +1250,8 @@ sleep 0
 echo "$new_max_freq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo "$new_min_freq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 EOF
+
+	chmod 0755 $tweak
 
 	$tweak
 	sed -i 's/sleep 0/sleep 20/' $tweak
@@ -1265,9 +1280,6 @@ set_gov(){
 	tweak_dir
 	tweak="$tweak_dir/70cpu_gov"
 
-	touch $tweak
-	chmod 755 $tweak
-
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1275,6 +1287,8 @@ sleep 0
 
 echo "$new_gov" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 EOF
+
+	chmod 0755 $tweak
 
 	$tweak
 	sed -i 's/sleep 0/sleep 20/' $tweak
@@ -1304,9 +1318,6 @@ set_io_sched(){
 	tweak_dir
 	tweak="$tweak_dir/71io_sched"
 
-	touch $tweak
-	chmod 755 $tweak
-
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1316,6 +1327,8 @@ for io_sched in /sys/block/*/queue/scheduler; do
 	echo "$new_io_sched" > dir
 done
 EOF
+
+	chmod 0755 $tweak
 
 	sed -i 's/dir/$io_sched/' $tweak
 	$tweak
@@ -1327,9 +1340,9 @@ EOF
 }
 
 kcal(){
- 	clear
+	if [ "$kcal" == "1" ]; then
+		clear
 
-	if [ "$kcal" == 1 ]; then
 		echo "${yellow}Current KCal Values:${nc}"
 		rgb=`cat /sys/devices/platform/kcal_ctrl.0/kcal`
 		sat=`cat /sys/devices/platform/kcal_ctrl.0/kcal_sat`
@@ -1352,9 +1365,9 @@ game_booster(){
 		echo "This will continue to run untill press any key or close the terminal"
 		echo
 
-		sync
 		echo "3" > /proc/sys/vm/drop_caches
 		am kill-all 2>/dev/null
+		sleep 3
 
 		free_ram=$(grep MemFree /proc/meminfo | awk '{print $2}')
 		echo "Free RAM: $free_ram KB"
@@ -1363,13 +1376,12 @@ game_booster(){
 		dd bs=1 count=1 2>/dev/null
 		stty -cbreak echo
 		read -t 1 game_inject_stop
+		sleep $interval_time
 		case $game_inject_stop in
 			* )
 				break
 			;;
 		esac
-	
-	sleep $interval_time
 	done
 }
 
@@ -1444,7 +1456,7 @@ entropy_tweak(){
 		echo " B|Back"
 		echo
 		echo -n "> "
-		read -t 1 entropy_tweak_opt
+		read entropy_tweak_opt
 		case $entropy_tweak_opt in
 			1|2 )
 				entropy_tweak_apply
@@ -1464,10 +1476,7 @@ entropy_tweak_apply(){
 	tweak_dir
 	tweak="$tweak_dir/99entropy_tweak"
 
-	touch $tweak
-	chmod 0755 $tweak
-
-	if [[ "$entropy_tweak_opt" == "2" ]]; then
+	if [ "$entropy_tweak_opt" == "2" ]; then
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1485,29 +1494,30 @@ EOF
 	fi
 	
 cat >> $tweak <<-EOF
-sysctl -w kernel.random.read_wakeup_threshold=1366
-sysctl -w kernel.random.write_wakeup_threshold=2048
+sysctl -w -q kernel.random.read_wakeup_threshold=1366
+sysctl -w -q kernel.random.write_wakeup_threshold=2048
 EOF
+
+	chmod 0755 $tweak
 
 	$tweak
 	sed -i 's/sleep 0/sleep 15/' $tweak
 
 	part_line Done.
 	sleep 1
-
-	break
 }
 
 options(){
 	while true; do
 		clear
 		echo "${yellow}Options${nc}"
-		echo " 1|Install Settings"
+		echo " 1|Debug Shell"
 		echo " 2|Output Logs"
-		echo " 3|Game Booster Settings"
+		echo " 3|Install Settings"
+		echo " 4|Game Booster Settings"
 		
-		if [[ "$zram" == "1" ]]; then
-			echo " 4|zRAM Settings"
+		if [ "$zram" == "1" ]; then
+			echo " 5|zRAM Settings"
 		fi
 		
 		echo
@@ -1517,15 +1527,18 @@ options(){
 		read options_opt
 		case $options_opt in
 			1 )
-				install_settings
+				debug_shell
 			;;
 			2 )
 				log_out
 			;;
 			3 )
-				game_booster_settings
+				install_settings
 			;;
 			4 )
+				game_booster_settings
+			;;
+			5 )
 				zram_settings
 			;;
 			b|B )
@@ -1585,12 +1598,13 @@ install_settings(){
 log_out(){
 	clear
 
-	if [[ "$LOG_DIR" ]]; then
+	if [ -f "$LOG_DIR/$NO_EXTENSION.log" ]; then
 		cat $LOG_DIR/$NO_EXTENSION.log
-	elif [[ "$LOG_NAME" ]]; then # not sure of this
+	elif [ -f "$LOG_NAME/$NO_EXTENSION.log" ]; then
 		cat $LOG_NAME/$NO_EXTENSION.log
 	else
 		echo "Nothing to output."
+		sleep 1
 		return 1
 	fi
 
@@ -1614,9 +1628,9 @@ game_booster_settings(){
 
 zram_settings(){
 	while true; do
-		clear
+		if [ "$zram" == "1" ]; then
+			clear
 
-		if [[ "$zram" == "1" ]]; then
 			echo "${yellow}zRAM Options:${nc}"
 			echo " 1|Disable zRAM"
 			echo " 2|Enable zRAM"
@@ -1630,7 +1644,7 @@ zram_settings(){
 					clear
 					echo "${yellow}Disabling zRAM...${nc}"
 					sleep 1
-					swapoff -a
+					swapoff /dev/block/zram*
 					clear
 					echo "${yellow}zRAM disabled!${nc}"
 					sleep 1
@@ -1640,7 +1654,7 @@ zram_settings(){
 					clear
 					echo "${yellow}Enabling zRAM...${nc}"
 					sleep 1
-					swapon -a
+					swapon /dev/block/zram*
 					clear
 					echo "${yellow}zRAM enabled!${nc}"
 					sleep 1
@@ -1666,9 +1680,9 @@ about_info(){
 		echo "${green}About:${nc}"
 		echo
 
-		if [[ "$debug" == "0" ]]; then
+		if [ "$debug" == "0" ]; then
 			echo "HybridMod Version: $version"
-		elif [[ "$debug" == "1" ]]; then
+		elif [ "$debug" == "1" ]; then
 			echo "HybridMod Revision: $revision"
 		fi
 
@@ -1714,14 +1728,11 @@ custom_reboot(){
 		echo "Are you sure? [Y/N]"
 		echo
 		echo -n "> "
-		stty cbreak -echo
-		dd bs=1 count=1 2>/dev/null
-		stty -cbreak echo
 		read reboot_opt
 		case $reboot_opt in
 			y|Y )
 				for i in 3 2 1; do
-					echo -n -e "\rFactory reset in $i"
+					echo -e -n "\rFactory reset in $i"
 					for j in $(seq 1 $((4-i))); do
 					echo -n '.'
 					done
@@ -1760,17 +1771,17 @@ mkdir -p /sqlite_stmt_journals
 chmod 0755 /sqlite_stmt_journals/
 
 
-if [[ "$1" == "--debug" ]]; then # type 'hybrid --debug' to trigger debug_shell().
+if [ "$1" == "--debug" ]; then # type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-if [[ "$DIR_NAME" == "NULL" ]]; then # if not installed on any executable directory... this is also intended.
+if [ "$DIR_NAME" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
 	install -s /system/xbin
 	exit
 fi
 
-if [[ "$interval_time" == "" ]]; then
+if [ "$interval_time" == "" ]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
