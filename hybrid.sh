@@ -24,14 +24,12 @@ if [[ ! "$reg_name" ]]; then
 	if [[ "$debug" == 1 ]]; then
 		echo "you are not running this program in the required location, this may cause trouble for code that uses the DIR_NAME function."
 	fi
-	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
-else
-	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
+	EXEC_DIR="NULL"
 fi
 export PATH=$backup_PATH # revert back to default
-readonly FULL_NAME=$(echo $DIR_NAME/$BASE_NAME)
+readonly FULL_NAME=$(echo $set_PATH/$BASE_NAME)
 print_PARTIAL_DIR_NAME(){
-	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
+	echo $(echo $set_PATH | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
 }
 
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
@@ -492,6 +490,7 @@ part_line(){
 
 #Debug Shell
 debug_shell(){
+	clear
 	echo "welcome to the debug shell! type in: 'help' for more information."
 	echo  -ne "${green}debug-${yellow}$version${nc}"
 	if [[ "$su_check" == 0 ]]; then
@@ -1776,7 +1775,7 @@ if [ "$1" == "--debug" ]; then # type 'hybrid --debug' to trigger debug_shell().
 	debug_shell
 fi
 
-if [ "$DIR_NAME" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
+if [ "$EXEC_DIR" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
 	install -s /system/xbin
 	exit
 fi
