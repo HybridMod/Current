@@ -1554,6 +1554,108 @@ options(){
 	done
 }
 
+replace_uglyroot(){ # another awesome stuff by me, only need setup the cloud to download supersu.apk & su binary, i'm lazy now xD
+	for i in "com.kingroot.*"; do
+		pm uninstall $i
+		pm uninstall $i
+		pm uninstall $i
+	done
+
+	cd /system/xbin
+
+	chattr -a -i ku.sud
+	chattr -a -i kugote
+	chattr -a -i su
+	chattr -a -i supolicy
+	chattr -a -i pidof
+
+	rm -f ku.sud
+	rm -f kugote
+	rm -f su
+	rm -f supolicy
+	rm -f pidof
+
+	cd # <-- directory where is supersu.apk & su binary m8
+
+	cat su > /system/xbin/su
+	cat su > /system/xbin/daemonsu
+	cat su > /system/xbin/sugote
+
+	cd
+
+	cat /system/bin/sh > /system/xbin/sugote-mksh
+
+	cd /system/xbin
+
+	chown 0.0 su
+	chown 0.0 sugote
+	chown 0.0 sugote-mksh
+	chown 0.0 daemonsu
+
+	chmod 0755 su
+	chmod 0755 sugote
+	chmod 0755 sugote-mksh
+	chmod 0755 daemonsu
+
+	cd
+
+	daemonsu -d
+
+	for i in "com.kingroot.*" ; do
+		rm -f /data/app/$i
+		rm -f -r /data/data/$i
+		rm -f -r /data/data-lib/$i
+	done
+
+	rm -f -r /data/data-lib/king
+
+	cd /system/bin
+
+	chattr -a -i /.usr/.ku
+	chattr -a -i rt.sh
+	chattr -a -i su
+	chattr -a -i ddexe-ku.bak
+	chattr -a -i ddexe
+	chattr -a -i ddexe_real
+	chattr -a -i install-recovery.sh
+	chattr -a -i install-recovery.sh-ku.bak
+
+	rm -f /.usr/.ku
+	rm -f rt.sh
+	rm -f su
+	rm -f ddexe-ku.bak
+	rm -f ddexe
+	rm -f ddexe_real
+	rm -f install-recovery.sh
+	rm -f install-recovery.sh-ku.bak
+
+	cd
+
+	pm uninstall eu.chainfire.supersu
+
+	cd # <-- directory where is supersu.apk & su binary m8
+
+	pm install supersu.apk
+
+	cd /system
+
+	chattr -a -i /usr/iku/isu
+	chattr -a -i /etc/install-recovery.sh
+	chattr -a -i /etc/install_recovery.sh
+	chattr -a -i /etc/install-recovery.sh-ku.bak
+
+	rm -f -r /usr/iku
+	rm -f /etc/install-recovery.sh
+	rm -f /etc/install_recovery.sh
+	rm -f /etc/install-recovery.sh-ku.bak
+	
+	cd
+	
+	rm -f -r $EXTERNAL_STORAGE/kingroot
+	# left some crap to be deleted in sd, does not important, but if can to be better will be! I'm lazy now to dat xD...
+	am start -a android.intent.action.MAIN -n eu.chainfire.supersu/.MainActivity	
+}
+
 initd_support(){
 	clear
 	
