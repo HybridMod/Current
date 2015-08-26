@@ -1512,11 +1512,12 @@ options(){
 		echo "${yellow}Options${nc}"
 		echo " 1|Debug Shell"
 		echo " 2|Output Logs"
-		echo " 3|Install Settings"
-		echo " 4|Game Booster Settings"
+		echo " 3|Init.d Support"
+		echo " 4|Install Settings"
+		echo " 5|Game Booster Settings"
 		
 		if [ "$zram" == "1" ]; then
-			echo " 5|zRAM Settings"
+			echo " 6|zRAM Settings"
 		fi
 		
 		echo
@@ -1532,12 +1533,15 @@ options(){
 				log_out
 			;;
 			3 )
-				install_settings
+				initd_support
 			;;
 			4 )
-				game_booster_settings
+				install_settings
 			;;
 			5 )
+				game_booster_settings
+			;;
+			6 )
 				zram_settings
 			;;
 			b|B )
@@ -1548,6 +1552,75 @@ options(){
 			;;
 		esac
 	done
+}
+
+initd_support(){
+	clear
+	
+	echo "Checking Init.d Support..."
+	sleep 1
+
+	if [ ! -d /system/etc/init.d ] && [ -z "`cat /system/bin/sysinit | grep -i "run-parts /system/etc/init.d"´" ] && [ -z "´cat /system/etc/install-recovery-2.sh | grep -i "/system/bin/sysinit"´" ]; then
+		clear
+
+		echo "Enabling Init.d Support..."
+		sleep 1
+
+cat > /system/bin/sysinit <<-EOF
+#!/system/bin/sh
+# init.d support
+
+run-parts /system/etc/init.d
+EOF
+		if [ ! -f /system/etc/install-recovery-2.sh ]; then
+			echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
+		fi
+cat >> system/etc/install-recovery-2.sh <<-EOF
+
+# initd support
+
+/system/bin/sysinit
+EOF
+
+		mkdir /system/etc/init.d
+		
+cat > /system/etc/init.d/01set_initd <<-EOF
+#!/system/bin/sh
+# set permissions to /system/etc/initd directory
+
+exec >/data/script_log.text 2>&1
+
+dir_name=$(dirname $0)
+base_name=$(basename $0)
+script_name="$dir_name/$base_name"
+
+touch /data/script_log.text
+echo "========================================="
+date "+%d/%m/%y %H:%M:%S $script_name → running..."
+
+mount -w -o remount /system
+chmod -R 0755 /system/etc/init.d
+chown 0.0 /system/etc/init.d/
+mount -r -o remount /system
+
+date "+%d/%m/%y %H:%M:%S $script_name → done"
+echo "========================================="
+EOF
+
+		chmod 0755 /system/bin/sysinit
+		chmod 0755 /system/etc/install-recovery-2.sh
+		chmod -R 0755 /system/etc/init.d
+		chmod 0.0 /system/bin/sysinit
+		chmod 0.0 /system/etc/install-recovery-2.sh
+		chmod 0.0 /system/etc/init.d
+		
+		clear
+		
+		echo "Enabled."
+		sleep 1
+	else
+		echo "You have Init.d Support already, do not need do nothing."
+	fi
 }
 
 install_settings(){
