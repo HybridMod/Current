@@ -1663,86 +1663,86 @@ replace_uglyroot(){ # another awesome stuff by me, only need setup the cloud to 
 }
 
 initd_support(){
-    clear
-     
-    echo "Checking Init.d Support..."
-    sleep 1
- 
-    if [ ! -d /system/etc/init.d ] || [ -z "$(cat /system/bin/sysinit 2>/dev/null | grep -i "run-parts /system/etc/init.d")" ] || [ -z "$(cat /system/etc/install-recovery-2.sh 2>/dev/null | grep -i "/system/bin/sysinit")" ]; then
-        clear
- 
-        echo "Enabling Init.d Support..."
-        sleep 1
- 
-        if [ ! -f /system/bin/sysinit ]; then
-            echo "#!/system/bin/sh" > /system/bin/sysinit
-        fi
- 
+	clear
+
+	echo "Checking Init.d Support..."
+	sleep 1
+
+	if [ ! -d /system/etc/init.d ] || [ -z "$(cat /system/bin/sysinit 2>/dev/null | grep -i "run-parts /system/etc/init.d")" ] || [ -z "$(cat /system/etc/install-recovery-2.sh 2>/dev/null | grep -i "/system/bin/sysinit")" ]; then
+		clear
+
+		echo "Enabling Init.d Support..."
+		sleep 1
+
+		if [ ! -f /system/bin/sysinit ]; then
+			echo "#!/system/bin/sh" > /system/bin/sysinit
+		fi
+
 cat >> /system/bin/sysinit <<-EOF
 # init.d support
- 
+
 run-parts /system/etc/init.d
 EOF
  
-        if [ ! -f /system/etc/install-recovery-2.sh ]; then
-            echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
-        fi
- 
+		if [ ! -f /system/etc/install-recovery-2.sh ]; then
+			echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
+		fi
+
 cat >> /system/etc/install-recovery-2.sh <<-EOF
 # init.d support
- 
+
 /system/bin/sysinit
 EOF
- 
-        mkdir -p /system/etc/init.d
-         
+
+		mkdir -p /system/etc/init.d
+
 cat > /system/etc/init.d/01set_initd <<-EOF
 #!/system/bin/sh
 # set permissions to /system/etc/init.d directory
- 
+
 exec >/data/script_log.text 2>&1
- 
+
 dir_name=replace1
 base_name=replace2
 script_name="replace3/replace4"
- 
+
 touch /data/script_log.text
 echo "========================================="
 date "+%d/%m/%y %H:%M:%S replace5 → running..."
- 
+
 mount -w -o remount /system
 chmod -R 0755 /system/etc/init.d
 chown 0.0 /system/etc/init.d/
 mount -r -o remount /system
- 
+
 date "+%d/%m/%y %H:%M:%S replace5 → done"
 echo "========================================="
 EOF
- 
-        sed -i 's/replace1/$(dirname $0)/' /system/etc/init.d/01set_initd
-        sed -i 's/replace2/$(basename $0)/' /system/etc/init.d/01set_initd
-        sed -i 's/replace3/$dir_name/' /system/etc/init.d/01set_initd
-        sed -i 's/replace4/$base_name/' /system/etc/init.d/01set_initd
-        sed -i 's/replace5/$script_name/' /system/etc/init.d/01set_initd
- 
-        chmod 0755 /system/bin/sysinit
-        chmod 0755 /system/etc/install-recovery-2.sh
-        chmod -R 0755 /system/etc/init.d
-        chown 0.0 /system/bin/sysinit
-        chown 0.0 /system/etc/install-recovery-2.sh
-        chown 0.0 /system/etc/init.d
-         
-        clear
-         
-        echo "Enabled."
-        sleep 1
-    else
-        clear
- 
-        echo "You have Init.d Support already, do not need do nothing."
- 
-        key_exit
-    fi
+
+		sed -i 's/replace1/$(dirname $0)/' /system/etc/init.d/01set_initd
+		sed -i 's/replace2/$(basename $0)/' /system/etc/init.d/01set_initd
+		sed -i 's/replace3/$dir_name/' /system/etc/init.d/01set_initd
+		sed -i 's/replace4/$base_name/' /system/etc/init.d/01set_initd
+		sed -i 's/replace5/$script_name/' /system/etc/init.d/01set_initd
+
+		chmod 0755 /system/bin/sysinit
+		chmod 0755 /system/etc/install-recovery-2.sh
+		chmod -R 0755 /system/etc/init.d
+		chown 0.0 /system/bin/sysinit
+		chown 0.0 /system/etc/install-recovery-2.sh
+		chown 0.0 /system/etc/init.d
+
+		clear
+
+		echo "Enabled."
+		sleep 1
+	else
+		clear
+
+		echo "You have Init.d Support already, do not need do nothing."
+
+		key_exit
+	fi
 }
 
 install_settings(){
