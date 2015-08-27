@@ -24,12 +24,14 @@ if [[ ! "$reg_name" ]]; then
 	if [[ "$debug" == 1 ]]; then
 		echo "you are not running this program in the required location, this may cause trouble for code that uses the DIR_NAME function."
 	fi
-	EXEC_DIR="NULL"
+	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
+else
+	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
 fi
 export PATH=$backup_PATH # revert back to default
-readonly FULL_NAME=$(echo $set_PATH/$BASE_NAME)
+readonly FULL_NAME=$(echo $DIR_NAME/$BASE_NAME)
 print_PARTIAL_DIR_NAME(){
-	echo $(echo $set_PATH | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
+	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
 }
 
 readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
@@ -1661,72 +1663,86 @@ replace_uglyroot(){ # another awesome stuff by me, only need setup the cloud to 
 }
 
 initd_support(){
-	clear
-	
-	echo "Checking Init.d Support..."
-	sleep 1
-
-	if [ ! -d /system/etc/init.d ] && [ -z "`cat /system/bin/sysinit | grep -i "run-parts /system/etc/init.d"´" ] && [ -z "´cat /system/etc/install-recovery-2.sh | grep -i "/system/bin/sysinit"´" ]; then
-		clear
-
-		echo "Enabling Init.d Support..."
-		sleep 1
-
-cat > /system/bin/sysinit <<-EOF
-#!/system/bin/sh
+    clear
+     
+    echo "Checking Init.d Support..."
+    sleep 1
+ 
+    if [ ! -d /system/etc/init.d ] || [ -z "$(cat /system/bin/sysinit 2>/dev/null | grep -i "run-parts /system/etc/init.d")" ] || [ -z "$(cat /system/etc/install-recovery-2.sh 2>/dev/null | grep -i "/system/bin/sysinit")" ]; then
+        clear
+ 
+        echo "Enabling Init.d Support..."
+        sleep 1
+ 
+        if [ ! -f /system/bin/sysinit ]; then
+            echo "#!/system/bin/sh" > /system/bin/sysinit
+        fi
+ 
+cat >> /system/bin/sysinit <<-EOF
 # init.d support
-
+ 
 run-parts /system/etc/init.d
 EOF
-		if [ ! -f /system/etc/install-recovery-2.sh ]; then
-			echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
-		fi
-cat >> system/etc/install-recovery-2.sh <<-EOF
-
-# initd support
-
+ 
+        if [ ! -f /system/etc/install-recovery-2.sh ]; then
+            echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
+        fi
+ 
+cat >> /system/etc/install-recovery-2.sh <<-EOF
+# init.d support
+ 
 /system/bin/sysinit
 EOF
-
-		mkdir /system/etc/init.d
-		
+ 
+        mkdir -p /system/etc/init.d
+         
 cat > /system/etc/init.d/01set_initd <<-EOF
 #!/system/bin/sh
-# set permissions to /system/etc/initd directory
-
+# set permissions to /system/etc/init.d directory
+ 
 exec >/data/script_log.text 2>&1
-
-dir_name=$(dirname $0)
-base_name=$(basename $0)
-script_name="$dir_name/$base_name"
-
+ 
+dir_name=replace1
+base_name=replace2
+script_name="replace3/replace4"
+ 
 touch /data/script_log.text
 echo "========================================="
-date "+%d/%m/%y %H:%M:%S $script_name → running..."
-
+date "+%d/%m/%y %H:%M:%S replace5 → running..."
+ 
 mount -w -o remount /system
 chmod -R 0755 /system/etc/init.d
 chown 0.0 /system/etc/init.d/
 mount -r -o remount /system
-
-date "+%d/%m/%y %H:%M:%S $script_name → done"
+ 
+date "+%d/%m/%y %H:%M:%S replace5 → done"
 echo "========================================="
 EOF
-
-		chmod 0755 /system/bin/sysinit
-		chmod 0755 /system/etc/install-recovery-2.sh
-		chmod -R 0755 /system/etc/init.d
-		chmod 0.0 /system/bin/sysinit
-		chmod 0.0 /system/etc/install-recovery-2.sh
-		chmod 0.0 /system/etc/init.d
-		
-		clear
-		
-		echo "Enabled."
-		sleep 1
-	else
-		echo "You have Init.d Support already, do not need do nothing."
-	fi
+ 
+        sed -i 's/replace1/$(dirname $0)/' /system/etc/init.d/01set_initd
+        sed -i 's/replace2/$(basename $0)/' /system/etc/init.d/01set_initd
+        sed -i 's/replace3/$dir_name/' /system/etc/init.d/01set_initd
+        sed -i 's/replace4/$base_name/' /system/etc/init.d/01set_initd
+        sed -i 's/replace5/$script_name/' /system/etc/init.d/01set_initd
+ 
+        chmod 0755 /system/bin/sysinit
+        chmod 0755 /system/etc/install-recovery-2.sh
+        chmod -R 0755 /system/etc/init.d
+        chown 0.0 /system/bin/sysinit
+        chown 0.0 /system/etc/install-recovery-2.sh
+        chown 0.0 /system/etc/init.d
+         
+        clear
+         
+        echo "Enabled."
+        sleep 1
+    else
+        clear
+ 
+        echo "You have Init.d Support already, do not need do nothing."
+ 
+        key_exit
+    fi
 }
 
 install_settings(){
@@ -1954,7 +1970,7 @@ if [ "$1" == "--debug" ]; then # type 'hybrid --debug' to trigger debug_shell().
 	debug_shell
 fi
 
-if [ "$EXEC_DIR" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
+if [ "$DIR_NAME" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
 	install -s /system/xbin
 	exit
 fi
