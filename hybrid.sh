@@ -673,7 +673,11 @@ install(){
 		done
 	fi
 	echo -n -e '\rcopying files...'
-	cp $FULL_NAME $loc/$NO_EXTENSION
+	if [[ "$DIR_NAME" == NULL ]]; then
+		cp $0 $loc/$NO_EXTENSION
+	else
+		cp $FULL_NAME $loc/$NO_EXTENSION
+	fi
 	error=$?
 	chmod 755 $loc/$NO_EXTENSION
 	if [[ "$ro" == 1 ]]; then
