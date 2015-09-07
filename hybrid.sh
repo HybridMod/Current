@@ -1,40 +1,19 @@
 # hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
 
-#!/system/bin/sh
-
-#code snippets from standard.sh by hoholee12
-readonly version="2.4"
-readonly debug=0 #if blank, it will not show an error.
-readonly BASE_NAME=$(basename $0)
-readonly NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
-readonly backup_PATH=$PATH
-readonly set_PATH=$(dirname $0 | sed 's/^\.//')
-readonly set_PATH2=$(pwd)
-if [[ "$set_PATH" ]]; then
-	if [[ "$(ls / | grep $(echo $set_PATH | sed 's/\//\n/g' | head -n2 | sed ':a;N;s/\n//g;ba'))" ]] ; then
-		export PATH=$set_PATH:$PATH
-	else
-		export PATH=$set_PATH2:$PATH
+if [[ "$1" == --install_standard ]]; then
+	if [[ ! -f standard.sh ]]; then
+		echo standard.sh not on same directory!
+		exit 1
 	fi
-else
-	export PATH=$set_PATH2:$PATH
+	./standard.sh --bbpass --install $@ #install standard.sh
 fi
-reg_name=$(which $BASE_NAME 2>/dev/null) # somewhat seems to be incompatible with 1.22.1-stericson.
-if [[ ! "$reg_name" ]]; then
-	if [[ "$debug" == 1 ]]; then
-		echo "you are not running this program in the required location, this may cause trouble for code that uses the DIR_NAME function."
-	fi
-	readonly DIR_NAME="NULL" #'NULL' will go out instead of an actual directory name
-else
-	readonly DIR_NAME=$(dirname $reg_name | sed 's/^\.//')
+if [[ ! -f /usr/bin/standard ]]; then
+	echo standard.sh not installed!
+	exit 1
 fi
-export PATH=$backup_PATH # revert back to default
-readonly FULL_NAME=$(echo $DIR_NAME/$BASE_NAME)
-print_PARTIAL_DIR_NAME(){
-	echo $(echo $DIR_NAME | sed 's/\//\n/g' | head -n$(($1+1)) | sed ':a;N;s/\n/\//g;ba')
-}
+source standard --bbpass --source $@ #init library
 
-readonly ROOT_DIR=$(print_PARTIAL_DIR_NAME 1)
+version="2.4"
 
 SH-OTA(){ #v2.0 By Deic, DiamondBond & hoholee12
 
