@@ -61,6 +61,11 @@ until [ "$1" != --debug ] && [ "$1" != --verbose ] && [ "$1" != --supass ] && [ 
 	shift
 done
 version=
+if [ "$TERM_PROGRAM" == "Apple_Terminal" ]; then
+	term=x1b #Apple
+else
+	term=e #universal
+fi
 BASE_NAME=$(basename $0)
 NO_EXTENSION=$(echo $BASE_NAME | sed 's/\..*//')
 backup_PATH=$PATH
@@ -132,7 +137,7 @@ checkers(){
 
 debug_shell(){
 	echo "welcome to the debug_shell program! type in: 'help' for more information."
-	echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
+	echo  -e -n "\\${term}[1;32mdebug-\\${term}[1;33m$version\\${term}[0m"
 	if [ "$su_check" == 0 ]; then
 		echo -n '# '
 	else
@@ -141,7 +146,7 @@ debug_shell(){
 	while eval read i; do
 		case $i in
 			randtest | test9) #test9 version.
-				trap "echo -e \"\e[2JI LOVE YOU\"; exit" 2
+				trap "echo -e \"\\${term}[2JI LOVE YOU\"; exit" 2
 				while true; do
 					random=$(print_RANDOM_BYTE)
 					x_axis=$((random%$(($(stty size | awk '{print $2}' 2>/dev/null)-1))))
@@ -149,11 +154,11 @@ debug_shell(){
 					y_axis=$((random%$(stty size | awk '{print $1}' 2>/dev/null)))
 					random=$(print_RANDOM_BYTE)
 					color=$((random%7+31))
-					echo -e -n "\e[${y_axis};${x_axis}H\e[${color}m0\e[0m"
+					echo -e -n "\\${term}[${y_axis};${x_axis}H\\${term}[${color}m0\\${term}[0m"
 				done
 			;;
 			help)
-				echo -e "this debug shell is \e[1;31mONLY\e[0m used for testing conditions inside this program!
+				echo -e "this debug shell is \\${term}[1;31mONLY\\${term}[0m used for testing conditions inside this program!
 you can now use '>' and '>>' for output redirection. use along with 'set -x' for debugging purposes.
 use 'export' if you want to declare a variable.
 such includes:
@@ -173,7 +178,7 @@ you can also use these built-in commands in debug_shell:
 	-randtest (tests if print_RANDOM_BYTE is functioning properly)
 	-help (brings out this message)
 
-debug_shell \e[1;33mv$version\e[0m
+debug_shell \\${term}[1;33mv$version\\${term}[0m
 Copyright (C) 2013-2015 hoholee12@naver.com"
 			;;
 			return*)
@@ -208,7 +213,7 @@ Copyright (C) 2013-2015 hoholee12@naver.com"
 				fi
 			;;
 		esac
-		echo  -e -n "\e[1;32mdebug-\e[1;33m$version\e[0m"
+		echo  -e -n "\\${term}[1;32mdebug-\\${term}[1;33m$version\\${term}[0m"
 		if [ "$su_check" == 0 ]; then
 			echo -n '# '
 		else
@@ -323,7 +328,7 @@ install(){
 	fi
 	unset loc
 	if [ "$error" != 0 ]; then
-		echo -e "internal error! please use '--verbose' and try again. \e[1;31m\"error code $error\"\e[0m"
+		echo -e "internal error! please use '--verbose' and try again. \\${term}[1;31m\"error code $error\"\\${term}[0m"
 		return 1
 	else
 		echo
@@ -334,7 +339,7 @@ install(){
 }
 long_line(){
 	if [ "$1" -gt 1 ]; then
-		echo -n -e '\e[3m'
+		echo -n -e '\\${term}[3m'
 	fi
 	for i in $(seq 1 $(stty size | awk '{print $2}' 2>/dev/null)); do
 		if [ "$1" -le 1 ]; then
@@ -353,7 +358,7 @@ long_line(){
 			fi
 		done
 	fi
-	echo -e '\e[0m'
+	echo -e '\\${term}[0m'
 }
 part_line(){
 	count=$(echo $@ | wc -c)
@@ -367,7 +372,7 @@ titlemate(){
 	if [ ! "$title" ]; then
 		title=$(checkers)
 	fi
-	echo -n -e '\e[3m'
+	echo -n -e '\\${term}[3m'
 	if [ "$(($(print_RANDOM_BYTE)%2))" == 0 ]; then
 		lines=$(stty size | awk '{print $1}')
 		skip=$((lines/10))
@@ -377,7 +382,7 @@ titlemate(){
 			sequence=$lines
 		fi
 		for i in $(seq 1 $sequence); do
-			echo -n -e "\e[2J\e[$((lines-i*skip));1H$title"
+			echo -n -e "\\${term}[2J\\${term}[$((lines-i*skip));1H$title"
 			sleep 0.1
 		done
 	else
@@ -389,19 +394,19 @@ titlemate(){
 			sequence=$lines
 		fi
 		for i in $(seq 1 $sequence); do
-			echo -n -e "\e[2J\e[1;$((lines-i*skip))H$title"
+			echo -n -e "\\${term}[2J\\${term}[1;$((lines-i*skip))H$title"
 			sleep 0.1
 		done
 	fi
-	echo -n -e "\e[2J\e[0;0H$title"
-	echo -e "\e[0m"
+	echo -n -e "\\${term}[2J\\${term}[0;0H$title"
+	echo -e "\\${term}[0m"
 }
 error(){
 	message=$@
 	if [ "$(echo $message | grep \")" ]; then
 		echo -n $message | sed 's/".*//'
 		errmsg=$(echo $message | cut -d'"' -f2)
-		echo -e "\e[1;31m\"$errmsg\"\e[0m"
+		echo -e "\\${term}[1;31m\"$errmsg\"\\${term}[0m"
 	else
 		echo $message
 	fi
@@ -577,7 +582,7 @@ bb_apg_2(){
 			unset used_gopt
 			return 1
 		fi
-		echo -e "process terminated. \e[1;31m\"error code 1\"\e[0m"
+		echo -e "process terminated. \\${term}[1;31m\"error code 1\"\\${term}[0m"
 		return 1
 	fi
 }
@@ -616,7 +621,7 @@ bash_only(){
 # Session behaviour
 Roll_Down(){
 	local return
-	
+
 	#first run
 	if [ "$run_bb_apg_2" == 1 ]; then
 		bb_apg_2
@@ -639,7 +644,7 @@ Roll_Down(){
 			exit $return
 		fi
 	fi
-	
+
 	#second run
 	if [ "$debug" == 1 ]; then
 		debug_shell
@@ -667,11 +672,11 @@ main(){
 	random=$(print_RANDOM_BYTE)
 	color=$((random%7+31))
 	if [ "$leetspeak" == 1 ]; then
-		echo -e "\e[${color}mh3ll0, w0rld!\e[0m"
+		echo -e "\\${term}[${color}mh3ll0, w0rld!\\${term}[0m"
 	elif [ "$leetspeak" == 2 ]; then
-		echo -e "\e[${color}m|-|3|_|_0, \\/\\/0|2|_|)!\e[0m"
+		echo -e "\\${term}[${color}m|-|3|_|_0, \\/\\/0|2|_|)!\\${term}[0m"
 	else
-		echo -e "\e[${color}mHello, World!\e[0m"
+		echo -e "\\${term}[${color}mHello, World!\\${term}[0m"
 	fi
 
 	exit 0 #EOF
