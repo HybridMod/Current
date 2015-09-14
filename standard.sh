@@ -401,6 +401,29 @@ titlemate(){
 	echo -n -e "\\${term}[2J\\${term}[0;0H$title"
 	echo -e "\\${term}[0m"
 }
+arrowkeys(){
+	#http://unix.stackexchange.com/questions/179191/bashscript-to-detect-right-arrow-key-being-pressed
+	#trap "stty sane; exit 0" 2
+	while read -rsn1 ui; do
+		case "$ui" in
+		$'\x1b')
+			read -rsn1 -t 0.1 tmp
+			if [ "$tmp" == "[" ]; then
+				read -rsn1 -t 0.1 tmp
+			fi
+			echo $tmp
+			# Flush "stdin" with 0.1  sec timeout.
+			read -rsn5 -t 0.1
+			break
+			;;
+		*)
+			echo $ui
+			break;
+		;;
+		esac
+	done
+}
+
 error(){
 	message=$@
 	if [ "$(echo $message | grep \")" ]; then
