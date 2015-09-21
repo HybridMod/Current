@@ -1,4 +1,5 @@
-# hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
+#!/system/bin/sh
+#hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
 
 if [[ "$1" == --install_standard ]]; then
 	if [[ ! -f standard.sh ]]; then
@@ -163,19 +164,19 @@ FILENAME=$FULL_NAME
 FILESIZE=$(wc -c "$FILENAME" 2>/dev/null | awk '{print $1}') #this only works when installed to any exec enabled parts. it is intended.
 
 #options
-initd=`if [ -d $initd_dir ]; then echo "1"; fi`
-zram=`if [ -d /dev/block/zram* ]; then echo "1"; fi`
-kcal=`if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo "1"; fi`
-permanent=`getprop persist.hybrid.permanent`
-interval_time=`getprop persist.hybrid.interval_time`
+initd=$(if [ -d $initd_dir ]; then echo 1; fi)
+zram=$(if [ -d /dev/block/zram* ]; then echo 1; fi)
+kcal=$(if [ -d /sys/devices/platform/kcal_ctrl.0/ ]; then echo 1; fi)
+permanent=$(getprop persist.hybrid.permanent)
+interval_time=$(getprop persist.hybrid.interval_time)
 
 #symlinks
-initd_dir="/system/etc/init.d/"
-vm_conf="/system/etc/hybrid_vm.conf"
-net_conf="/system/etc/hybrid_net.conf"
-xbin_sql="/system/xbin/sqlite3"
-bin_sql="/system/bin/sqlite3"
-sbin_sql="/sbin/sqlite3"
+initd_dir=/system/etc/init.d/
+vm_conf=/system/etc/hybrid_vm.conf
+net_conf=/system/etc/hybrid_net.conf
+xbin_sql=/system/xbin/sqlite3
+bin_sql=/system/bin/sqlite3
+sbin_sql=/sbin/sqlite3
 
 #color control
 red='\033[0;31m'
@@ -1342,31 +1343,33 @@ kcal(){
 }
 
 game_booster(){
-	while true; do
-		clear
+    unset i
+    while clear; do
+        if [ "$i" == s ] || [ "$i" == S ]; then
+            unset i
+            break
+        elif [ "$i" == e ] || [ "$i" == E ]; then
+            unset i
+            exit
+        else
+            echo "${yellow}Game Booster${nc}
+ [ENTER] = Manual boost
+ S|Stop
+ E|Exit"
+            part_line
+            echo "
+RAM is boosted every $interval_time second/s if do not close this terminal tab
 
-		echo "Please leave the terminal emulator running"
-		echo "This will continue to run untill press any key or close the terminal"
-		echo
+Total RAM: $(grep MemTotal /proc/meminfo | awk '{print $2}') KB
+Free RAM (before): $(grep MemFree /proc/meminfo | awk '{print $2}') KB"
+            echo 3 > /proc/sys/vm/drop_caches
+            am kill-all 2>&1 >/dev/null
+            echo -n "Free RAM (now): $(grep MemFree /proc/meminfo | awk '{print $2}') KB
 
-		echo "3" > /proc/sys/vm/drop_caches
-		am kill-all 2>/dev/null
-		sleep 3
-
-		free_ram=$(grep MemFree /proc/meminfo | awk '{print $2}')
-		echo "Free RAM: $free_ram KB"
-		
-		stty cbreak -echo
-		dd bs=1 count=1 2>/dev/null
-		stty -cbreak echo
-		read -t 1 game_inject_stop
-		sleep $interval_time
-		case $game_inject_stop in
-			* )
-				break
-			;;
-		esac
-	done
+> "
+            read -t $interval_time i
+        fi
+    done
 }
 
 more_tweaks(){
@@ -1425,42 +1428,33 @@ sensor_fix(){
 }
 
 entropy_tweak(){
-	while true; do
-		clear
-		
-		echo "${yellow}Entropy tweak methods:${nc}"
-		echo
-		entropy_info=$(cat /proc/sys/kernel/random/entropy_avail)
-		poolsize_info=$(cat /proc/sys/kernel/random/poolsize)
-		echo "Entropy: $entropy_info/$poolsize_info"
-		echo
-		echo " 1|Normal"
-		echo " 2|Experimental (risky)"
-		echo
-		echo " B|Back"
-		echo
-		echo -n "> "
-		read entropy_tweak_opt
-		case $entropy_tweak_opt in
-			1|2 )
-				entropy_tweak_apply
-				break
-			;;
-			b|B )
-				break
-			;;
-			* )
-				checkers
-			;;
-		esac
-	done
+    unset i
+    while clear; do
+        if [ "$i" == 1 ] || [ "$i" == 2 ]; then
+            entropy_tweak_apply
+        elif [ "$i" == b ] || [ "$i" == B ]; then
+            unset i
+            break
+        else
+            echo "${yellow}Entropy tweak methods:${nc}
+Entropy: $(cat /proc/sys/kernel/random/entropy_avail)/$(cat /proc/sys/kernel/random/poolsize)
+
+ 1|Normal
+ 2|Better (risky)
+
+ B|Back"
+            part_line
+echo -n "> "
+            read -t 1 i
+        fi
+    done
 }
 
 entropy_tweak_apply(){
 	tweak_dir
 	tweak="$tweak_dir/99entropy_tweak"
 
-	if [ "$entropy_tweak_opt" == "2" ]; then
+	if [ "$i" == "2" ]; then
 cat > $tweak <<-EOF
 #!/system/bin/sh
 
@@ -1732,7 +1726,7 @@ install_settings(){
 		echo " P|Permanent installs"
 		echo
 
-		if [[ "$permanent" == "" ]]; then
+		if [ "$permanent" == '' ]; then
 			iBack="checkers"
 			echo "${cyan}You can change it in Options later${nc}"
 		else
@@ -1939,22 +1933,22 @@ mount -w -o remount rootfs
 mount -w -o remount /system
 mount -w -o remount /data
 
-# Previous versions of Android 4.3+ its mksh binary does not create this directory, needed to cat to file temp stdout
+#Previous versions of Android 4.3+ its mksh binary does not create this directory, needed to cat to file temp stdout
 mkdir -p /sqlite_stmt_journals
 chmod 0755 /sqlite_stmt_journals/
 
 
-if [ "$1" == "--debug" ]; then # type 'hybrid --debug' to trigger debug_shell().
+if [ "$1" == --debug ]; then #type 'hybrid --debug' to trigger debug_shell().
 	shift
 	debug_shell
 fi
 
-if [ "$DIR_NAME" == "NULL" ]; then # if not installed on any executable directory... this is also intended.
+if [ "$DIR_NAME" == NULL ]; then #if not installed on any executable directory... this is also intended.
 	install -s /system/xbin
 	exit
 fi
 
-if [ "$interval_time" == "" ]; then
+if [ "$interval_time" == '' ]; then
 	setprop persist.hybrid.interval_time 60
 fi
 
