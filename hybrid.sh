@@ -1094,38 +1094,75 @@ replace_uglyroot(){ # another awesome stuff by me, only need setup the cloud to 
 initd_support(){
 	clear
 
-	echo "Checking Init.d Support..."
-	sleep 1
-
-	if [ ! -d /system/etc/init.d ] || [ -z "$(grep "run-parts /system/etc/init.d" /system/bin/sysinit 2>/dev/null)" ] || [ -z "$(grep "/system/bin/sysinit" /system/etc/install-recovery-2.sh 2>/dev/null)" ]; then
-		clear
-
-		echo "Enabling Init.d Support..."
+	if [ "$(getprop initd_support.fail)" == '' ]; then
+		echo "Checking Init.d Support..."
 		sleep 1
 
-		if [ ! -f /system/bin/sysinit ]; then
-			echo "#!/system/bin/sh" > /system/bin/sysinit
-		fi
+		if [ -z "$(grep "run-parts /system/etc/init.d" /system/bin/sysinit 2>/dev/null)" ]; then
+			echo "Setting up sysinit file...
+"
+			sleep 1
 
-cat >> /system/bin/sysinit <<-EOF
+			cat >> /system/bin/sysinit <<-EOF
+#!/system/bin/sh
 # Init.d support
 
 run-parts /system/etc/init.d
 EOF
- 
-		if [ ! -f /system/etc/install-recovery-2.sh ]; then
-			echo "#!/system/bin/sh" > /system/etc/install-recovery-2.sh
-		fi
 
-cat >> /system/etc/install-recovery-2.sh <<-EOF
-# init.d support
+			chmod 755 /system/bin/sysinit
+
+			initd_one=1
+
+			echo "Done.
+"
+			sleep 1
+		elif [ -z "$(grep "/system/etc/install-recovery-2.sh" /system/etc/install-recovery.sh)"]; then
+			echo "Setting up install-recovery.sh file...
+"
+			sleep 1
+
+			cat >> /system/etc/install-recovery.sh <<-EOF
+#!/system/bin/sh
+# Init.d support
+
+/system/etc/install-recovery-2.sh
+EOF
+
+			chmod 755 /system/etc/install-recovery.sh
+
+			initd_two=1
+
+			echo "Done.
+"
+			sleep 1
+		elif [ -z "$(grep "/system/bin/sysinit" /system/etc/install-recovery-2.sh 2>/dev/null)" ]; then
+			echo "Setting up install-recovery-2.sh file...
+"
+			sleep 1
+
+			cat >> /system/etc/install-recovery-2.sh <<-EOF
+#!/system/bin/sh
+# Init.d support
 
 /system/bin/sysinit
 EOF
 
-		mkdir -p /system/etc/init.d
+			chmod 755 /system/etc/install-recovery-2.sh
 
-cat > /system/etc/init.d/01set_initd <<-EOF
+			initd_three=1
+
+			echo "Done.
+"
+			sleep 1
+		elif [ ! -d /system/etc/init.d ]
+			echo "Setting up init.d directory...
+"
+			sleep 1
+
+			mkdir -p /system/etc/init.d
+
+			cat > /system/etc/init.d/00set_initd <<-EOF
 #!/system/bin/sh
 # Set permissions to /system/etc/init.d directory
 
@@ -1133,35 +1170,80 @@ sleep 15
 mount -w -o remount /system
 chmod -R 755 /system/etc/init.d
 mount -r -o remount /system
-date "+%d/%m/%y %H:%M:%S Init.d work > /data/test_initd
+date "+%d/%m/%y %H:%M:%S Init.d works > /data/test_initd
 EOF
 
-		chmod 755 /system/bin/sysinit
-		chmod 755 /system/etc/install-recovery-2.sh
-		chmod -R 755 /system/etc/init.d
+			chmod -R 755 /system/etc/init.d
 
-		clear
+			initd_four=1
+		
+			echo "Done.
+"
+			sleep 1
+		elif [ "$initd_one" == 1 ] || [ "initd_two" == 1 ] || [ "$initd_three" == 1 ] || [ "$initd_four" == 1 ]; then
+			touch /data/first_boot_initd
+			echo "Done.
 
-		echo "Enabled."
-		sleep 1
+Need reboot to check that Init.d is working, after run HybridMod to check if was successfully.
+"
+			sleep 5
+
+			custom_reboot
+		else
+			echo "You have Init.d Support already, do not need do nothing."
+
+			key_exit
+		fi
 	else
-		clear
+		rm -f /data/first_boot_initd
+		while clear; do
+			echo -n "Init.d not works :(!!
 
-		echo "You have Init.d Support already, do not need do nothing."
+But there is hope, a second method is waiting for you and may works :)
 
-		key_exit
-	fi
-#temp code
+Want try? [Y/N] > "
+			read i
+			case $i in
+				y|Y)
+					initd_method_two=1
+				;;
+				n|N)
+					break
+				;;
+				*)
+					checkers
+				;;
+			esac
+			
+			if [ "$init_method_two" == 1 ]; then
+				echo Backing up debuggerd file...
+				mv /system/bin/debuggerd /system/bin/debuggerd.orig
+				echo Setting debuggerd file...
+				cat > /system/bin/debuggerd <<-EOF
 #!/system/bin/sh
 # install-recovery.sh support
 
-#if [ "$(getprop install_recovery.support)" == '' ]; then
-    #/system/etc/install-recovery.sh
-    #/system/bin/debuggerd.orig
-#else
-    #/system/bin/debuggerd.orig
-#fi
+if [ "$(getprop install_recovery.support)" == '' ]; then
+	/system/etc/install-recovery.sh
+    /system/bin/debuggerd.orig
+else
+    /system/bin/debuggerd.orig
+fi
+EOF
 
+				chmod 755 /system/bin/debuggerd
+				echo Setting up 00set_initd file...
+				echo setprop install_recovery.support 1 >> /system/etc/init.d/00set_initd
+				touch /data/second_boot_initd
+
+				echo "Done.
+
+Need reboot to check that Init.d is working, after run HybridMod to check if was successfully.
+"
+				sleep 5
+
+				custom_reboot
+		done
 }
 
 install_settings(){
@@ -1396,6 +1478,22 @@ fi
 
 if [ "$interval_time" == '' ]; then
 	setprop persist.hybrid.interval_time 60
+fi
+
+if [ ! -f /data/test_initd ] && [ -f /data/first_boot_initd ]; then
+	setprop initd_support.fail 1
+	initd_support
+elif [ -f /data/test_initd ] && [ -f /data/first_boot_initd ]; then
+	echo Init.d works! Nothing more to do :)
+	sleep 3
+	rm -f /data/first_boot_initd
+elif [ ! -f /data/test_initd ] && [ -f /data/second_boot_initd ]; then
+	echo Init.d not works :S. Nothing to do at the moment...
+	sleep 3
+elif [ -f /data/test_initd ] && [ -f /data/second_boot_initd ]; then
+	echo Init.d works! Nothing more to do :)
+	sleep 3
+	rm -f /data/second_boot_initd
 fi
 
 title
