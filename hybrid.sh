@@ -1,5 +1,5 @@
 #!/system/bin/sh
-#hybrid.sh created and maintained by DiamondBond, Deic & hoholee12
+# HybridMod - created and maintained by DiamondBond, Deic & hoholee12
 
 if [[ "$1" == --install_standard ]]; then
     if [[ ! -f standard.sh ]]; then
@@ -1062,7 +1062,7 @@ EOF
             echo "Done.
 "
             sleep 1
-        elif [ -z "$(grep "/system/etc/install-recovery-2.sh" /system/etc/install-recovery.sh)"]; then
+        elif [ -z "$(grep "/system/etc/install-recovery-2.sh" /system/etc/install-recovery.sh)" ]; then
             echo "Setting up install-recovery.sh file...
 "
             sleep 1
