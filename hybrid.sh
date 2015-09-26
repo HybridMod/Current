@@ -175,7 +175,7 @@ interval_time_cfg=$hybrid_dir/interval_time.cfg
 vm_conf=$hybrid_dir/sysctl_vm.conf
 net_conf=$hybrid_dir/sysctl_net.conf
 initd_dir=/system/etc/init.d/
-tmp_dir/data/local/tmp/
+tmp_dir=data/local/tmp/
 xbin_sql=/system/xbin/sqlite3
 bin_sql=/system/bin/sqlite3
 sbin_sql=/sbin/sqlite3
@@ -345,7 +345,7 @@ sleep 20
 mount -w -o remount /system
 chmod -R 755 /system/etc/init.d
 mount -r -o remount /system
-date "+%d/%m/%y %H:%M:%S Init.d works > /data/test_initd
+date "+%d/%m/%y %H:%M:%S Init.d works" > /data/test_initd
 EOF
         chmod 755 /system/etc/init.d/00set_initd
     fi
@@ -602,7 +602,7 @@ EOF
 kernel_kontrol(){
     while true; do
         clear
-        echo "${yellow}Kernel Kontrol${nc}"
+        echo "${yellow}Kernel Kontrol${nc}
  1|Set CPU Freq
  2|Set CPU Gov
  3|Set I/O Sched"
@@ -1100,7 +1100,7 @@ EOF
             echo "Done.
 "
             sleep 1
-        elif [ ! -d /system/etc/init.d ]
+        elif [ ! -d /system/etc/init.d ]; then
             echo "Setting up init.d directory...
 "
             sleep 1
@@ -1115,7 +1115,7 @@ sleep 20
 mount -w -o remount /system
 chmod -R 755 /system/etc/init.d
 mount -r -o remount /system
-date "+%d/%m/%y %H:%M:%S Init.d works > /data/test_initd
+date "+%d/%m/%y %H:%M:%S Init.d works" > /data/test_initd
 EOF
 
             chmod -R 755 /system/etc/init.d
