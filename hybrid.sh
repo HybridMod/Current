@@ -1,18 +1,18 @@
 #!/system/bin/sh
-# HybridMod - created and maintained by DiamondBond, Deic & hoholee12
+# HybridMod created and maintained by DiamondBond, Deic & hoholee12
 
-if [[ "$1" == --install_standard ]]; then
-    if [[ ! -f standard.sh ]]; then
-        echo standard.sh not on same directory!
-        exit 1
-    fi
-    ./standard.sh --bbpass --install $@ #install standard.sh
-fi
-if [[ ! -f /usr/bin/standard ]]; then
-    echo standard.sh not installed!
-    exit 1
-fi
-source standard --bbpass --source $@ #init library
+#if [[ "$1" == --install_standard ]]; then
+    #if [[ ! -f standard.sh ]]; then
+        #echo standard.sh not on same directory!
+        #exit 1
+    #fi
+    #./standard.sh --bbpass --install $@ #install standard.sh
+#fi
+#if [[ ! -f /usr/bin/standard ]]; then
+    #echo standard.sh not installed!
+    #exit 1
+#fi
+#source standard --bbpass --source $@ #init library
 
 version="2.4"
 
@@ -353,7 +353,7 @@ EOF
 
 key_exit(){
     echo
-    echo -n "Press any key to exit..."
+    echo -n "Press any key to continue..."
     stty cbreak -echo
     dd bs=1 count=1 2>/dev/null
     stty -cbreak echo
@@ -1044,8 +1044,7 @@ initd_support(){
         sleep 1
 
         if [ -z "$(grep "run-parts /system/etc/init.d" /system/bin/sysinit 2>/dev/null)" ]; then
-            echo "Setting up sysinit file...
-"
+            echo Setting up sysinit file...
             sleep 1
 
             cat >> /system/bin/sysinit <<-EOF
@@ -1059,12 +1058,11 @@ EOF
 
             initd_method=1
 
-            echo "Done.
-"
+            echo Done.
             sleep 1
-        elif [ -z "$(grep "/system/etc/install-recovery-2.sh" /system/etc/install-recovery.sh)" ]; then
-            echo "Setting up install-recovery.sh file...
-"
+        fi
+        if [ -z "$(grep "/system/etc/install-recovery-2.sh" /system/etc/install-recovery.sh)" ]; then
+            echo 'Setting up install-recovery.sh file...'
             sleep 1
 
             cat >> /system/etc/install-recovery.sh <<-EOF
@@ -1078,12 +1076,11 @@ EOF
 
             initd_method=1
 
-            echo "Done.
-"
+            echo Done.
             sleep 1
-        elif [ -z "$(grep "/system/bin/sysinit" /system/etc/install-recovery-2.sh 2>/dev/null)" ]; then
-            echo "Setting up install-recovery-2.sh file...
-"
+        fi
+        if [ -z "$(grep "/system/bin/sysinit" /system/etc/install-recovery-2.sh 2>/dev/null)" ]; then
+            echo 'Setting up install-recovery-2.sh file...'
             sleep 1
 
             cat >> /system/etc/install-recovery-2.sh <<-EOF
@@ -1097,41 +1094,28 @@ EOF
 
             initd_method=1
 
-            echo "Done.
-"
+            echo Done.
             sleep 1
-        elif [ ! -d /system/etc/init.d ]; then
-            echo "Setting up init.d directory...
-"
+        fi
+        if [ ! -d /system/etc/init.d ]; then
+            echo Setting up init.d directory...
             sleep 1
 
             mkdir -p /system/etc/init.d
 
-            cat > /system/etc/init.d/00set_initd <<-EOF
-#!/system/bin/sh
-# Set permissions to /system/etc/init.d directory
-
-sleep 20
-mount -w -o remount /system
-chmod -R 755 /system/etc/init.d
-mount -r -o remount /system
-date "+%d/%m/%y %H:%M:%S Init.d works" > /data/test_initd
-EOF
-
-            chmod -R 755 /system/etc/init.d
+            tweak_setup
 
             initd_method=1
         
-            echo "Done.
-"
+            echo Done.
             sleep 1
-        elif [ "$initd_method" == 1 ]; then
+        fi
+        if [ "$initd_method" == 1 ]; then
             touch /data/first_boot_initd
-            echo "Done.
+            echo "
+Need reboot to check that Init.d is working, after run HybridMod to check if was successfully."
 
-Need reboot to check that Init.d is working, after run HybridMod to check if was successfully.
-"
-            sleep 5
+            key_exit
 
             custom_reboot
         else
@@ -1160,9 +1144,10 @@ Want try? [Y/N] > "
                 ;;
             esac
             
-            if [ "$init_method" == 2 ]; then
+            if [ "$initd_method" == 2 ]; then
                 echo Backing up debuggerd file...
                 mv /system/bin/debuggerd /system/bin/debuggerd.orig
+                sleep 1
                 echo Setting debuggerd file...
                 cat > /system/bin/debuggerd <<-EOF
 #!/system/bin/sh
@@ -1177,15 +1162,16 @@ fi
 EOF
 
                 chmod 755 /system/bin/debuggerd
+                sleep 1
                 echo Setting up 00set_initd file...
                 echo setprop install_recovery.support 1 >> /system/etc/init.d/00set_initd
                 touch /data/second_boot_initd
-
+                sleep 1
                 echo "Done.
 
-Need reboot to check that Init.d is working, after run HybridMod to check if was successfully.
-"
-                sleep 5
+Need reboot to check that Init.d is working, after run HybridMod to check if was successfully."
+
+                key_exit
 
                 custom_reboot
             fi
@@ -1367,22 +1353,24 @@ custom_reboot(){
     while true; do
         clear
     
-        echo "Are you sure? [Y/N]"
+        echo "Are you sure want reboot? [Y/N]"
         echo
         echo -n "> "
         read reboot_opt
         case $reboot_opt in
             y|Y )
                 for i in 3 2 1; do
-                    echo -e -n "\rFactory reset in $i"
+                    echo -e -n "\rRebooting in $i"
+                    #echo -e -n "\rFactory reset in $i"
                     for j in $(seq 1 $((4-i))); do
                     echo -n '.'
                     done
                     sleep 1
                 done
                 clear
-                echo "Just kidding :] (?)"
-                sleep 1
+                echo Rebooting...
+                #echo "Just kidding :] (?)"
+                #sleep 1
                 echo 16 > /proc/sys/kernel/sysrq # 0x10 //sync
                 echo s > /proc/sysrq-trigger
                 echo 128 > /proc/sys/kernel/sysrq # 0x80 //reboot
