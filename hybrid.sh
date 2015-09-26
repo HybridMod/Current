@@ -1057,7 +1057,7 @@ EOF
 
             chmod 755 /system/bin/sysinit
 
-            initd_one=1
+            initd_method=1
 
             echo "Done.
 "
@@ -1076,7 +1076,7 @@ EOF
 
             chmod 755 /system/etc/install-recovery.sh
 
-            initd_two=1
+            initd_method=1
 
             echo "Done.
 "
@@ -1095,7 +1095,7 @@ EOF
 
             chmod 755 /system/etc/install-recovery-2.sh
 
-            initd_three=1
+            initd_method=1
 
             echo "Done.
 "
@@ -1120,12 +1120,12 @@ EOF
 
             chmod -R 755 /system/etc/init.d
 
-            initd_four=1
+            initd_method=1
         
             echo "Done.
 "
             sleep 1
-        elif [ "$initd_one" == 1 ] || [ "initd_two" == 1 ] || [ "$initd_three" == 1 ] || [ "$initd_four" == 1 ]; then
+        elif [ "$initd_method" == 1 ]; then
             touch /data/first_boot_initd
             echo "Done.
 
@@ -1150,7 +1150,7 @@ Want try? [Y/N] > "
             read i
             case $i in
                 y|Y)
-                    initd_method_two=1
+                    initd_method=2
                 ;;
                 n|N)
                     break
@@ -1160,7 +1160,7 @@ Want try? [Y/N] > "
                 ;;
             esac
             
-            if [ "$init_method_two" == 1 ]; then
+            if [ "$init_method" == 2 ]; then
                 echo Backing up debuggerd file...
                 mv /system/bin/debuggerd /system/bin/debuggerd.orig
                 echo Setting debuggerd file...
@@ -1188,7 +1188,9 @@ Need reboot to check that Init.d is working, after run HybridMod to check if was
                 sleep 5
 
                 custom_reboot
+            fi
         done
+    fi
 }
 
 install_settings(){
@@ -1424,14 +1426,14 @@ if [ ! -f /data/test_initd ] && [ -f /data/first_boot_initd ]; then
     setprop initd_support.fail 1
     initd_support
 elif [ -f /data/test_initd ] && [ -f /data/first_boot_initd ]; then
-    echo Init.d works! Nothing more to do :)
+    echo 'Init.d works! Nothing more to do :)'
     sleep 3
     rm -f /data/first_boot_initd
 elif [ ! -f /data/test_initd ] && [ -f /data/second_boot_initd ]; then
     echo Init.d not works :S. Nothing to do at the moment...
     sleep 3
 elif [ -f /data/test_initd ] && [ -f /data/second_boot_initd ]; then
-    echo Init.d works! Nothing more to do :)
+    echo 'Init.d works! Nothing more to do :)'
     sleep 3
     rm -f /data/second_boot_initd
 fi
